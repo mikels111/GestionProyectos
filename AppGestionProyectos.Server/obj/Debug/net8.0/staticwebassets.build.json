@@ -1,0 +1,23 @@
+{
+  "Version": 1,
+  "Hash": "JMlRJw05VuujOJwZDRxH7TsnFpE2ERxvAE7tS/rRqE0=",
+  "Source": "AppGestionProyectos.Server",
+  "BasePath": "_content/AppGestionProyectos.Server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\Mikel\\Documents\\Proyectos\\gestion_proyectos\\AppGestionProyectos\\appgestionproyectos.client\\appgestionproyectos.client.esproj",
+      "Version": 2,
+      "Source": "appgestionproyectos.client",
+      "GetPublishAssetsTargets": "GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
