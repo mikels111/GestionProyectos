@@ -1,0 +1,2 @@
+C:\Users\Mikel\source\repos\AppGestionProyectos\appgestionproyectos.client\obj\Debug\appgestionproyectos.client.esproj.CoreCompileInputs.cache
+C:\Users\Mikel\Documents\Proyectos\gestion_proyectos\AppGestionProyectos\appgestionproyectos.client\obj\Debug\appgestionproyectos.client.esproj.CoreCompileInputs.cache
