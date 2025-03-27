@@ -28,7 +28,7 @@ namespace AppGestionProyectos.Server.Models
         public DateTime? RefreshTokenExpiration { get; set; }
         private readonly AppDbContext _dbContext;
 
-        public record struct UsuarioDTO(string? MailInput, string? PassInput, string? TypeMail);
+        public record struct UsuarioDTO(string? Mail, string? Pass, string? TypeMail, string? Code);
         public User()
         {
 
@@ -65,7 +65,7 @@ namespace AppGestionProyectos.Server.Models
 
                 if (user != null)
                 {
-                    userDto.MailInput = user.Mail;
+                    userDto.Mail = user.Mail;
                     userDto.TypeMail = user.Type;
                 }
 
@@ -119,6 +119,46 @@ namespace AppGestionProyectos.Server.Models
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+            }
+            return result;
+        }
+
+        public static async Task<UsuarioDTO> CheckRefreshToken(TokenResponse tr, AppDbContext appDbContext)
+        {
+            UsuarioDTO usuarioDTO = new UsuarioDTO();
+            try
+            {
+                var userRT = await appDbContext.User
+                        .Where(u => u.RefreshToken == tr.RefreshToken)
+                        .FirstOrDefaultAsync();
+                if (userRT != null && userRT.RefreshTokenExpiration > DateTime.Now)
+                {
+                    usuarioDTO.Mail = userRT.Mail;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return usuarioDTO;
+        }
+
+        public static async Task<bool> CheckVerificationCode(string code, string mail, AppDbContext appDbContext)
+        {
+            bool result = false;
+            try
+            {
+                var userCode = await appDbContext.User
+                        .Where(u => u.Verification_code == code && u.Mail == mail)
+                        .FirstOrDefaultAsync();
+                if (userCode != null && userCode.Code_expiration > DateTime.Now)
+                {
+                    result = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
             return result;
         }

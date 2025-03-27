@@ -1,8 +1,12 @@
 ﻿using AppGestionProyectos.Server.Models;
+using AppGestionProyectos.Server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Common;
 
 namespace AppGestionProyectos.Server.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class ProjectController : ControllerBase
@@ -13,11 +17,11 @@ namespace AppGestionProyectos.Server.Controllers
         {
             _project = project;
         }
-        [Route("GetProject")]
-        [HttpGet(Name = "GetProject")]
+        [Route("get")]
+        [HttpPost]
         public IActionResult GetProject()
         {
-            return Ok();
+            return Ok(new ApiResponse<object>(true, "access-granted", null));
         }
         
 

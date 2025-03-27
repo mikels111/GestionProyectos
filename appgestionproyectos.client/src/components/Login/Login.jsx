@@ -1,13 +1,18 @@
 ﻿import { useState, useEffect } from 'react'
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Login.css'
+import './Login.css';
+
 function Login() {
 
-    const [user, setUser] = useState([]);
+    const [user, setUser] = useState({
+        mail: ""
+    });
     const [profile, setProfile] = useState([]);
     const [mailConfirmed, setmailConfirmed] = useState(false);
     const [showCodeInput, setShowCodeInput] = useState(false);
+    const navigate = useNavigate();
 
     const googleLogin = useGoogleLogin({
         onSuccess: (codeResponse) => {
@@ -35,6 +40,7 @@ function Login() {
         e.preventDefault();
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
+        //console.log(jsonFormData);
         axios.post(`https://localhost:7233/auth/MailAuth`,
             jsonFormData,
             {
@@ -43,51 +49,106 @@ function Login() {
                 }
             })
             .then((res) => {
-                switch (res.status) {
-                    case 200:
-                        console.log("mensaje: " + res.data.message);
-                        let messg = res.data.message;
-                        switch (messg) {
-                            case "access-granted":
-
-                                break;
-                            case "show-passInput":
-                                setmailConfirmed(true);
-                                break;
-                            case "show-codeInput":
-                                setShowCodeInput(true);
-                                break;
-                        }
-                        break;
+                if (res.status == 200) {
+                    let messg = res.data.message;
+                    switch (messg) {
+                        case "access-granted":
+                            console.log("access-granted");
+                            localStorage
+                                .setItem(
+                                    "accessToken",
+                                    res.data.data.accessToken
+                                );
+                            localStorage
+                                .setItem(
+                                    "refreshToken",
+                                    res.data.data.refreshToken
+                                );
+                            navigate("/dashboard");
+                            break;
+                        case "show-passInput":
+                            setmailConfirmed(true);
+                            break;
+                        case "show-codeInput":
+                            setShowCodeInput(true);
+                            break;
+                        default:
+                            console.log("Error en el servidor");
+                            break;
+                    }
+                    setUser({ user, mail: jsonFormData.Mail });
+                }
+            })
+            .catch((err) => {
+                switch (err.status) {
                     case 400:
+                        console.log("bad request");
                         break;
                     case 401:
+                        console.log("unauthorized");
                         break;
                     case 500:
+                        console.log("server error");
                         break;
                 }
-
-                setProfile(res.data);
-                console.log("setProfile: ");
-                console.log(res.data);
             })
-            .catch((err) => console.log(err))
 
     };
+
     const confirmCode = (e) => {
+        //mandar peticion a /verify con el codigo introducido y el mail guardado en state
         e.preventDefault();
+        const formData = new FormData(e.target);
+        const jsonFormData = Object.fromEntries(formData.entries());
+        jsonFormData['Mail'] = user.mail;
+        axios.post(`https://localhost:7233/auth/verify`,
+            jsonFormData,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then((res) => {
+                if (res.status == 200) {
+                    let messg = res.data.message;
+                    switch (messg) {
+                        case "access-granted":
+                            localStorage.setItem("accessToken", res.data.data.accessToken);
+                            localStorage.setItem("refreshToken", res.data.data.refreshToken);
+                            navigate("/dashboard");
+                            break;
+                        default:
+                            console.log("Error en el servidor");
+                            break;
+                    }
+                }
+            })
+            .catch((err) => {
+                switch (err.status) {
+                    case 400:
+                        console.log(err.response.data.message);
+
+                        break;
+                    case 401:
+                        console.log(err.response.data.message);
+                        break;
+                    case 500:
+                        console.log(err.response.data.message);
+                        break;
+                }
+            })
+
     }
 
+
     return (
-
         <div>
-
             <div className="">
-                {showCodeInput ? (
+                {showCodeInput && user.mail != null ? (
                     <form onSubmit={confirmCode} key="codeForm">
                         <div className="input-container">
                             <label>Code </label>
-                            <input type="text" name="CodeInput" id="code" required />
+                            <input type="text" name="Code" id="code" required />
                         </div>
 
                         <button id="button-confirm">
@@ -99,14 +160,14 @@ function Login() {
 
                         <div className="input-container" style={{ display: mailConfirmed ? "none" : "initial" }}>
                             <label>Username </label>
-                            <input type="text" name="MailInput" id="mail" required />
+                            <input type="text" name="Mail" id="mail" required />
 
                         </div>
 
                         {mailConfirmed &&
                             <div className="input-container">
                                 <label>Password </label>
-                                <input type="password" name="PassInput" id="password" required />
+                                <input type="password" name="Pass" id="password" required />
                             </div>
                         }
                         <button id="button-confirm">
@@ -114,9 +175,6 @@ function Login() {
                         </button>
                     </form>
                 )}
-
-
-
 
             </div>
             {profile.length > 0 ? (
@@ -141,6 +199,5 @@ function Login() {
     );
 
 }
-
 
 export default Login;

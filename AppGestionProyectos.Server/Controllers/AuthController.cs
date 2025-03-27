@@ -11,6 +11,10 @@ using System.Text;
 using AppGestionProyectos.Server.Services;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System;
+using NuGet.Common;
+using Newtonsoft.Json.Linq;
 
 
 namespace AppGestionProyectos.Server.Controllers
@@ -38,7 +42,7 @@ namespace AppGestionProyectos.Server.Controllers
         public async Task<IActionResult> MailAuthAsync([FromBody] object? fields)
         {
             var response = new ApiResponse<object>(false, "", null, null);
-            Models.User.UsuarioDTO userFields= new Models.User.UsuarioDTO();
+            Models.User.UsuarioDTO userFields = new Models.User.UsuarioDTO();
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
@@ -48,83 +52,92 @@ namespace AppGestionProyectos.Server.Controllers
             {
                 userFields = JsonSerializer.Deserialize<Models.User.UsuarioDTO>(fields.ToString(), options);
 
-            }catch(JsonException ex)
+            }
+            catch (JsonException ex)
             {
                 return BadRequest(new ApiResponse<object>(false, "bad-request", false));
             }
-            //Fields con contraseña
-            if (userFields.PassInput != null)
+            try
             {
-
-                PasswordService passwordService = new PasswordService();
-                string passwor = passwordService.HashPassword(userFields.PassInput);
-
-                //CheckPass()
-                bool checkPass = await Models.User.CheckPass(userFields.MailInput, userFields.PassInput, _AppDbContext);
-                if (checkPass)//correcto
+                //Fields con contraseña
+                if (userFields.Pass != null && userFields.Mail != null)
                 {
-                    //acceso a web JWT
-                    var token = GenerateTokens(userFields.MailInput);
-                    bool saveRt = await Models.User.SaveRefreshToken(userFields.MailInput, token.RefreshToken, token.Expiration, _AppDbContext);
-                    if (saveRt)
-                        return Ok(new ApiResponse<object>(true, "access-granted", token));
+
+                    PasswordService passwordService = new PasswordService();
+                    string passwor = passwordService.HashPassword(userFields.Pass);
+
+                    //CheckPass()
+                    bool checkPass = await Models.User.CheckPass(userFields.Mail, userFields.Pass, _AppDbContext);
+                    if (checkPass)//correcto
+                    {
+                        //acceso a web JWT
+                        var token = GenerateTokens(userFields.Mail);
+                        bool saveRt = await Models.User.SaveRefreshToken(userFields.Mail, token.RefreshToken, token.Expiration, _AppDbContext);
+                        if (saveRt)
+                            return Ok(new ApiResponse<object>(true, "access-granted", token));
+                        else
+                            return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
+                    }
+                    else//incorrecto
+                    {
+                        //devolver incorrecto
+                        return Unauthorized(new ApiResponse<object>(false, "wrong-password", null));
+                    }
+                }
+                else//fields sin contraseña
+                {
+                    User.UsuarioDTO usuario = await Models.User.Checkmail(userFields.Mail, _AppDbContext);
+                    if (usuario.Mail != null)//checkMail()
+                    {
+                        //tipo email
+                        if (usuario.TypeMail == "email")
+                        {
+                            //mostrar input contraseña
+                            return Ok(new ApiResponse<object>(true, "show-passInput", null));
+                        }
+                        else//tipo google,microsoft...
+                        {
+                            // mandar codigo
+                            var smtpClient = new SmtpClient("smtp-relay.brevo.com")
+                            {
+                                Port = 587,
+                                Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
+                                EnableSsl = true,
+                            };
+                            MailMessage message = new MailMessage("mikelseara11@gmail.com", usuario.Mail);
+                            string randmNumber = "";
+                            Random rnd = new Random();
+                            for (int j = 0; j < 4; j++)
+                            {
+                                randmNumber += rnd.Next(10);//random integers < 10
+                            }
+                            bool saveVerfCodeResult = await Models.User.SaveVerificationCode(userFields.Mail, randmNumber, _AppDbContext);
+                            if (saveVerfCodeResult)
+                            {
+
+                                message.Body = "<p style='color:#02ADC1;font-size:x-large;'>Para continuar introduce el siguiente codigo de confirmacion:</p> <h1>" + randmNumber + "</h1>";
+                                message.IsBodyHtml = true;
+                                message.Subject = "Confirmación de correo en Gestión Aplicaciones";
+                                smtpClient.Send(message);
+                            }
+                            // mostrar input codigo
+                            return Ok(new ApiResponse<object>(true, "show-codeInput", null));
+                        }
+
+
+                    }
                     else
-                        return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
-                }
-                else//incorrecto
-                {
-                    //devolver incorrecto
-                    return Unauthorized(new ApiResponse<object>(false, "wrong-password", null));
+                    {
+                        return Unauthorized(new ApiResponse<object>(false, "wrong-email", null));
+                    }
+
                 }
             }
-            else//fields sin contraseña
+            catch (Exception e)
             {
-                User.UsuarioDTO usuario = await Models.User.Checkmail(userFields.MailInput, _AppDbContext);
-                if (usuario.MailInput != null)//checkMail()
-                {
-                    //tipo email
-                    if (usuario.TypeMail == "email")
-                    {
-                        //mostrar input contraseña
-                        return Ok(new ApiResponse<object>(true, "show-passInput", null));
-                    }
-                    else//tipo google,microsoft...
-                    {
-                        // mandar codigo
-                        var smtpClient = new SmtpClient("smtp-relay.brevo.com")
-                        {
-                            Port = 587,
-                            Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
-                            EnableSsl = true,
-                        };
-                        MailMessage message = new MailMessage("mikelseara11@gmail.com", usuario.MailInput);
-                        string randmNumber = "";
-                        Random rnd = new Random();
-                        for (int j = 0; j < 4; j++)
-                        {
-                            randmNumber += rnd.Next(10);//random integers < 10
-                        }
-                        bool saveVerfCodeResult = await Models.User.SaveVerificationCode(userFields.MailInput, randmNumber, _AppDbContext);
-                        if (saveVerfCodeResult)
-                        {
-
-                            message.Body = "<p style='color:red;font-size:x-large;'>Para continuar introduce el siguiente codigo de confirmacion:</p> <h1>" + randmNumber + "</h1>";
-                            message.IsBodyHtml = true;
-                            message.Subject = "Confirmación de correo en Gestión Aplicaciones";
-                            smtpClient.Send(message);
-                        }
-                        // mostrar input codigo
-                        return Ok(new ApiResponse<object>(true, "show-codeInput", null));
-                    }
-
-
-                }
-                else
-                {
-                    return Unauthorized(new ApiResponse<object>(false, "wrong-email", null));
-                }
-
+                return StatusCode(500, new ApiResponse<object>(false, "server-error", e.ToString()));
             }
+
         }
 
         private TokenResponse GenerateTokens(string email)
@@ -152,7 +165,7 @@ namespace AppGestionProyectos.Server.Controllers
             {
                 AccessToken = tokenHandler.WriteToken(at),
                 RefreshToken = rt,
-                Expiration = tokenDescriptor.Expires.Value
+                Expiration = DateTime.Now.AddDays(30.0)
             };
 
         }
@@ -165,5 +178,75 @@ namespace AppGestionProyectos.Server.Controllers
                 return Convert.ToBase64String(randomNumber);
             }
         }
+
+        [HttpPost]
+        [Route("Refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenResponse tokens)
+        {
+            try
+            {
+                if (tokens != null)
+                {
+                    var rt = await Models.User.CheckRefreshToken(tokens, _AppDbContext);
+                    if (rt.Mail != null)//Refresh Token NO está expirado(generamos Nuevos token)
+                    {
+                        var token = GenerateTokens(rt.Mail);
+                        bool saveRt = await Models.User.SaveRefreshToken(rt.Mail, token.RefreshToken, token.Expiration, _AppDbContext);
+                        if (!saveRt)
+                            return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
+                        return Ok(new ApiResponse<object>(true, "access-granted", token));
+                    }
+                    else//Refresh Token EXPIRADO
+                    {
+                        return Unauthorized(new ApiResponse<object>(false, "refresh-token-expired", null));
+                    }
+                }
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false));
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
+            }
+
+        }
+        [HttpPost]
+        [Route("Verify")]
+        public async Task<IActionResult> VerifyCode([FromBody] object fields)
+        {
+            User.UsuarioDTO userFields = new User.UsuarioDTO();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+            };
+            try
+            {
+                userFields = JsonSerializer.Deserialize<User.UsuarioDTO>(fields.ToString(), options);
+
+            }
+            catch (JsonException ex)
+            {
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false));
+            }
+            try
+            {
+                if (userFields.Code != null && userFields.Mail != null)
+                {
+                    var codeCheck = await Models.User.CheckVerificationCode(userFields.Code, userFields.Mail, _AppDbContext);
+                    if (codeCheck)
+                    {
+                        return Ok(new ApiResponse<object>(true, "access-granted", false));
+                    }
+                }
+                return Unauthorized(new ApiResponse<object>(false, "wrong-verification-code", null));
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ApiResponse<object>(false, "server-error", e.ToString()));
+            }
+        }
+
     }
 }
