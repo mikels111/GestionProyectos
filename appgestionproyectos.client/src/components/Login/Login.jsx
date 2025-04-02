@@ -5,14 +5,21 @@ import axios from 'axios';
 import './Login.css';
 
 function Login() {
-
+    const navigate = useNavigate();
+    useEffect(() => {
+        const refreshToken = localStorage
+            .getItem("refreshToken");
+        if (refreshToken != null) {
+            navigate("/dashboard");
+        }
+    }, []);
     const [user, setUser] = useState({
         mail: ""
     });
     const [profile, setProfile] = useState([]);
     const [mailConfirmed, setmailConfirmed] = useState(false);
     const [showCodeInput, setShowCodeInput] = useState(false);
-    const navigate = useNavigate();
+
 
     const googleLogin = useGoogleLogin({
         onSuccess: (codeResponse) => {
@@ -88,7 +95,7 @@ function Login() {
                         console.log("unauthorized");
                         break;
                     case 500:
-                        console.log("server error");
+                        console.log("server error", err);
                         break;
                 }
             })
@@ -110,17 +117,11 @@ function Login() {
             })
             .then((res) => {
                 if (res.status == 200) {
-                    let messg = res.data.message;
-                    switch (messg) {
-                        case "access-granted":
-                            localStorage.setItem("accessToken", res.data.data.accessToken);
-                            localStorage.setItem("refreshToken", res.data.data.refreshToken);
-                            navigate("/dashboard");
-                            break;
-                        default:
-                            console.log("Error en el servidor");
-                            break;
-                    }
+                    localStorage.setItem("accessToken", res.data.data.accessToken);
+                    localStorage.setItem("refreshToken", res.data.data.refreshToken);
+                    navigate("/dashboard");
+                } else {
+                    console.log(res.data.message);
                 }
             })
             .catch((err) => {
@@ -142,41 +143,40 @@ function Login() {
 
 
     return (
-        <div>
-            <div className="">
-                {showCodeInput && user.mail != null ? (
-                    <form onSubmit={confirmCode} key="codeForm">
+        <div id="login-frame">
+            <h1>Login</h1>
+            {showCodeInput && user.mail != null ? (
+                <form className="email-form" onSubmit={confirmCode} key="codeForm">
+                    <div className="input-container">
+                        <label>Code </label>
+                        <input type="text" name="Code" id="code" required />
+                    </div>
+
+                    <button className="button-confirm">
+                        Go
+                    </button>
+                </form>
+            ) : (
+                <form className="email-form" onSubmit={logear} key="mailForm">
+
+                    <div className="input-container" style={{ display: mailConfirmed ? "none" : "flex" }}>
+                        <label className="input-label">Username</label>
+                        <input type="text" name="Mail" id="mail" required />
+
+                    </div>
+
+                    {mailConfirmed &&
                         <div className="input-container">
-                            <label>Code </label>
-                            <input type="text" name="Code" id="code" required />
+                            <label className="input-label">Password </label>
+                            <input type="password" name="Pass" id="password" required />
                         </div>
+                    }
+                    <button className="button-confirm">
+                        Go
+                    </button>
+                </form>
+            )}
 
-                        <button id="button-confirm">
-                            go
-                        </button>
-                    </form>
-                ) : (
-                    <form onSubmit={logear} key="mailForm">
-
-                        <div className="input-container" style={{ display: mailConfirmed ? "none" : "initial" }}>
-                            <label>Username </label>
-                            <input type="text" name="Mail" id="mail" required />
-
-                        </div>
-
-                        {mailConfirmed &&
-                            <div className="input-container">
-                                <label>Password </label>
-                                <input type="password" name="Pass" id="password" required />
-                            </div>
-                        }
-                        <button id="button-confirm">
-                            go
-                        </button>
-                    </form>
-                )}
-
-            </div>
             {profile.length > 0 ? (
                 <div>
                     <img src={profile.picture} alt="user image" />
@@ -194,6 +194,8 @@ function Login() {
             {/*    data-callback="handleCredentialResponse">*/}
             {/*</div>*/}
             {/*<div className="g_id_signin" data-type="standard"></div>*/}
+
+
         </div >
 
     );

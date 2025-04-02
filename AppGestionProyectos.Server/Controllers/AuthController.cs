@@ -71,12 +71,12 @@ namespace AppGestionProyectos.Server.Controllers
                     if (checkPass)//correcto
                     {
                         //acceso a web JWT
-                        var token = GenerateTokens(userFields.Mail);
-                        bool saveRt = await Models.User.SaveRefreshToken(userFields.Mail, token.RefreshToken, token.Expiration, _AppDbContext);
-                        if (saveRt)
-                            return Ok(new ApiResponse<object>(true, "access-granted", token));
-                        else
+                        Task<TokenResponse> token = GenerateTokens(userFields.Mail);
+                        if (token.Result.AccessToken == null)
+                        {
                             return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
+                        }
+                        return Ok(new ApiResponse<object>(true, "access-granted", token.Result));
                     }
                     else//incorrecto
                     {
@@ -140,7 +140,7 @@ namespace AppGestionProyectos.Server.Controllers
 
         }
 
-        private TokenResponse GenerateTokens(string email)
+        private async Task<TokenResponse> GenerateTokens(string email)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -161,6 +161,10 @@ namespace AppGestionProyectos.Server.Controllers
             var tokenHandler = new JwtSecurityTokenHandler();
             var at = tokenHandler.CreateToken(tokenDescriptor);
             var rt = GenerateRefreshToken();
+            DateTime rtExpiration = DateTime.Now.AddDays(30.0);
+            bool saveRt = await Models.User.SaveRefreshToken(email, rt, rtExpiration, _AppDbContext);
+            if (!saveRt)
+                return new TokenResponse();
             return new TokenResponse
             {
                 AccessToken = tokenHandler.WriteToken(at),
@@ -190,11 +194,12 @@ namespace AppGestionProyectos.Server.Controllers
                     var rt = await Models.User.CheckRefreshToken(tokens, _AppDbContext);
                     if (rt.Mail != null)//Refresh Token NO está expirado(generamos Nuevos token)
                     {
-                        var token = GenerateTokens(rt.Mail);
-                        bool saveRt = await Models.User.SaveRefreshToken(rt.Mail, token.RefreshToken, token.Expiration, _AppDbContext);
-                        if (!saveRt)
+                        Task<TokenResponse> token = GenerateTokens(rt.Mail);
+                        if (token.Result.AccessToken == null)
+                        {
                             return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
-                        return Ok(new ApiResponse<object>(true, "access-granted", token));
+                        }
+                        return Ok(new ApiResponse<object>(true, "token-refreshed", token.Result));
                     }
                     else//Refresh Token EXPIRADO
                     {
@@ -237,7 +242,12 @@ namespace AppGestionProyectos.Server.Controllers
                     var codeCheck = await Models.User.CheckVerificationCode(userFields.Code, userFields.Mail, _AppDbContext);
                     if (codeCheck)
                     {
-                        return Ok(new ApiResponse<object>(true, "access-granted", false));
+                        Task<TokenResponse> token = GenerateTokens(userFields.Mail);
+                        if (token.Result.AccessToken == null)
+                        {
+                            return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
+                        }
+                        return Ok(new ApiResponse<object>(true, "token-refreshed", token.Result));
                     }
                 }
                 return Unauthorized(new ApiResponse<object>(false, "wrong-verification-code", null));
