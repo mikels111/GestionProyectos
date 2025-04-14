@@ -1,13 +1,61 @@
-﻿#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+body {
+    margin: 0;
 }
 
-th, td {
-    padding-left: 1rem;
-    padding-right: 1rem;
+button {
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+    border: 0px;
+    cursor: pointer;
 }
 
+label, a, input {
+    color: #000;
+    font-family: Inter;
+    font-size: medium;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
 
+input {
+    padding: 5px;
+    height: 41px;
+    align-self: stretch;
+    border-radius: 10px;
+    border: 1px solid #262626;
+}
+
+.btn-confirm {
+    display: flex;
+    height: 38px;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    border-radius: 10px;
+    background: #83CB9F;
+}
+
+    .btn-confirm:hover {
+        background-color: #4bb473;
+    }
+
+#btn-create {
+    background-color: #9fd2ff;
+}
+
+    #btn-create:hover {
+        background-color: #4dacff;
+    }
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    align-self: stretch;
+}

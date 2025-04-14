@@ -25,7 +25,6 @@ namespace AppGestionProyectos.Server.Controllers
     {
         private readonly AppDbContext _AppDbContext;
         private readonly IConfiguration _config;
-        public record struct UsuarioDTO(string? mailInput, string? passInput);
 
         public AuthController(AppDbContext appDbContext, IConfiguration config)
         {
@@ -41,37 +40,40 @@ namespace AppGestionProyectos.Server.Controllers
         [Route("MailAuth")]
         public async Task<IActionResult> MailAuthAsync([FromBody] object? fields)
         {
-            var response = new ApiResponse<object>(false, "", null, null);
-            Models.User.UsuarioDTO userFields = new Models.User.UsuarioDTO();
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
-            };
-            try
-            {
-                userFields = JsonSerializer.Deserialize<Models.User.UsuarioDTO>(fields.ToString(), options);
-
-            }
-            catch (JsonException ex)
+            Models.User.UserDTO userFields = new Models.User.UserDTO();
+            if (Request.ContentLength == 0)
             {
                 return BadRequest(new ApiResponse<object>(false, "bad-request", false));
             }
             try
             {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+                };
+                userFields = JsonSerializer.Deserialize<Models.User.UserDTO>(fields.ToString(), options);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false, ex.ToString()));
+            }
+            try
+            {
                 //Fields con contraseña
-                if (userFields.Pass != null && userFields.Mail != null)
+                if (!string.IsNullOrEmpty(userFields.Password) && !string.IsNullOrEmpty(userFields.Mail))
                 {
 
                     PasswordService passwordService = new PasswordService();
-                    string passwor = passwordService.HashPassword(userFields.Pass);
+                    string passwor = passwordService.HashPassword(userFields.Password);
 
                     //CheckPass()
-                    bool checkPass = await Models.User.CheckPass(userFields.Mail, userFields.Pass, _AppDbContext);
+                    bool checkPass = await Models.User.CheckPass(userFields.Mail, userFields.Password, _AppDbContext);
                     if (checkPass)//correcto
                     {
                         //acceso a web JWT
-                        Task<TokenResponse> token = GenerateTokens(userFields.Mail);
+                        Task<TokenResponse> token = Models.User.GenerateTokens(userFields.Mail,_AppDbContext,_config);
                         if (token.Result.AccessToken == null)
                         {
                             return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
@@ -86,7 +88,7 @@ namespace AppGestionProyectos.Server.Controllers
                 }
                 else//fields sin contraseña
                 {
-                    User.UsuarioDTO usuario = await Models.User.Checkmail(userFields.Mail, _AppDbContext);
+                    User.UserDTO usuario = await Models.User.Checkmail(userFields.Mail, _AppDbContext);
                     if (usuario.Mail != null)//checkMail()
                     {
                         //tipo email
@@ -97,6 +99,7 @@ namespace AppGestionProyectos.Server.Controllers
                         }
                         else//tipo google,microsoft...
                         {
+                            #region mandar codigo por correo y guardarlo en bd. Devolver show-code
                             // mandar codigo
                             var smtpClient = new SmtpClient("smtp-relay.brevo.com")
                             {
@@ -115,78 +118,40 @@ namespace AppGestionProyectos.Server.Controllers
                             if (saveVerfCodeResult)
                             {
 
-                                message.Body = "<p style='color:#02ADC1;font-size:x-large;'>Para continuar introduce el siguiente codigo de confirmacion:</p> <h1>" + randmNumber + "</h1>";
+                                message.Body = "<p style='font-size:x-large;'>Copy the following code to continue:</p> <h1>" + randmNumber + "</h1>";
                                 message.IsBodyHtml = true;
-                                message.Subject = "Confirmación de correo en Gestión Aplicaciones";
+                                message.Subject = "Email confirmation";
                                 smtpClient.Send(message);
                             }
                             // mostrar input codigo
                             return Ok(new ApiResponse<object>(true, "show-codeInput", null));
+
+                            #endregion
                         }
-
-
                     }
                     else
                     {
                         return Unauthorized(new ApiResponse<object>(false, "wrong-email", null));
                     }
-
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return StatusCode(500, new ApiResponse<object>(false, "server-error", e.ToString()));
+                return StatusCode(500, new ApiResponse<object>(false, "server-error", ex.ToString()));
             }
 
         }
 
-        private async Task<TokenResponse> GenerateTokens(string email)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, email)
-                }),
-                Expires = DateTime.Now.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
-                Issuer = _config["Jwt:Issuer"],
-                Audience = _config["Jwt:Audience"],
-                SigningCredentials = creds
-            };
-            Console.WriteLine("Tiempo: " + DateTime.UtcNow.ToString());
-            //DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var at = tokenHandler.CreateToken(tokenDescriptor);
-            var rt = GenerateRefreshToken();
-            DateTime rtExpiration = DateTime.Now.AddDays(30.0);
-            bool saveRt = await Models.User.SaveRefreshToken(email, rt, rtExpiration, _AppDbContext);
-            if (!saveRt)
-                return new TokenResponse();
-            return new TokenResponse
-            {
-                AccessToken = tokenHandler.WriteToken(at),
-                RefreshToken = rt,
-                Expiration = DateTime.Now.AddDays(30.0)
-            };
-
-        }
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
-        }
+        
 
         [HttpPost]
         [Route("Refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenResponse tokens)
         {
+            if (Request.ContentLength == 0)
+            {
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false));
+            }
             try
             {
                 if (tokens != null)
@@ -194,7 +159,7 @@ namespace AppGestionProyectos.Server.Controllers
                     var rt = await Models.User.CheckRefreshToken(tokens, _AppDbContext);
                     if (rt.Mail != null)//Refresh Token NO está expirado(generamos Nuevos token)
                     {
-                        Task<TokenResponse> token = GenerateTokens(rt.Mail);
+                        Task<TokenResponse> token = Models.User.GenerateTokens(rt.Mail,_AppDbContext, _config);
                         if (token.Result.AccessToken == null)
                         {
                             return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
@@ -220,7 +185,7 @@ namespace AppGestionProyectos.Server.Controllers
         [Route("Verify")]
         public async Task<IActionResult> VerifyCode([FromBody] object fields)
         {
-            User.UsuarioDTO userFields = new User.UsuarioDTO();
+            User.UserDTO userFields = new User.UserDTO();
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
@@ -228,7 +193,7 @@ namespace AppGestionProyectos.Server.Controllers
             };
             try
             {
-                userFields = JsonSerializer.Deserialize<User.UsuarioDTO>(fields.ToString(), options);
+                userFields = JsonSerializer.Deserialize<User.UserDTO>(fields.ToString(), options);
 
             }
             catch (JsonException ex)
@@ -242,7 +207,7 @@ namespace AppGestionProyectos.Server.Controllers
                     var codeCheck = await Models.User.CheckVerificationCode(userFields.Code, userFields.Mail, _AppDbContext);
                     if (codeCheck)
                     {
-                        Task<TokenResponse> token = GenerateTokens(userFields.Mail);
+                        Task<TokenResponse> token = Models.User.GenerateTokens(userFields.Mail, _AppDbContext, _config);
                         if (token.Result.AccessToken == null)
                         {
                             return StatusCode(500, new ApiResponse<object>(false, "server-error", false));

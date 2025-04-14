@@ -1,12 +1,17 @@
 ﻿using AppGestionProyectos.Server.Data;
+using AppGestionProyectos.Server.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System;
-using AppGestionProyectos.Server.Services;
+using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace AppGestionProyectos.Server.Models
 {
@@ -28,35 +33,35 @@ namespace AppGestionProyectos.Server.Models
         public DateTime? RefreshTokenExpiration { get; set; }
         private readonly AppDbContext _dbContext;
 
-        public record struct UsuarioDTO(string? Mail, string? Pass, string? TypeMail, string? Code);
+        public record struct UserDTO(string? Mail, string? Password, string? TypeMail, string? Code, string? name);
         public User()
         {
 
         }
-        public User(AppDbContext dbContext)
+        public User(AppDbContext dbContext, IConfiguration config)
         {
             _dbContext = dbContext;
         }
-        public User(AppDbContext dbContext, string mail, string? password, int role, int? max_users, string type, bool is_verified, string? verification_code)
-        {
-            Mail = mail;
-            Password = password;
-            Role = role;
-            Max_users = max_users;
-            Type = type;
-            Is_verified = is_verified;
-            Verification_code = verification_code;
-            _dbContext = dbContext;
-        }
+        //public User(AppDbContext dbContext, string mail, string? password, int role, int? max_users, string type, bool is_verified, string? verification_code)
+        //{
+        //    Mail = mail;
+        //    Password = password;
+        //    Role = role;
+        //    Max_users = max_users;
+        //    Type = type;
+        //    Is_verified = is_verified;
+        //    Verification_code = verification_code;
+        //    _dbContext = dbContext;
+        //}
         public List<User> GetAllUsers()
         {
             return _dbContext.User.
                 OrderBy(b => b.Id).
                 ToList();
         }
-        public static async Task<UsuarioDTO> Checkmail(string mail, AppDbContext appDbContext)
+        public static async Task<UserDTO> Checkmail(string mail, AppDbContext appDbContext)
         {
-            UsuarioDTO userDto = new UsuarioDTO();
+            UserDTO userDto = new UserDTO();
             try
             {
                 var user = await appDbContext.User
@@ -123,9 +128,9 @@ namespace AppGestionProyectos.Server.Models
             return result;
         }
 
-        public static async Task<UsuarioDTO> CheckRefreshToken(TokenResponse tr, AppDbContext appDbContext)
+        public static async Task<UserDTO> CheckRefreshToken(TokenResponse tr, AppDbContext appDbContext)
         {
-            UsuarioDTO usuarioDTO = new UsuarioDTO();
+            UserDTO usuarioDTO = new UserDTO();
             try
             {
                 var userRT = await appDbContext.User
@@ -166,10 +171,45 @@ namespace AppGestionProyectos.Server.Models
         /// Crea un usuario con el correo y la contraseña proporcionados
         /// </summary>
         /// <returns></returns>
-        public bool CreateUser()
+        public static async Task<TokenResponse> CreateUser(UserDTO user, AppDbContext appDbContext, IConfiguration _config)
         {
             bool result = false;
-            return result;
+            try
+            {
+                #region cifrar contraseña
+                PasswordService passwordService = new PasswordService();
+                user.Password = passwordService.HashPassword(user.Password);
+                #endregion
+                User user1 = new User
+                {
+                    Mail = user.Mail,
+                    Password = user.Password,
+                    Role = 1,
+                    Type = "mail"
+                };
+                await appDbContext.User.AddAsync(user1);
+                var lines = await appDbContext.SaveChangesAsync();
+                if (lines > 0)
+                {
+                    #region crear tokens
+                    Task<TokenResponse> token = GenerateTokens(user.Mail, appDbContext, _config);
+                    if (token.Result.AccessToken != null)
+                    {
+                        return new TokenResponse
+                        {
+                            AccessToken = token.Result.AccessToken,
+                            RefreshToken = token.Result.RefreshToken
+                        };
+                    }
+                    #endregion
+                }
+            }
+            catch (Exception e)
+            {
+                //if(e.InnerException==exception)
+                Console.WriteLine(e);
+            }
+            return new TokenResponse();
         }
         /// <summary>
         /// Comprueba si existe el correo proporcionado por el acceso de Google
@@ -195,14 +235,14 @@ namespace AppGestionProyectos.Server.Models
         /// Crea un usuario con el correo de Google
         /// </summary>
         /// <returns></returns>
-        public bool CreateGoogleUser(string email)
-        {
-            bool result = false;
-            User user = new User(_dbContext, email, null, 1, null, "google", true, null);
-            _dbContext.User.Add(user);
-            _dbContext.SaveChanges();
-            return result;
-        }
+        //public bool CreateGoogleUser(string email)
+        //{
+        //    bool result = false;
+        //    User user = new User(_dbContext, email, null, 1, null, "google", true, null);
+        //    _dbContext.User.Add(user);
+        //    _dbContext.SaveChanges();
+        //    return result;
+        //}
         public static async Task<bool> SaveVerificationCode(string email, string code, AppDbContext appDbContext)
         {
             bool result = false;
@@ -225,14 +265,63 @@ namespace AppGestionProyectos.Server.Models
         }
 
 
-        /// <summary>
-        /// Devuelve true si se cumplen los criterios de registro
-        /// </summary>
-        /// <returns>Bool</returns>
-        //public bool CriterioUser()
-        //{
-        //    return false;
-        //}
+
+        public static async Task<TokenResponse> GenerateTokens(string email, AppDbContext appDbContext, IConfiguration _config)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, email)
+                }),
+                Expires = DateTime.Now.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
+                Issuer = _config["Jwt:Issuer"],
+                Audience = _config["Jwt:Audience"],
+                SigningCredentials = creds
+            };
+            Console.WriteLine("Tiempo: " + DateTime.UtcNow.ToString());
+            //DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var at = tokenHandler.CreateToken(tokenDescriptor);
+            var rt = GenerateRefreshToken();
+            if (string.IsNullOrEmpty(rt))
+            {
+                return new TokenResponse();
+            }
+            DateTime rtExpiration = DateTime.Now.AddDays(30.0);
+            bool saveRt = await SaveRefreshToken(email, rt, rtExpiration, appDbContext);
+            if (!saveRt)
+                return new TokenResponse();
+            return new TokenResponse
+            {
+                AccessToken = tokenHandler.WriteToken(at),
+                RefreshToken = rt,
+                Expiration = DateTime.Now.AddDays(30.0)
+            };
+
+        }
+        private static string GenerateRefreshToken()
+        {
+            string result = "";
+            try
+            {
+                var randomNumber = new byte[32];
+                using (var rng = RandomNumberGenerator.Create())
+                {
+                    rng.GetBytes(randomNumber);
+                    result = Convert.ToBase64String(randomNumber);
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return result;
+        }
 
     }
 }

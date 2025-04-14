@@ -1,11 +1,13 @@
-import { React, Component, useEffect } from 'react';
+import { React, useEffect } from 'react';
 import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import './Dashboard.css';
 function Dashboard() {
     const navigate = useNavigate();
+    const location = useLocation();
     useEffect(() => {
-
-    }, []);
+        console.log("location", location.state.user);
+    }, [location]);
     AuthRequest('project/get').
         then((res) => {
             console.log("reqResult:", res);
@@ -33,6 +35,7 @@ function Dashboard() {
     return (
         <div>
             <h2>dashboard</h2>
+            <p>{location.state.user}</p>
         </div>
     );
 
