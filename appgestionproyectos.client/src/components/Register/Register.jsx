@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
+import { verifyCode, verifyMailFunction } from '../../Utils/Verification';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Register.css';
+
 function Register() {
     const navigate = useNavigate();
 
     const [user, setUser] = useState({
         mail: ""
     });
+    const importantStyle = {
+        textDecoration: "underline",
+        fontWeight: "bold"
+    };
     const [mailConfirmed, setmailConfirmed] = useState(false);
     const [showCodeInput, setShowCodeInput] = useState(false);
     const [showPassName, setShowPassName] = useState(false);
@@ -31,7 +36,41 @@ function Register() {
 
 
     const verifyCode = (e) => {
+        //mandar peticion a /verify con el codigo introducido y el mail guardado en state
         e.preventDefault();
+        const formData = new FormData(e.target);
+        const jsonFormData = Object.fromEntries(formData.entries());
+        jsonFormData['Mail'] = user.mail;
+        axios.post(`https://localhost:7233/auth/verify`,
+            jsonFormData,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then((res) => {
+                if (res.status == 200) {
+                    localStorage.setItem("aT", res.data.data.accessToken);
+                    localStorage.setItem("rT", res.data.data.refreshToken);
+                    navigate("/dashboard");
+                } else {
+                    console.log(res.data.message);
+                }
+            })
+            .catch((err) => {
+                switch (err.status) {
+                    case 400:
+                        console.log(err.response.data.message);
+
+                        break;
+                    case 401:
+                        console.log(err.response.data.message);
+                        break;
+                    case 500:
+                        console.log(err.response.data.message);
+                        break;
+                }
+            })
     }
     const register = (e) => {
         e.preventDefault();
@@ -50,16 +89,16 @@ function Register() {
                     console.log("access-granted");
                     localStorage
                         .setItem(
-                            "accessToken",
+                            "aT",
                             res.data.data.accessToken
                         );
                     localStorage
                         .setItem(
-                            "refreshToken",
+                            "rT",
                             res.data.data.refreshToken
                         );
                     setUser({ mail: jsonFormData.Mail });
-                    navigate("/dashboard", { replace: "true"});
+                    navigate("/dashboard", { replace: "true" });
                 }
             })
             .catch((err) => {
@@ -76,44 +115,38 @@ function Register() {
                 }
             });
     }
-    const verifyMail = (e) => {
+    const verifyMail = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
-        axios.post(`https://localhost:7233/register/CheckMail`,
-            jsonFormData,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
+        try {
+            const response = await verifyMailFunction(jsonFormData);
+            if (response.status === 200) {
+                let messg = response.data.message;
+                if (messg === "show-codeInput") {
+                    setShowCodeInput(true);
+                    setCodeCountDown(59);
                 }
-            })
-            .then((res) => {
-                if (res.status === 200) {
-                    let messg = res.data.message;
-                    if (messg === "show-codeInput") {
-                        setShowCodeInput(true);
-                        setCodeCountDown(59);
-                    }
-                    else if (messg === "show-pass-name") {
-                        setShowPassName(true);
-                        setmailConfirmed(true);
-                    }
-                    setUser({ mail: jsonFormData.Mail });
+                else if (messg === "show-pass-name") {
+                    setShowPassName(true);
+                    setmailConfirmed(true);
                 }
-            })
-            .catch((err) => {
-                switch (err.status) {
-                    case 400:
-                        console.log("bad request", err);
-                        break;
-                    case 401:
-                        console.log("unauthorized", err);
-                        break;
-                    case 500:
-                        console.log("server error", err);
-                        break;
-                }
-            });
+                setUser({ mail: jsonFormData.Mail });
+            }
+        } catch (err) {
+            console.log("error", err);
+            switch (err.status) {
+                case 400:
+                    console.log("bad request", err);
+                    break;
+                case 401:
+                    console.log("unauthorized", err);
+                    break;
+                case 500:
+                    console.log("server error", err);
+                    break;
+            }
+        }
     }
 
     return (
@@ -122,7 +155,7 @@ function Register() {
                 {showCodeInput ? (
                     <React.Fragment>
                         {/*{Code form}*/}
-                        <p>A 4-digit code has been sent to {user.mail}. Please enter it below.<br /><br />
+                        <p>A 5-digit code has been sent to <span style={importantStyle}>{user.mail}</span>. Please enter it below.<br />Don't forget to look in your <span style={importantStyle}>spam</span> folder.<br /><br />
                             The code expires in {codeCountDown} seconds</p>
                         <form className="email-form" onSubmit={verifyCode} key="codeForm">
                             <div className="input-container">
@@ -150,7 +183,7 @@ function Register() {
                                 </div>
                             }
                         </div>
-                        <button className="btn-confirm">
+                        <button type="submit" className="btn-confirm">
                             {mailConfirmed ? "Go" : "Next"}
                         </button>
                     </form>

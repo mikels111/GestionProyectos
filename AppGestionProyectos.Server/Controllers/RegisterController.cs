@@ -15,6 +15,7 @@ namespace AppGestionProyectos.Server.Controllers
     [Route("[controller]")]
     public class RegisterController : Controller
     {
+
         private readonly AppDbContext _AppDbContext;
         private readonly IConfiguration _config;
         public RegisterController(AppDbContext appDbContext, IConfiguration config)
@@ -26,6 +27,7 @@ namespace AppGestionProyectos.Server.Controllers
         [Route("CheckMail")]
         public async Task<IActionResult> CheckMail([FromBody] object? mail)
         {
+            
             Models.User.UserDTO userFields = new Models.User.UserDTO();
             if (Request.ContentLength == 0)
             {
@@ -64,7 +66,7 @@ namespace AppGestionProyectos.Server.Controllers
                         MailMessage message = new MailMessage("mikelseara11@gmail.com", userFields.Mail);
                         string randmNumber = "";
                         Random rnd = new Random();
-                        for (int j = 0; j < 4; j++)
+                        for (int j = 0; j < 5; j++)
                         {
                             randmNumber += rnd.Next(10);//random integers < 10
                         }
@@ -74,7 +76,7 @@ namespace AppGestionProyectos.Server.Controllers
                             message.Body = "<p style='font-size:x-large;'>Copy the following code to continue:</p> <h1>" + randmNumber + "</h1>";
                             message.IsBodyHtml = true;
                             message.Subject = "Email confirmation";
-                            smtpClient.Send(message);
+                            //smtpClient.Send(message);
                         }
                         // mostrar input codigo
                         return Ok(new ApiResponse<object>(true, "show-codeInput", null));

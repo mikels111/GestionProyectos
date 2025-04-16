@@ -3,7 +3,7 @@ import axios from 'axios';
 export function AuthRequest(url) {
     const baseUrl = 'https://localhost:7233/';
     const urlResult = baseUrl.concat(url);
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem("aT");
     let rtResult;
     if (url != null || accessToken != null) {
         return axios
@@ -38,10 +38,9 @@ export function AuthRequest(url) {
     }
 
 }
-
 export function RefreshToken() {
     const refreshToken = localStorage
-        .getItem("refreshToken");
+        .getItem("rT");
     let tokens = {
         'RefreshToken': refreshToken
     }
@@ -58,19 +57,19 @@ export function RefreshToken() {
             if (res.status == 200) {
                 localStorage
                     .setItem(
-                        "accessToken",
+                        "aT",
                         res.data.data.accessToken
                     );
                 localStorage
                     .setItem(
-                        "refreshToken",
+                        "rT",
                         res.data.data.refreshToken
                     );
             }
             return Promise.resolve(res);
         })
         .catch(function (err) {
-            console.error("Error on request to refresh token",err);
+            console.error("Error on request to refresh token", err);
             localStorage.clear();
             return Promise.reject(err);
         });

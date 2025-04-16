@@ -185,7 +185,7 @@ namespace AppGestionProyectos.Server.Models
                     Mail = user.Mail,
                     Password = user.Password,
                     Role = 1,
-                    Type = "mail"
+                    Type = "email"
                 };
                 await appDbContext.User.AddAsync(user1);
                 var lines = await appDbContext.SaveChangesAsync();

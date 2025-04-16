@@ -6,7 +6,7 @@ function Dashboard() {
     const navigate = useNavigate();
     const location = useLocation();
     useEffect(() => {
-        console.log("location", location.state.user);
+        //console.log("location", location.state.user);
     }, [location]);
     AuthRequest('project/get').
         then((res) => {
@@ -35,7 +35,7 @@ function Dashboard() {
     return (
         <div>
             <h2>dashboard</h2>
-            <p>{location.state.user}</p>
+            {/*<p>{location.state.user}</p>*/}
         </div>
     );
 

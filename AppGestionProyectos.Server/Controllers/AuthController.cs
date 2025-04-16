@@ -110,7 +110,7 @@ namespace AppGestionProyectos.Server.Controllers
                             MailMessage message = new MailMessage("mikelseara11@gmail.com", usuario.Mail);
                             string randmNumber = "";
                             Random rnd = new Random();
-                            for (int j = 0; j < 4; j++)
+                            for (int j = 0; j < 5; j++)
                             {
                                 randmNumber += rnd.Next(10);//random integers < 10
                             }
