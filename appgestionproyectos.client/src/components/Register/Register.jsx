@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { verifyCode, verifyMailFunction } from '../../Utils/Verification';
+import { verifyCodeFunction, verifyMailFunction } from '../../Utils/Verification';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Register.css';

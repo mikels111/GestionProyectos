@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export function verifyCode(e, user) {
+export function verifyCodeFunction(e, user) {
     //mandar peticion a /verify con el codigo introducido y el mail guardado en state
     //e.preventDefault();
     const formData = new FormData(e.target);
@@ -28,7 +28,6 @@ export function verifyCode(e, user) {
             switch (err.status) {
                 case 400:
                     console.log(err.response.data.message);
-
                     break;
                 case 401:
                     console.log(err.response.data.message);

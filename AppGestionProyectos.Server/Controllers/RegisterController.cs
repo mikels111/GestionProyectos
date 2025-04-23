@@ -76,7 +76,7 @@ namespace AppGestionProyectos.Server.Controllers
                             message.Body = "<p style='font-size:x-large;'>Copy the following code to continue:</p> <h1>" + randmNumber + "</h1>";
                             message.IsBodyHtml = true;
                             message.Subject = "Email confirmation";
-                            //smtpClient.Send(message);
+                            smtpClient.Send(message);
                         }
                         // mostrar input codigo
                         return Ok(new ApiResponse<object>(true, "show-codeInput", null));
@@ -113,6 +113,7 @@ namespace AppGestionProyectos.Server.Controllers
                 return BadRequest(new ApiResponse<object>(false, "bad-request", false, "body could not be null"));
             }
             Models.User.UserDTO userFields = new Models.User.UserDTO();
+            userFields.TypeMail = "email";
             try
             {
                 var options = new JsonSerializerOptions

@@ -33,7 +33,7 @@ namespace AppGestionProyectos.Server.Models
         public DateTime? RefreshTokenExpiration { get; set; }
         private readonly AppDbContext _dbContext;
 
-        public record struct UserDTO(string? Mail, string? Password, string? TypeMail, string? Code, string? name);
+        public record struct UserDTO(string Mail, string Password, string TypeMail, string? Code, string? name);
         public User()
         {
 
@@ -177,15 +177,19 @@ namespace AppGestionProyectos.Server.Models
             try
             {
                 #region cifrar contraseña
-                PasswordService passwordService = new PasswordService();
-                user.Password = passwordService.HashPassword(user.Password);
+                if (!string.IsNullOrEmpty(user.Password))
+                {
+                    PasswordService passwordService = new PasswordService();
+                    user.Password = passwordService.HashPassword(user.Password);
+                }
+
                 #endregion
                 User user1 = new User
                 {
                     Mail = user.Mail,
                     Password = user.Password,
                     Role = 1,
-                    Type = "email"
+                    Type = user.TypeMail
                 };
                 await appDbContext.User.AddAsync(user1);
                 var lines = await appDbContext.SaveChangesAsync();
@@ -215,12 +219,12 @@ namespace AppGestionProyectos.Server.Models
         /// Comprueba si existe el correo proporcionado por el acceso de Google
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<User>? GoogleLogin(string email)
+        public static IEnumerable<User>? GoogleLogin(string email, AppDbContext appDbContext)
         {
             IEnumerable<User>? query = null;
             try
             {
-                query = from _user in _dbContext.User
+                query = from _user in appDbContext.User
                         where _user.Mail == email
                         select _user;
             }

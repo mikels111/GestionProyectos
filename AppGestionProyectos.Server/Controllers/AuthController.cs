@@ -73,12 +73,17 @@ namespace AppGestionProyectos.Server.Controllers
                     if (checkPass)//correcto
                     {
                         //acceso a web JWT
-                        Task<TokenResponse> token = Models.User.GenerateTokens(userFields.Mail,_AppDbContext,_config);
-                        if (token.Result.AccessToken == null)
+                        Task<TokenResponse> token = Models.User.GenerateTokens(userFields.Mail, _AppDbContext, _config);
+                        if (token.Status != TaskStatus.Faulted)
                         {
-                            return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
+                            if (string.IsNullOrEmpty(token.Result.AccessToken))
+                            {
+                                return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
+                            }
+                            return Ok(new ApiResponse<object>(true, "access-granted", token.Result));
                         }
-                        return Ok(new ApiResponse<object>(true, "access-granted", token.Result));
+                        return StatusCode(500, new ApiResponse<object>(false, "server-error", false, "Error when calling the GenerateToken function"));
+
                     }
                     else//incorrecto
                     {
@@ -142,7 +147,7 @@ namespace AppGestionProyectos.Server.Controllers
 
         }
 
-        
+
 
         [HttpPost]
         [Route("Refresh")]
@@ -159,7 +164,7 @@ namespace AppGestionProyectos.Server.Controllers
                     var rt = await Models.User.CheckRefreshToken(tokens, _AppDbContext);
                     if (rt.Mail != null)//Refresh Token NO está expirado(generamos Nuevos token)
                     {
-                        Task<TokenResponse> token = Models.User.GenerateTokens(rt.Mail,_AppDbContext, _config);
+                        Task<TokenResponse> token = Models.User.GenerateTokens(rt.Mail, _AppDbContext, _config);
                         if (token.Result.AccessToken == null)
                         {
                             return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
