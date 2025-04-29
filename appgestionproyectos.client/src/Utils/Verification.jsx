@@ -48,5 +48,11 @@ export async function verifyMailFunction(jsonFormData) {
             headers: {
                 'Content-Type': 'application/json'
             }
+        }).then((res) => {
+            console.log("response", res);
+            return res;
+        }).catch((err) => {
+            console.log("error", err);
+            return err;
         });
 }

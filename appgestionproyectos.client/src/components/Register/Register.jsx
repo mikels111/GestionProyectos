@@ -3,6 +3,8 @@ import { verifyCodeFunction, verifyMailFunction } from '../../Utils/Verification
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Register.css';
+import { ToastContainer } from 'react-toastify';
+import Loader from '../../Utils/Loader';
 
 function Register() {
     const navigate = useNavigate();
@@ -18,6 +20,7 @@ function Register() {
     const [showCodeInput, setShowCodeInput] = useState(false);
     const [showPassName, setShowPassName] = useState(false);
     const [codeCountDown, setCodeCountDown] = useState(0);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         const interval = setInterval(() => {
             setCodeCountDown(prev => {
@@ -38,6 +41,7 @@ function Register() {
     const verifyCode = (e) => {
         //mandar peticion a /verify con el codigo introducido y el mail guardado en state
         e.preventDefault();
+        setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         jsonFormData['Mail'] = user.mail;
@@ -56,6 +60,7 @@ function Register() {
                 } else {
                     console.log(res.data.message);
                 }
+                setLoading(false);
             })
             .catch((err) => {
                 switch (err.status) {
@@ -70,10 +75,12 @@ function Register() {
                         console.log(err.response.data.message);
                         break;
                 }
+                setLoading(false);
             })
     }
     const register = (e) => {
         e.preventDefault();
+        setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         console.log(jsonFormData);
@@ -100,6 +107,7 @@ function Register() {
                     setUser({ mail: jsonFormData.Mail });
                     navigate("/dashboard", { replace: "true" });
                 }
+                setLoading(false);
             })
             .catch((err) => {
                 switch (err.status) {
@@ -113,10 +121,12 @@ function Register() {
                         console.log("server error", err);
                         break;
                 }
+                setLoading(false);
             });
     }
     const verifyMail = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         try {
@@ -132,6 +142,7 @@ function Register() {
                     setmailConfirmed(true);
                 }
                 setUser({ mail: jsonFormData.Mail });
+                setLoading(false);
             }
         } catch (err) {
             console.log("error", err);
@@ -146,11 +157,13 @@ function Register() {
                     console.log("server error", err);
                     break;
             }
+            setLoading(false);
         }
     }
 
     return (
         <div id="register-wrapper">
+            <ToastContainer hideProgressBar draggable />
             <div id="register-frame">
                 {showCodeInput ? (
                     <React.Fragment>
@@ -164,7 +177,8 @@ function Register() {
                             </div>
 
                             <button className="btn-confirm">
-                                Go
+                                <Loader loading={loading} />
+                                {!loading && "Go"}
                             </button>
 
 
@@ -184,7 +198,8 @@ function Register() {
                             }
                         </div>
                         <button type="submit" className="btn-confirm">
-                            {mailConfirmed ? "Go" : "Next"}
+                            <Loader loading={loading} />
+                            {!loading && "Go"}
                         </button>
                     </form>
                 )}
