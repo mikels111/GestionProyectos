@@ -2,6 +2,7 @@ import { React, useEffect } from 'react';
 import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Dashboard.css';
+import Sidebar from '../SideBar/SideBar'
 function Dashboard() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -35,6 +36,7 @@ function Dashboard() {
     return (
         <div>
             <h2>dashboard</h2>
+            <Sidebar/>
             {/*<p>{location.state.user}</p>*/}
         </div>
     );

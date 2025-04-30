@@ -8,6 +8,7 @@ using System.Net.Mail;
 using System.Net;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using NuGet.Common;
+using System.Text.RegularExpressions;
 
 namespace AppGestionProyectos.Server.Controllers
 {
@@ -27,7 +28,7 @@ namespace AppGestionProyectos.Server.Controllers
         [Route("CheckMail")]
         public async Task<IActionResult> CheckMail([FromBody] object? mail)
         {
-            
+
             Models.User.UserDTO userFields = new Models.User.UserDTO();
             if (Request.ContentLength == 0)
             {
@@ -41,6 +42,11 @@ namespace AppGestionProyectos.Server.Controllers
                     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
                 };
                 userFields = JsonSerializer.Deserialize<Models.User.UserDTO>(mail.ToString(), options);
+                if (Regex.IsMatch(mail.ToString(), @"<[^>]+>"))
+                {
+                    return BadRequest(new ApiResponse<object>(false, "bad-request", null));
+                }
+
             }
             catch (Exception ex)
             {
@@ -52,6 +58,11 @@ namespace AppGestionProyectos.Server.Controllers
                 {
                     #region check mail
 
+                    string pattern = @"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$";
+                    if (!Regex.IsMatch(userFields.Mail, pattern))
+                    {
+                        return BadRequest(new ApiResponse<object>(false, "bad-request", false, "the email is not valid"));
+                    }
                     User.UserDTO checkmail = await Models.User.Checkmail(userFields.Mail, _AppDbContext);
                     #region mail existe
                     if (checkmail.Mail != null)
@@ -123,6 +134,10 @@ namespace AppGestionProyectos.Server.Controllers
                 };
 
                 userFields = JsonSerializer.Deserialize<Models.User.UserDTO>(fields.ToString(), options);
+                if (Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
+                {
+                    return BadRequest(new ApiResponse<object>(false, "bad-request", null));
+                }
             }
             catch (Exception ex)
             {
@@ -130,7 +145,13 @@ namespace AppGestionProyectos.Server.Controllers
             }
             try
             {
-                if (string.IsNullOrEmpty(userFields.Mail) || string.IsNullOrEmpty(userFields.Password))
+                string passwordPattern = @"^.{8,}$";
+                string emailPattern = @"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$";
+                if (!Regex.IsMatch(userFields.Mail, emailPattern) || !Regex.IsMatch(userFields.Password, passwordPattern))
+                {
+                    return BadRequest(new ApiResponse<object>(false, "bad-request", false, "the email is not valid"));
+                }
+                if (string.IsNullOrEmpty(userFields.Mail) || string.IsNullOrEmpty(userFields.Password) )
                 {
                     return BadRequest(new ApiResponse<object>(false, "bad-request", false, "One or more fields could be null or empty"));
 

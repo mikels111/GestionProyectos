@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Register.css';
 import { ToastContainer } from 'react-toastify';
+import {Notify} from '../../Utils/Notifications';
 import Loader from '../../Utils/Loader';
 
 function Register() {
     const navigate = useNavigate();
-
+    const { warn, info } = Notify();
     const [user, setUser] = useState({
         mail: ""
     });
@@ -63,18 +64,12 @@ function Register() {
                 setLoading(false);
             })
             .catch((err) => {
-                switch (err.status) {
-                    case 400:
-                        console.log(err.response.data.message);
-
-                        break;
-                    case 401:
-                        console.log(err.response.data.message);
-                        break;
-                    case 500:
-                        console.log(err.response.data.message);
-                        break;
+                let messag = "We’re having technical issues. Please try again later.";
+                console.error("Error: ", err);
+                if (err.status == 401) {
+                    messag = "Wrong verification code";
                 }
+                warn(messag);
                 setLoading(false);
             })
     }
@@ -83,7 +78,15 @@ function Register() {
         setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
-        console.log(jsonFormData);
+        const validPass = new RegExp("^.{8,}$");
+        if (jsonFormData.Password != null) {
+            if (!validPass.test(jsonFormData.Password)) {
+                warn("Please enter a valid password, at least 8 characters");
+                setLoading(false);
+                return;
+            }
+
+        }
         axios.post(`https://localhost:7233/register/register`,
             jsonFormData,
             {
@@ -110,17 +113,12 @@ function Register() {
                 setLoading(false);
             })
             .catch((err) => {
-                switch (err.status) {
-                    case 400:
-                        console.log("bad request", err);
-                        break;
-                    case 401:
-                        console.log("unauthorized", err);
-                        break;
-                    case 500:
-                        console.log("server error", err);
-                        break;
+                let messag = "We’re having technical issues. Please try again later.";
+                console.error("Error: ", err);
+                if (err.status == 401) {
+                    messag = "Please enter a valid email";
                 }
+                warn(messag);
                 setLoading(false);
             });
     }
@@ -145,18 +143,12 @@ function Register() {
                 setLoading(false);
             }
         } catch (err) {
-            console.log("error", err);
-            switch (err.status) {
-                case 400:
-                    console.log("bad request", err);
-                    break;
-                case 401:
-                    console.log("unauthorized", err);
-                    break;
-                case 500:
-                    console.log("server error", err);
-                    break;
+            let messag = "We’re having technical issues. Please try again later.";
+            console.error("Error: ", err);
+            if (err.status == 400) {
+                messag = "Please enter a valid email";
             }
+            warn(messag);
             setLoading(false);
         }
     }

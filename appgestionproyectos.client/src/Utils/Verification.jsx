@@ -40,6 +40,13 @@ export function verifyCodeFunction(e, user) {
 }
 
 export async function verifyMailFunction(jsonFormData) {
+    console.log("form", jsonFormData);
+    const validEmail = new RegExp('^[^@\\s]+@[^@\\s]+\\.[a-zA-Z]{2,}$');
+    
+    if (!validEmail.test(jsonFormData.Mail)) {
+        return Promise.reject({ status: 400 });
+    }
+
     return axios
         ({
             method: 'post',
@@ -48,11 +55,5 @@ export async function verifyMailFunction(jsonFormData) {
             headers: {
                 'Content-Type': 'application/json'
             }
-        }).then((res) => {
-            console.log("response", res);
-            return res;
-        }).catch((err) => {
-            console.log("error", err);
-            return err;
         });
 }

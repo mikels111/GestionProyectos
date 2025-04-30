@@ -53,8 +53,6 @@ function Login() {
 
     const googleLogin = useGoogleLogin({
         onSuccess: (codeResponse) => {
-            console.log("codeResponse", codeResponse);
-            console.log(codeResponse.access_token);
             axios.post(`https://localhost:7233/user/LoginUserGoogle`,
                 null,
                 {
@@ -86,9 +84,15 @@ function Login() {
                         //setUser({ user, mail: jsonFormData.Mail });
                     }
                 })
-                .catch((err) => console.log(err))
+                .catch((err) => {
+                    console.log(err);
+                    warn("We’re having technical issues. Please try again later.");
+                })
         },
-        onError: (error) => console.log('Login Failed:', error)
+        onError: (error) => {
+            console.log('Login Failed:', error);
+            warn("We’re having technical issues. Please try again later.");
+        }
     });
     const login = (e) => {
         e.preventDefault();
@@ -138,12 +142,12 @@ function Login() {
                 setLoading(false);
             })
             .catch((err) => {
-                let messag = "Something went wrong";
+                let messag = "We’re having technical issues. Please try again later.";
                 console.error("Error: ", err);
                 if (err.status == 401) {
                     messag = "Incorrect credentials";
                 }
-                warn(messag)
+                warn(messag);
                 setLoading(false);
             })
     };
@@ -172,12 +176,11 @@ function Login() {
                 setLoading(false);
             })
             .catch((err) => {
-                let messag = "Something went wrong";
+                let messag = "We’re having technical issues. Please try again later.";
                 console.error("Error: ", err);
                 if (err.status == 401) {
                     messag = "The code has expired or is incorrect";
                 }
-                //toast.warn(messag, { position: "bottom-center" });
                 warn(messag);
                 setLoading(false);
             })
@@ -199,23 +202,18 @@ function Login() {
                 else if (messg === "show-pass-name") {
                     //setShowPassName(true);
                     setmailConfirmed(true);
+                    info("No user was found with that email. Enter a password to register")
                 }
                 setUser({ mail: jsonFormData.Mail });
                 setLoading(false);
             }
         } catch (err) {
             console.log("error", err);
-            switch (err.status) {
-                case 400:
-                    console.log("bad request", err);
-                    break;
-                case 401:
-                    console.log("unauthorized", err);
-                    break;
-                case 500:
-                    console.log("server error", err);
-                    break;
+            let messag = "We’re having technical issues. Please try again later.";
+            if (err.status == 400) {
+                messag = "Please enter a valid email";
             }
+            warn(messag);
             setLoading(false);
         }
     }
@@ -224,6 +222,14 @@ function Login() {
         setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
+        const validPass = new RegExp("^.{8,}$");
+        if (jsonFormData.Password != null) {
+            if (!validPass.test(jsonFormData.Password)) {
+                warn("Please enter a valid password, at least 8 characters");
+                setLoading(false);
+                return;
+            }
+        }
         axios.post(`https://localhost:7233/register/register`,
             jsonFormData,
             {
@@ -250,17 +256,12 @@ function Login() {
                 setLoading(false);
             })
             .catch((err) => {
-                switch (err.status) {
-                    case 400:
-                        console.log("bad request", err);
-                        break;
-                    case 401:
-                        console.log("unauthorized", err);
-                        break;
-                    case 500:
-                        console.log("server error", err);
-                        break;
+                let messag = "We’re having technical issues. Please try again later.";
+                console.error("Error: ", err);
+                if (err.status == 400) {
+                    messag = "Please enter a valid email";
                 }
+                warn(messag);
                 setLoading(false);
             });
     }
@@ -296,7 +297,7 @@ function Login() {
 
                                     {mailConfirmed &&
                                         <div className="input-container">
-                                            <label className="input-label">Password</label>
+                                                <label className="input-label">Password (8 characters)</label>
                                             <input type="password" name="Password" id="password" required />
                                         </div>
                                     }
@@ -319,7 +320,7 @@ function Login() {
 
                                     {mailConfirmed &&
                                         <div className="input-container">
-                                            <label className="input-label">Password</label>
+                                            <label className="input-label">Password (8 characters)</label>
                                             <input type="password" name="Password" id="password" required />
                                         </div>
                                     }

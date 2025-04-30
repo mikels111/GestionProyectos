@@ -9,6 +9,7 @@
     <PackageJsonScriptsBuild Condition="$(PackageJsonScriptsBuild) == ''">vite build</PackageJsonScriptsBuild>
     <PackageJsonScriptsLint Condition="$(PackageJsonScriptsLint) == ''">eslint .</PackageJsonScriptsLint>
     <PackageJsonScriptsPreview Condition="$(PackageJsonScriptsPreview) == ''">vite preview</PackageJsonScriptsPreview>
+    <PackageJsonDependenciesHeroiconsReact Condition="$(PackageJsonDependenciesHeroiconsReact) == ''">^2.2.0</PackageJsonDependenciesHeroiconsReact>
     <PackageJsonDependenciesReactOauthGoogle Condition="$(PackageJsonDependenciesReactOauthGoogle) == ''">^0.12.1</PackageJsonDependenciesReactOauthGoogle>
     <PackageJsonDependenciesTailwindcssVite Condition="$(PackageJsonDependenciesTailwindcssVite) == ''">^4.0.17</PackageJsonDependenciesTailwindcssVite>
     <PackageJsonDependenciesAxios Condition="$(PackageJsonDependenciesAxios) == ''">^1.7.7</PackageJsonDependenciesAxios>

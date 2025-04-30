@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 using System;
 using NuGet.Common;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 
 namespace AppGestionProyectos.Server.Controllers
@@ -53,6 +54,10 @@ namespace AppGestionProyectos.Server.Controllers
                     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
                 };
                 userFields = JsonSerializer.Deserialize<Models.User.UserDTO>(fields.ToString(), options);
+                if (Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
+                {
+                    return BadRequest(new ApiResponse<object>(false, "bad-request", null));
+                }
 
             }
             catch (Exception ex)
@@ -147,8 +152,6 @@ namespace AppGestionProyectos.Server.Controllers
 
         }
 
-
-
         [HttpPost]
         [Route("Refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenResponse tokens)
@@ -199,6 +202,10 @@ namespace AppGestionProyectos.Server.Controllers
             try
             {
                 userFields = JsonSerializer.Deserialize<User.UserDTO>(fields.ToString(), options);
+                if (Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
+                {
+                    return BadRequest(new ApiResponse<object>(false, "bad-request", null));
+                }
 
             }
             catch (JsonException ex)
