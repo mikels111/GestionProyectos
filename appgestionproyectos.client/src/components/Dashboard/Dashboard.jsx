@@ -3,11 +3,14 @@ import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Dashboard.css';
 import Sidebar from '../SideBar/SideBar'
+import { Notify } from '../../Utils/Notifications';
+import { ToastContainer } from 'react-toastify';
 function Dashboard() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { warn, info } = Notify();
     useEffect(() => {
-        //console.log("location", location.state.user);
+        console.log("location");
     }, [location]);
     AuthRequest('project/get').
         then((res) => {
@@ -35,8 +38,9 @@ function Dashboard() {
 
     return (
         <div>
-            <h2>dashboard</h2>
-            <Sidebar/>
+            <ToastContainer hideProgressBar draggable />
+            <Sidebar />
+
             {/*<p>{location.state.user}</p>*/}
         </div>
     );

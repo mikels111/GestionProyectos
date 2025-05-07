@@ -42,19 +42,19 @@ input {
     align-items: center;
     align-self: stretch;
     border-radius: 10px;
-    background: #83CB9F;
+    background: #d1d5db;
 }
 
     .btn-confirm:hover {
-        background-color: #4bb473;
+        background: #d1d5dbca;
     }
 
 #btn-create {
-    background-color: #9fd2ff;
+    background-color: #2563eb;
 }
 
     #btn-create:hover {
-        background-color: #4dacff;
+        background-color: #2563ebc4;
     }
 
 .input-container {

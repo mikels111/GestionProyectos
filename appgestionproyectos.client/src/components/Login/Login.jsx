@@ -336,7 +336,7 @@ function Login() {
                                 </svg>
                                 <div id="create-acc-frame">
                                     <button id="btn-create" onClick={() => { navigate("/register") }} >Create Account</button>
-                                    <button id="btn-google" onClick={() => googleLogin()}>Sign in with Google
+                                    <button className="btn-google" onClick={() => googleLogin()}>Sign in with Google
                                         <svg id="google-svg" xmlns="http://www.w3.org/2000/svg" width="32" height="33" viewBox="0 0 32 33" fill="none">
                                             <path d="M29.074 13.8887H28V13.8333H16V19.1667H23.5353C22.436 22.2713 19.482 24.5 16 24.5C11.582 24.5 8 20.918 8 16.5C8 12.082 11.582 8.49999 16 8.49999C18.0393 8.49999 19.8947 9.26932 21.3073 10.526L25.0787 6.75466C22.6973 4.53532 19.512 3.16666 16 3.16666C8.63667 3.16666 2.66667 9.13666 2.66667 16.5C2.66667 23.8633 8.63667 29.8333 16 29.8333C23.3633 29.8333 29.3333 23.8633 29.3333 16.5C29.3333 15.606 29.2413 14.7333 29.074 13.8887Z" fill="#FFC107" />
                                             <path d="M4.204 10.294L8.58467 13.5067C9.77 10.572 12.6407 8.49999 16 8.49999C18.0393 8.49999 19.8947 9.26932 21.3073 10.526L25.0787 6.75466C22.6973 4.53532 19.512 3.16666 16 3.16666C10.8787 3.16666 6.43733 6.05799 4.204 10.294Z" fill="#FF3D00" />

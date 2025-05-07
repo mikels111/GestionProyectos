@@ -109,6 +109,7 @@ function Register() {
                         );
                     setUser({ mail: jsonFormData.Mail });
                     navigate("/dashboard", { replace: "true" });
+                    info("We sent you a verification email, please verify your email");
                 }
                 setLoading(false);
             })
