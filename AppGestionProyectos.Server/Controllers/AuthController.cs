@@ -127,10 +127,11 @@ namespace AppGestionProyectos.Server.Controllers
                             bool saveVerfCodeResult = await Models.User.SaveVerificationCode(userFields.Mail, randmNumber, _AppDbContext);
                             if (saveVerfCodeResult)
                             {
-
-                                message.Body = "<p style='font-size:x-large;'>Copy the following code to continue:</p> <h1>" + randmNumber + "</h1>";
+                                var html = await System.IO.File.ReadAllTextAsync("templates/verification.html");
+                                string body = html.Replace("{{VERIFICATION_CODE}}", randmNumber);
+                                message.Body = body;
                                 message.IsBodyHtml = true;
-                                message.Subject = "Email confirmation";
+                                message.Subject = "Verification";
                                 smtpClient.Send(message);
                             }
                             // mostrar input codigo

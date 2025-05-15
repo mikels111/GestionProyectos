@@ -9,6 +9,7 @@ using System.Net;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using NuGet.Common;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AppGestionProyectos.Server.Controllers
 {
@@ -24,6 +25,7 @@ namespace AppGestionProyectos.Server.Controllers
             _AppDbContext = appDbContext;
             _config = config;
         }
+
         [HttpPost]
         [Route("CheckMail")]
         public async Task<IActionResult> CheckMail([FromBody] object? mail)
@@ -84,9 +86,11 @@ namespace AppGestionProyectos.Server.Controllers
                         bool saveVerfCodeResult = await Models.User.SaveVerificationCode(userFields.Mail, randmNumber, _AppDbContext);
                         if (saveVerfCodeResult)
                         {
-                            message.Body = "<p style='font-size:x-large;'>Copy the following code to continue:</p> <h1>" + randmNumber + "</h1>";
+                            var html = await System.IO.File.ReadAllTextAsync("templates/verification.html");
+                            string body = html.Replace("{{VERIFICATION_CODE}}", randmNumber);
+                            message.Body = body;
                             message.IsBodyHtml = true;
-                            message.Subject = "Email confirmation";
+                            message.Subject = "Verification";
                             smtpClient.Send(message);
                         }
                         // mostrar input codigo
@@ -117,14 +121,13 @@ namespace AppGestionProyectos.Server.Controllers
         }
         [HttpPost]
         [Route("register")]
-        public IActionResult Register([FromBody] object? fields)
+        public async Task<IActionResult> Register([FromBody] object? fields)
         {
+            Models.User.UserDTO userFields = new Models.User.UserDTO();
             if (Request.ContentLength == 0)
             {
                 return BadRequest(new ApiResponse<object>(false, "bad-request", false, "body could not be null"));
             }
-            Models.User.UserDTO userFields = new Models.User.UserDTO();
-            userFields.TypeMail = "email";
             try
             {
                 var options = new JsonSerializerOptions
@@ -133,11 +136,11 @@ namespace AppGestionProyectos.Server.Controllers
                     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
                 };
 
-                userFields = JsonSerializer.Deserialize<Models.User.UserDTO>(fields.ToString(), options);
                 if (Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
                 {
                     return BadRequest(new ApiResponse<object>(false, "bad-request", null));
                 }
+                userFields = JsonSerializer.Deserialize<Models.User.UserDTO>(fields.ToString(), options);
             }
             catch (Exception ex)
             {
@@ -151,15 +154,33 @@ namespace AppGestionProyectos.Server.Controllers
                 {
                     return BadRequest(new ApiResponse<object>(false, "bad-request", false, "the email is not valid"));
                 }
-                if (string.IsNullOrEmpty(userFields.Mail) || string.IsNullOrEmpty(userFields.Password) )
+                if (string.IsNullOrEmpty(userFields.Mail) || string.IsNullOrEmpty(userFields.Password))
                 {
                     return BadRequest(new ApiResponse<object>(false, "bad-request", false, "One or more fields could be null or empty"));
 
                 }
                 #region guardar en bd correo y contraseña
+                userFields.TypeMail = "email";
                 Task<TokenResponse> createUser = Models.User.CreateUser(userFields, _AppDbContext, _config);
                 if (createUser.Result.AccessToken != null)
                 {
+                    #region mandar codigo por correo y guardarlo en bd. Devolver OK show-code
+                    var smtpClient = new SmtpClient("smtp-relay.brevo.com")
+                    {
+                        Port = 587,
+                        Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
+                        EnableSsl = true,
+                    };
+                    MailMessage message = new MailMessage("mikelseara11@gmail.com", userFields.Mail);
+                    var html = await System.IO.File.ReadAllTextAsync("templates/welcome.html");
+                    string confirmLink = $"{Request.Scheme}://{Request.Host}/register/verify?fields={userFields.Mail}";
+                    string body = html.Replace("{{CONFIRMATION_LINK}}", confirmLink);
+                    message.Body = body;
+                    message.IsBodyHtml = true;
+                    message.Subject = "Welcome";
+                    smtpClient.Send(message);
+
+                    #endregion
                     return Ok(new ApiResponse<object>(true, "access-granted", createUser.Result));
                 }
                 #endregion
@@ -171,5 +192,47 @@ namespace AppGestionProyectos.Server.Controllers
             return StatusCode(500, new ApiResponse<object>(false, "server-error", "Could not register the user"));
 
         }
+
+        [HttpGet("verify")]
+        public async Task<IActionResult> VerifyEmail([FromQuery(Name = "fields")] string fields)
+        {
+            string front = _config["host:front"].ToString();
+            if (Request.ContentLength == 0)
+            {
+                return Redirect($"{front}/Error");
+            }
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+                };
+                string emailPattern = @"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$";
+                if (!Regex.IsMatch(fields, emailPattern) || Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
+                {
+                    return Redirect($"{front}/Error");
+                }
+
+                bool emailVerified = await Models.User.VerifyEmail(fields, _AppDbContext);
+
+                if (emailVerified)
+                {
+                    //Redirigir a login
+                    //string loginUrl = $"{Request.Scheme}://{Request.Host}/register/verify?fields={userFields.Mail}";
+
+                    //return RedirectPermanent($"{front}/login");
+                    return Redirect($"{front}/login");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Redirect($"{front}/Error");
+            }
+            //mostrar html de verificacion incorrecta
+            return Redirect($"{front}/Error");
+        }
+
     }
 }

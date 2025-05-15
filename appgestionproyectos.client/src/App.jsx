@@ -1,34 +1,38 @@
-import { useEffect, useState } from 'react';
-import './App.css';
-import SideBar from './components/SideBar/SideBar';
+import styles from './App.module.css';
+import { BrowserRouter } from 'react-router-dom';
 import Router from './components/Router/Router';
-
 import axios from 'axios';
-
+import { React, useEffect, useState } from 'react';
+import { RefreshToken, AuthRequest } from './Utils/Authorization';
+import { useNavigate, useLocation } from 'react-router-dom';
+import Sidebar from './Components/SideBar/SideBar'
+import { Notify } from './Utils/Notifications';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
-    const [mail, setMail] = useState("");
-    //axios.get('google.es')
-    //    .then(function (response) {
-    //        // handle success
-    //        console.log("success");
-    //        console.log(response);
-    //    })
-    //    .catch(function (error) {
-    //        // handle error
-    //        console.log("error");
-
-    //        console.log(error);
-    //    })
-    //    .finally(function () {
-    //        // always executed
-    //    });
-    //if (mail != "") {
-    
+    const [user, setUser] = useState({});
+    const { warn, info } = Notify();
+    useEffect(() => {
+        const token = localStorage.getItem("aT");
+        console.log("app UseEffect")
+        if (token != null) {
+            const arrayToken = token.split('.');
+            const tokenPayload = JSON.parse(atob(arrayToken[1]));
+            setUser(tokenPayload);
+        }
+    }, []);
     return (
-        <div>
-            <Router />
-        </div>
+        <BrowserRouter>
+            <div className={styles["app-wrapper"]}>
+                <ToastContainer hideProgressBar draggable />
+                <Sidebar user={user} />
+                <div className={styles["main-wrapper"]}>
+                    <div className={styles.main}>
+                        <Router user={user} />
+                    </div>
+                </div>
+            </div>
+        </BrowserRouter>
     );
     //}
 

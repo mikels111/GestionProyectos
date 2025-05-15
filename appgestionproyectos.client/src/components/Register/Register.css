@@ -12,10 +12,10 @@
 }
 #register-frame {
     min-width: 30px;
-    max-width: 250px;
+    max-width: 330px;
     height: fit-content;
     display: flex;
-    padding: 10px 61px 10px 61px;
+    padding: 34px 61px;
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;

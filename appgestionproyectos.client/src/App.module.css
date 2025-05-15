@@ -64,3 +64,16 @@ input {
     gap: 8px;
     align-self: stretch;
 }
+
+.app-wrapper {
+    display: flex;
+/*    position: fixed;*/
+    flex-direction: row;
+}
+
+.main-wrapper {
+    flex-grow:1;
+}
+.main{
+/*    padding:16px;*/
+}

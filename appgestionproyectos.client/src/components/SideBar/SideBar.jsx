@@ -9,12 +9,16 @@ import {
     Cog6ToothIcon,
     BriefcaseIcon,
     RectangleGroupIcon,
-    Bars3BottomLeftIcon
+    Bars3BottomLeftIcon,
+    HomeIcon
 } from '@heroicons/react/16/solid'
+import { useNavigate, NavLink } from 'react-router-dom';
 import styles from './SideBar.module.css'
-function SideBar() {
+function SideBar({ }) {
+    const navigate = useNavigate();
+    const [user, setUser] = useState({});
     let fullSidebarHeight = "calc(100vh - 32px)";
-    let classes = [styles.sidebar]
+    let classes = [styles.sidebar];
     const sideBar = useRef();
     const [sideBarClasses, setSideBarClasses] = useState([styles.sidebar]);
     const [sideBarActive, setSideBarActive] = useState(true);
@@ -24,6 +28,20 @@ function SideBar() {
     useEffect(() => {
         setSideBarCurrentScrollHeight(sideBar.current.scrollHeight + "px");
     }, [sideBarCurrentScrollHeight]);
+    const [windowSize, setWindowSize] = useState();
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowSize(window.innerWidth);
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Llamada inicial (por si ya está en ese tamaño)
+        handleResize();
+
+        // Limpieza del listener
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         if (sideBarActive) {
@@ -32,6 +50,11 @@ function SideBar() {
             setSideBarClasses([styles.sidebar, styles.collapsed].join(' '));
         }
     }, [sideBarActive]);
+    const logout = () => {
+        localStorage.removeItem("aT");
+        localStorage.removeItem("rT");
+        navigate("/login");
+    }
 
     return (
         <React.Fragment>
@@ -40,18 +63,14 @@ function SideBar() {
                 <header className={styles['sidebar-header']}>
                     <a href="#" className={styles['header-logo']}>
                         <UserIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px', color: 'white' }} />
+
                     </a>
                     <button className={[styles.toggler, styles['sidebar-toggler']].join(' ')} onClick={() => { setSideBarActive(!sideBarActive) }}>
                         <React.Fragment>
-                            {/*<span className={[styles['material-symbols-rounded'], styles['sidebar-arrow']].join(' ')}>*/}
-                            {/*    <ArrowLeftCircleIcon className="h-6 w-6 text-gray-500" style={{ width: '15px', height: '15px' }} />*/}
-                            {/*</span>*/}
                             <span className={styles['material-symbols-rounded']} >
                                 <Bars3BottomLeftIcon className="h-6 w-6 text-gray-500" style={{ width: '15px', height: '15px' }} />
                             </span>
-
                         </React.Fragment>
-
                     </button>
                     <button className={[styles.toggler, styles['menu-toggler']].join(' ')} onClick={() => { setMenuActive(!menuActive) }}>
                         <span className={styles['material-symbols-rounded']}><Bars3Icon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} /></span>
@@ -61,13 +80,31 @@ function SideBar() {
                     {/*Primary top nav*/}
                     <ul className={[styles['nav-list'], styles['primary-nav']].join(' ')}>
                         <li className={styles['nav-item']}>
-                            <a href="#" className={styles['nav-link']}>
+                            <NavLink to="/" className={({ isActive, isPending }) =>
+                                isActive ? [styles['nav-link'], styles.active].join(' ') : styles['nav-link']
+                            } onClick={() => { if (windowSize <= 768) { setSideBarActive(false) } }}>
+                                {/*<a href="#" >*/}
+                                <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}>
+                                    <HomeIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} />
+                                </span>
+                                <span className={styles['nav-label']}>Home</span>
+                                {/*</a>*/}
+                            </NavLink>
+                            <span className={styles['nav-tooltip']}>Home</span>
+                        </li>
+                        <li className={styles['nav-item']}>
+                            <NavLink to="/dashboard" className={({ isActive, isPending }) =>
+                                isActive ? [styles['nav-link'], styles.active].join(' ') : styles['nav-link']  
+                            }>
+                                {/*<a href="#" >*/}
                                 <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}>
 
                                     <RectangleGroupIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} />
+
                                 </span>
                                 <span className={styles['nav-label']}>Dashboard</span>
-                            </a>
+                                {/*</a>*/}
+                            </NavLink>
                             <span className={styles['nav-tooltip']}>Dashboard</span>
                         </li>
                         <li className={styles['nav-item']}>
@@ -84,14 +121,14 @@ function SideBar() {
                     {/*Secondary bottom nav*/}
                     <ul className={[styles['nav-list'], styles['secondary-nav']].join(' ')}>
                         <li className={styles['nav-item']}>
-                            <a href="#" className={styles['nav-link']}>
+                            <a className={styles['nav-link']}>
                                 <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}><Cog6ToothIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} /></span>
                                 <span className={styles['nav-label']}>Settings</span>
                             </a>
                             <span className={styles['nav-tooltip']}>Settings</span>
                         </li>
                         <li className={styles['nav-item']}>
-                            <a href="#" className={styles['nav-link']}>
+                            <a className={styles['nav-link']} onClick={logout}>
                                 <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}><ArrowRightStartOnRectangleIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} /></span>
                                 <span className={styles['nav-label']}>
                                     Logout

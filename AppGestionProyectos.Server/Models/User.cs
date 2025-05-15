@@ -279,7 +279,8 @@ namespace AppGestionProyectos.Server.Models
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, email)
+                    new Claim(JwtRegisteredClaimNames.Sub, email),
+                    new Claim("Name",email.Split('@')[0])
                 }),
                 Expires = DateTime.Now.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
                 Issuer = _config["Jwt:Issuer"],
@@ -327,5 +328,23 @@ namespace AppGestionProyectos.Server.Models
             return result;
         }
 
+        public static async Task<bool> VerifyEmail(string email, AppDbContext appDbContext)
+        {
+            bool result = false;
+            try
+            {
+                var user = appDbContext.User.FirstOrDefault(u => u.Mail == email);
+                if (user == null)
+                    return false;
+
+                user.Is_verified = true;
+                return await appDbContext.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return result;
+        }
     }
 }

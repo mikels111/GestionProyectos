@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Register.css';
 import { ToastContainer } from 'react-toastify';
-import {Notify} from '../../Utils/Notifications';
+import { Notify } from '../../Utils/Notifications';
 import Loader from '../../Utils/Loader';
 
 function Register() {
@@ -57,7 +57,7 @@ function Register() {
                 if (res.status == 200) {
                     localStorage.setItem("aT", res.data.data.accessToken);
                     localStorage.setItem("rT", res.data.data.refreshToken);
-                    navigate("/dashboard");
+                    navigate("/");
                 } else {
                     console.log(res.data.message);
                 }
@@ -108,8 +108,10 @@ function Register() {
                             res.data.data.refreshToken
                         );
                     setUser({ mail: jsonFormData.Mail });
-                    navigate("/dashboard", { replace: "true" });
-                    info("We sent you a verification email, please verify your email");
+                    navigate("/");
+
+
+
                 }
                 setLoading(false);
             })

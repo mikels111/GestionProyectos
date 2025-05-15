@@ -15,7 +15,7 @@ function Login() {
         const refreshToken = localStorage
             .getItem("rT");
         if (refreshToken != null) {
-            navigate("/dashboard");
+            navigate("/");
         }
     }, []);
 
@@ -53,6 +53,7 @@ function Login() {
 
     const googleLogin = useGoogleLogin({
         onSuccess: (codeResponse) => {
+            console.log("response", codeResponse);
             axios.post(`https://localhost:7233/user/LoginUserGoogle`,
                 null,
                 {
@@ -113,6 +114,7 @@ function Login() {
                     switch (messg) {
                         case "access-granted":
                             console.log("access-granted");
+                            
                             localStorage
                                 .setItem(
                                     "aT",
@@ -123,7 +125,7 @@ function Login() {
                                     "rT",
                                     res.data.data.refreshToken
                                 );
-                            navigate("/dashboard");
+                            navigate("/");
                             break;
                         case "show-passInput":
                             setmailConfirmed(true);
