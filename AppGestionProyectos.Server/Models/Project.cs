@@ -11,9 +11,8 @@ namespace AppGestionProyectos.Server.Models
         public String Name { get; set; }
         [Required]
         public DateTime Creation_date { get; set; }
-        [Required]
-        public int Status { get; set; }
-        [Required]
-        public string W_environment_id { get; set; }
+
+        
     }
+
 }

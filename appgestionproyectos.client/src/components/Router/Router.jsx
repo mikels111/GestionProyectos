@@ -1,13 +1,13 @@
 import React, { Component, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Login from '../Login/Login';
-import Dashboard from '../Dashboard/Dashboard';
+import Workspace from '../Workspace/Workspace';
 import Register from '../Register/Register';
 import ErrorView from '../Error/Error';
 import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
-function Router({user}) {
+function Router({ user, handleWorkspaceSelection }) {
     const navigate = useNavigate();
-    
+
     //useEffect(() => {
     //    console.log("useeffect");
     //    AuthRequest('project/get').
@@ -33,13 +33,26 @@ function Router({user}) {
     //        });
     //}, []);
 
+    const handleSelectionParent = (event) => {
+        //console.log(event)
+        handleWorkspaceSelection(event);
+    }
     return (
         <Routes>
             <Route path="/Login" element={<Login />} />
-            <Route path="/Dashboard" element={<Dashboard />} />
             <Route path="/Register" element={<Register />} />
             <Route path="/Error" element={<ErrorView />} />
-            <Route path="/" element={<h2>Hello {user.Name}</h2>} />
+            <Route path="/"
+                element={
+                    <React.Fragment>
+                        <h2>Hello {user.Name}</h2>
+                        <Workspace
+                            selectWorkspace={handleSelectionParent}
+                        />
+                    </React.Fragment>
+                }
+
+            />
         </Routes>
     );
 

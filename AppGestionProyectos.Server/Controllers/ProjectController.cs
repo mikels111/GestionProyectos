@@ -17,9 +17,9 @@ namespace AppGestionProyectos.Server.Controllers
         {
             _project = project;
         }
-        [Route("get")]
-        [HttpPost]
-        public IActionResult GetProject()
+        [Route("getProjects")]
+        [HttpGet]
+        public async Task<IActionResult> GetProjects([FromQuery(Name = "fields")] string fields)
         {
             return Ok(new ApiResponse<object>(true, "access-granted", null));
         }

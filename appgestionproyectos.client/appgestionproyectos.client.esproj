@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="src\components\Error\" />
+    <Folder Include="src\components\Project\" />
     <Folder Include="src\components\Register\" />
   </ItemGroup>
 </Project>

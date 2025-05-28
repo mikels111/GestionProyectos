@@ -8,10 +8,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from './Components/SideBar/SideBar'
 import { Notify } from './Utils/Notifications';
 import { ToastContainer } from 'react-toastify';
+import Workspace from './components/Workspace/Workspace';
 
 function App() {
     const [user, setUser] = useState({});
     const { warn, info } = Notify();
+    const [selectedWorkspace, setSelectedWorkspace] = useState();
     useEffect(() => {
         const token = localStorage.getItem("aT");
         console.log("app UseEffect")
@@ -21,14 +23,28 @@ function App() {
             setUser(tokenPayload);
         }
     }, []);
+    const handleSelection = (wspace) => {
+        //console.log(wspace, "selection from app");
+        setSelectedWorkspace(wspace);
+    }
+
     return (
         <BrowserRouter>
             <div className={styles["app-wrapper"]}>
-                <ToastContainer hideProgressBar draggable />
-                <Sidebar user={user} />
+                <ToastContainer
+                    hideProgressBar
+                    draggable
+                />
+                <Sidebar
+                    user={user}
+                    workspace={selectedWorkspace}
+                />
                 <div className={styles["main-wrapper"]}>
                     <div className={styles.main}>
-                        <Router user={user} />
+                        <Router
+                            user={user}
+                            handleWorkspaceSelection={handleSelection}
+                        />
                     </div>
                 </div>
             </div>

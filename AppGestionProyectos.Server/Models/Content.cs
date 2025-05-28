@@ -7,7 +7,7 @@ namespace AppGestionProyectos.Server.Models
     {
         [Key]
         public int Id { get; set; }
-        public int Project_id { get; set; }
+        public int Status_id { get; set; }
         public string text { get; set; }
         [Required]
         public DateTime Creation_date { get; set; }

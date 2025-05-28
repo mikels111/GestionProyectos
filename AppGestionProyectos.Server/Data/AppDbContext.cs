@@ -25,9 +25,10 @@ namespace AppGestionProyectos.Server.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<Role> Role { get; set; }
         public DbSet<User> User { get; set; }
-        public DbSet<WorkEnvironment> WorkEnvironment { get; set; }
+        public DbSet<WorkEnvironment> Work_Environment { get; set; }
         public DbSet<Project> Project { get; set; }
         public DbSet<Content> Content { get; set; }
+        public DbSet<UserWEnvironment> User_W_Environment { get; set; }
 
     }
 }

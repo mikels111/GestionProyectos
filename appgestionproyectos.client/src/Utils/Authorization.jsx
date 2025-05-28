@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export function AuthRequest(url) {
+export function AuthRequest(url, method, data = {}) {
     const baseUrl = 'https://localhost:7233/';
     const urlResult = baseUrl.concat(url);
     const accessToken = localStorage.getItem("aT");
@@ -8,7 +8,8 @@ export function AuthRequest(url) {
     if (url != null || accessToken != null) {
         return axios
             ({
-                method: 'post',
+                data: data,
+                method: method,
                 url: urlResult,
                 headers: {
                     'Content-Type': 'application/json',
@@ -29,10 +30,10 @@ export function AuthRequest(url) {
                             console.error(
                                 "Error on refresh token:",
                                 err);
-                            rtResult = err;
-                            return Promise.reject(err);
                         });
                 }
+                //localStorage.removeItem("aT");
+                //localStorage.removeItem("rT");
                 return Promise.reject(err);
             });
     }

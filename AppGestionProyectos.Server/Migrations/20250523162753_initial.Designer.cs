@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AppGestionProyectos.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241211122227_initial")]
+    [Migration("20250523162753_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -36,7 +36,7 @@ namespace AppGestionProyectos.Server.Migrations
                     b.Property<DateTime>("Creation_date")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Project_id")
+                    b.Property<int>("Status_id")
                         .HasColumnType("int");
 
                     b.Property<string>("text")
@@ -60,13 +60,6 @@ namespace AppGestionProyectos.Server.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("W_environment_id")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -100,6 +93,9 @@ namespace AppGestionProyectos.Server.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("Code_expiration")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<bool>("Is_verified")
                         .HasColumnType("tinyint(1)");
 
@@ -113,20 +109,45 @@ namespace AppGestionProyectos.Server.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("RefreshTokenExpiration")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("verification_code")
-                        .IsRequired()
+                    b.Property<string>("Verification_code")
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("AppGestionProyectos.Server.Models.UserWEnvironment", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("W_environment")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Creator_mail")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Rol_w_environment")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("UserId", "W_environment");
+
+                    b.ToTable("User_W_Environment");
                 });
 
             modelBuilder.Entity("AppGestionProyectos.Server.Models.WorkEnvironment", b =>

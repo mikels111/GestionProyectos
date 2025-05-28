@@ -34,7 +34,7 @@ namespace AppGestionProyectos.Server.Controllers
             Models.User.UserDTO userFields = new Models.User.UserDTO();
             if (Request.ContentLength == 0)
             {
-                return BadRequest(new ApiResponse<object>(false, "bad-request", false, "body could not be null"));
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false));
             }
             try
             {
@@ -126,7 +126,7 @@ namespace AppGestionProyectos.Server.Controllers
             Models.User.UserDTO userFields = new Models.User.UserDTO();
             if (Request.ContentLength == 0)
             {
-                return BadRequest(new ApiResponse<object>(false, "bad-request", false, "body could not be null"));
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false));
             }
             try
             {
@@ -159,7 +159,7 @@ namespace AppGestionProyectos.Server.Controllers
                     return BadRequest(new ApiResponse<object>(false, "bad-request", false, "One or more fields could be null or empty"));
 
                 }
-                #region guardar en bd correo y contraseña
+                #region guardar correo y contraseña en bd
                 userFields.TypeMail = "email";
                 Task<TokenResponse> createUser = Models.User.CreateUser(userFields, _AppDbContext, _config);
                 if (createUser.Result.AccessToken != null)
@@ -203,11 +203,6 @@ namespace AppGestionProyectos.Server.Controllers
             }
             try
             {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
-                };
                 string emailPattern = @"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$";
                 if (!Regex.IsMatch(fields, emailPattern) || Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
                 {
