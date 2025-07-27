@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:5173",
+"RedirectUrl": "",
+"LaunchCommand": "npm run dev",
+"WorkingDirectory": "C:\\Users\\Mikel\\Documents\\Proyectos\\gestion_proyectos\\AppGestionProyectos\\AppGestionProyectos.Server\\..\\appgestionproyectos.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}

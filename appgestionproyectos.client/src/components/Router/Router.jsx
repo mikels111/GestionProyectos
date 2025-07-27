@@ -1,59 +1,83 @@
-import React, { Component, useEffect } from "react";
+import React, { Component, useEffect, useContext, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Login from '../Login/Login';
 import Workspace from '../Workspace/Workspace';
 import Register from '../Register/Register';
 import ErrorView from '../Error/Error';
+import Project from '../Project/Project';
 import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
-function Router({ user, handleWorkspaceSelection }) {
+//import { Context } from '../../App';
+import Sidebar from '../SideBar/SideBar'
+import styles from '../../App.module.css';
+import { ToastContainer } from 'react-toastify';
+import { ProtectedRoute,Protected } from '../Protected';
+export const Context = React.createContext();
+function Router({ handleWorkspaceSelection }) {
+    //const { user, setUser, selectedWorkspace, setSelectedWorkspace } = useContext(Context);
     const navigate = useNavigate();
 
-    //useEffect(() => {
-    //    console.log("useeffect");
-    //    AuthRequest('project/get').
-    //        then((res) => {
-    //            console.log("reqResult:", res);
-    //            console.log("success:", res.data.success)
-    //            console.log("message", res.data.message)
+    //const [token, setToken] = useState(() => {
+    //    let localAT = localStorage.getItem("aT");
+    //    if (localAT == null) {
+    //        navigate("/login");
+    //    } else {
+    //        return localAT;
+    //    }
+    //});
+    //const [user, setUser] = useState(() => {
+    //    let arrayToken = "";
+    //    let tokenPayload = {};
+    //    console.log("token listo", token);
+    //    if (token != null) {
+    //        arrayToken = token.split('.');
+    //        tokenPayload = JSON.parse(atob(arrayToken[1]));
+    //        return tokenPayload;
+    //    }
+    //    navigate("/login");
+    //});
+    const [globalUser, setGlobalUser] = useState();
+    const [globalWorkspace, setGlobalWorkspace] = useState();
 
-    //            if (res.data.success == true &&
-    //                res.data.message == "tokens-refreshed") {
-    //                AuthRequest('project/get').
-    //                    then((res) => {
-    //                        console.log("project/get reintentado", res);
-    //                    }).
-    //                    catch((err) => {
-    //                        console.log("project/get fallo", err);
-    //                    });
-    //            }
-    //        }).
-    //        catch((err) => {
-    //            console.error(err);
-    //            navigate("/login");
-    //        });
-    //}, []);
+    //const handleSelectionParent = (event) => {
+    //    handleWorkspaceSelection(event);
+    //}
 
-    const handleSelectionParent = (event) => {
-        //console.log(event)
-        handleWorkspaceSelection(event);
-    }
     return (
-        <Routes>
-            <Route path="/Login" element={<Login />} />
-            <Route path="/Register" element={<Register />} />
-            <Route path="/Error" element={<ErrorView />} />
-            <Route path="/"
-                element={
-                    <React.Fragment>
-                        <h2>Hello {user.Name}</h2>
-                        <Workspace
-                            selectWorkspace={handleSelectionParent}
+        <Context.Provider value={{ globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace }} >
+            <React.Fragment>
+                <div className={styles["app-wrapper"]}>
+                    <ToastContainer
+                        hideProgressBar
+                        draggable
+                    />
+                    <Protected>
+                        <Sidebar
+                        //user={user}
+                        //workspace={selectedWorkspace}
                         />
-                    </React.Fragment>
-                }
+                    </Protected>
 
-            />
-        </Routes>
+                    <div className={styles["main-wrapper"]}>
+                        <div className={styles.main}>
+                            <Routes>
+                                <Route exact path="/Login" element={<Login />} />
+                                <Route exact path="/Register" element={<Register />} />
+                                <Route exact path="*" element={<ErrorView />} />
+
+                                <Route element={<ProtectedRoute />}>
+                                    <Route exact path="/" element={<Workspace />} />
+                                    <Route exact path="/Project/:projectId" element={<Project />} />
+                                </Route>
+                                {/*<Route  element={<ProtectedRoute />} >*/}
+                                    
+                                {/*</Route>*/}
+
+                            </Routes>
+                        </div>
+                    </div>
+                </div>
+            </React.Fragment>
+        </Context.Provider>
     );
 
 }

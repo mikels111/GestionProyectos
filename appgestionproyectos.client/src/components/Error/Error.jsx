@@ -1,13 +1,10 @@
 import { NavLink } from 'react-router-dom';
+import React from 'react';
 function ErrorView() {
     const containerStyles = {
-        backgroundColor: "#f9f9fc",
-        margin: "0",
-        padding: "0",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        height: "100vh",
         color: "#333",
         flexDirection: "column",
         gap: "20px"

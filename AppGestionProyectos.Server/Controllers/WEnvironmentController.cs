@@ -25,35 +25,25 @@ namespace AppGestionProyectos.Server.Controllers
 
         [Route("getWEnvironments")]
         [HttpGet]
-        public async Task<IActionResult> GetWorkspaces([FromQuery(Name = "fields")] string fields)
+        public async Task<IActionResult> GetWorkspaces()
         {
-            Models.User.UserDTO userFields = new Models.User.UserDTO();
-            if (Request.ContentLength == 0)
-            {
-                return BadRequest(new ApiResponse<object>(false, "bad-request", false));
-            }
+            List<WorkEnvironment> workEnvironments = new List<WorkEnvironment>();
             try
             {
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-                };
-
-                if (Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
-                {
-                    return BadRequest(new ApiResponse<object>(false, "bad-request", null));
-                }
-
+                //if (!string.IsNullOrEmpty(fields) && Regex.IsMatch(fields, @"<[^>]+>"))
+                //{
+                //    return BadRequest(new ApiResponse<object>(false, "bad-request", null));
+                //}
+                Console.WriteLine(User.Identities.FirstOrDefault(claim=>claim.Name=="Mail"));
+                string? userEmail = User.Claims.FirstOrDefault(c => c.Type == "Mail")?.Value;
                 //consulta
-                List<WorkEnvironment> workEnvironments = await Models.WorkEnvironment.GetUserWEnvironments(fields, _AppDbContext);
-                return Ok(new ApiResponse<object>(true, "success", workEnvironments));
-
+                workEnvironments = await Models.WorkEnvironment.GetUserWEnvironments(userEmail, _AppDbContext);
             }
             catch (Exception ex)
             {
                 return BadRequest(new ApiResponse<object>(false, "bad-request", null, ex.ToString()));
             }
+            return Ok(new ApiResponse<object>(true, "success", workEnvironments));
         }
     }
 }

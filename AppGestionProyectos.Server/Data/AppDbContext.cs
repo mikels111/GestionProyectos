@@ -29,6 +29,7 @@ namespace AppGestionProyectos.Server.Data
         public DbSet<Project> Project { get; set; }
         public DbSet<Content> Content { get; set; }
         public DbSet<UserWEnvironment> User_W_Environment { get; set; }
+        public DbSet<UserProject> User_Project { get; set; }
 
     }
 }

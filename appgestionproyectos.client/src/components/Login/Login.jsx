@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect, useContext } from 'react'
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,19 +7,21 @@ import { verifyMailFunction } from '../../Utils/Verification';
 import { Notify } from '../../Utils/Notifications';
 import { ToastContainer } from 'react-toastify';
 import Loader from '../../Utils/Loader';
-
+//import { Context } from '../../App';
 function Login() {
+    //const { user, setUser, accessToken, setAccessToken, refreshToken, setRefreshToken } = useContext(Context);
     const navigate = useNavigate();
     const { warn, info } = Notify();
     useEffect(() => {
         const refreshToken = localStorage
             .getItem("rT");
+        //console.log("refreshtoken", refreshToken)
         if (refreshToken != null) {
-            navigate("/");
+            //navigate("/");
         }
     }, []);
 
-    const [user, setUser] = useState({
+    const [mail, setMail] = useState({
         mail: ""
     });
     const importantStyle = {
@@ -77,7 +79,8 @@ function Login() {
                                     "rT",
                                     res.data.data.refreshToken
                                 );
-                            navigate("/dashboard");
+
+                            navigate("/");
                         }
                         //messg === "show-codeInput"
                         setShowCodeInput(true);
@@ -100,32 +103,35 @@ function Login() {
         setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
-        //console.log(jsonFormData);
-        axios.post(`https://localhost:7233/auth/MailAuth`,
-            jsonFormData,
+        console.log(jsonFormData);
+        axios(
             {
+                withCredentials: true,
+                data: jsonFormData,
+                method: 'post',
+                url: `https://localhost:7233/auth/MailAuth`,
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            })
-            .then((res) => {
+            }).then((res) => {
+                console.log("res", res);
                 if (res.status == 200) {
                     let messg = res.data.message;
                     switch (messg) {
                         case "access-granted":
                             console.log("access-granted");
-                            
-                            localStorage
-                                .setItem(
-                                    "aT",
-                                    res.data.data.accessToken
-                                );
-                            localStorage
-                                .setItem(
-                                    "rT",
-                                    res.data.data.refreshToken
-                                );
-                            navigate("/");
+                            //localStorage
+                            //    .setItem(
+                            //        "aT",
+                            //        res.data.data.accessToken
+                            //    );
+                            //localStorage
+                            //    .setItem(
+                            //        "rT",
+                            //        res.data.data.refreshToken
+                            //    );
+                            //navigate("/");
+                            window.location.href = "/"; 
                             break;
                         case "show-passInput":
                             setmailConfirmed(true);
@@ -139,11 +145,10 @@ function Login() {
                             break;
                     }
 
-                    setUser({ user, mail: jsonFormData.Mail });
+                    setMail(jsonFormData.Mail);
                 }
                 setLoading(false);
-            })
-            .catch((err) => {
+            }).catch((err) => {
                 let messag = "We’re having technical issues. Please try again later.";
                 console.error("Error: ", err);
                 if (err.status == 401) {
@@ -151,7 +156,60 @@ function Login() {
                 }
                 warn(messag);
                 setLoading(false);
-            })
+            });
+        //axios.post(`https://localhost:7233/auth/MailAuth`,
+        //    jsonFormData,
+        //    {
+        //        withcredentials: true,
+        //        headers: {
+        //            'Content-Type': 'application/json'
+        //        }
+        //    })
+        //    .then((res) => {
+        //        console.log("res", res);
+        //        if (res.status == 200) {
+        //            let messg = res.data.message;
+        //            switch (messg) {
+        //                case "access-granted":
+        //                    console.log("access-granted");
+
+        //                    localStorage
+        //                        .setItem(
+        //                            "aT",
+        //                            res.data.data.accessToken
+        //                        );
+        //                    localStorage
+        //                        .setItem(
+        //                            "rT",
+        //                            res.data.data.refreshToken
+        //                        );
+        //                    navigate("/");
+        //                    break;
+        //                case "show-passInput":
+        //                    setmailConfirmed(true);
+        //                    break;
+        //                case "show-codeInput":
+        //                    setShowCodeInput(true);
+        //                    setCodeCountDown(59);
+        //                    break;
+        //                default:
+        //                    console.log("Server error");
+        //                    break;
+        //            }
+
+        //            setMail(jsonFormData.Mail);
+        //        }
+        //        setLoading(false);
+        //    })
+        //    .catch((err) => {
+        //        let messag = "We’re having technical issues. Please try again later.";
+        //        console.error("Error: ", err);
+        //        if (err.status == 401) {
+        //            messag = "Incorrect credentials";
+        //        }
+        //        warn(messag);
+        //        setLoading(false);
+        //    })
     };
     const verifyCode = (e) => {
         //mandar peticion a /verify con el codigo introducido y el mail guardado en state
@@ -159,7 +217,7 @@ function Login() {
         setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
-        jsonFormData['Mail'] = user.mail;
+        jsonFormData['Mail'] = mail;
         axios.post(`https://localhost:7233/auth/verify`,
             jsonFormData,
             {
@@ -171,7 +229,7 @@ function Login() {
                 if (res.status == 200) {
                     localStorage.setItem("aT", res.data.data.accessToken);
                     localStorage.setItem("rT", res.data.data.refreshToken);
-                    navigate("/dashboard");
+                    navigate("/");
                 } else {
                     console.log(res.data.message);
                 }
@@ -206,7 +264,7 @@ function Login() {
                     setmailConfirmed(true);
                     info("No user was found with that email. Enter a password to register")
                 }
-                setUser({ mail: jsonFormData.Mail });
+                setMail(jsonFormData.Mail);
                 setLoading(false);
             }
         } catch (err) {
@@ -252,8 +310,8 @@ function Login() {
                             "rT",
                             res.data.data.refreshToken
                         );
-                    setUser({ mail: jsonFormData.Mail });
-                    navigate("/dashboard", { replace: "true" });
+                    setMail(jsonFormData.Mail);
+                    navigate("/");
                 }
                 setLoading(false);
             })
@@ -275,7 +333,7 @@ function Login() {
                 {showCodeInput ? (
                     <React.Fragment>
                         {/*{Code form}*/}
-                        <p>A 5-digit code has been sent to <span style={importantStyle}>{user.mail}</span>. Please enter it below.<br />Don't forget to look in your <span style={importantStyle}>spam</span> folder.<br /><br />
+                        <p>A 5-digit code has been sent to <span style={importantStyle}>{mail}</span>. Please enter it below.<br />Don't forget to look in your <span style={importantStyle}>spam</span> folder.<br /><br />
                             The code expires in {codeCountDown} seconds</p>
                         <form className="email-form" onSubmit={verifyCode} key="codeForm">
                             <div className="input-container">
@@ -299,7 +357,7 @@ function Login() {
 
                                     {mailConfirmed &&
                                         <div className="input-container">
-                                                <label className="input-label">Password (8 characters)</label>
+                                            <label className="input-label">Password (8 characters)</label>
                                             <input type="password" name="Password" id="password" required />
                                         </div>
                                     }

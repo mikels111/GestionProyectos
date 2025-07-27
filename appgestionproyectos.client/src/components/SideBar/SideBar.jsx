@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { AuthRequest } from '../../Utils/Authorization';
 import {
     BeakerIcon,
@@ -17,10 +17,11 @@ import {
 import { useNavigate, NavLink } from 'react-router-dom';
 import styles from './SideBar.module.css'
 import { Tree } from 'react-arborist';
+import { Context } from '../Router/Router';
 
 
-
-function SideBar({ user, workspace }) {
+function SideBar() {
+    const { globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace } = useContext(Context);
     const navigate = useNavigate();
 
     let fullSidebarHeight = "calc(100vh - 32px)";
@@ -32,31 +33,112 @@ function SideBar({ user, workspace }) {
     const [sideBarStyles, setSideBarStyles] = useState({ height: fullSidebarHeight });
     const [sideBarCurrentScrollHeight, setSideBarCurrentScrollHeight] = useState(null);
     const [windowSize, setWindowSize] = useState();
-    const [userProjects, setUserProjects] = useState();
+    const [userProjects, setUserProjects] = useState([]);
+    const [menu, setMenu] = useState(
+        [{
+            id: "1",
+            name: "Home",
+            route: "/",
+            icon: () => <HomeIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} />
+        },
+        {
+            id: "2",
+            name: "Projects",
+            icon: () => <BriefcaseIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} />,
+            children: []
+
+        }]
+    );
+
+    const [token, setToken] = useState(() => {
+        let localAT = localStorage.getItem("aT");
+        if (localAT == null) {
+            navigate("/login");
+        } else {
+            return localAT;
+        }
+    });
+    const [user, setUser] = useState(() => {
+        let arrayToken = "";
+        let tokenPayload = {};
+        //console.log("token listo", token);
+        if (token != null) {
+            arrayToken = token.split('.');
+            tokenPayload = JSON.parse(atob(arrayToken[1]));
+            return tokenPayload;
+        }
+        navigate("/login");
+    });
+
+    const [selectedWorkspace, setSelectedWorkspace] = useState();
+    useEffect(() => {
+
+        setGlobalUser(user);
+        AuthRequest(`WEnvironment/getWEnvironments`, 'get').
+            then((res) => {
+                //setWEnvironments(res.data.data);
+                let workSpcLocal = localStorage.getItem("worksp");
+                console.log(localStorage.getItem("worksp"), "workSpcLocal")
+                if (!localStorage.getItem("worksp") || localStorage.getItem("worksp") == undefined) {
+                    //setSelectedWorkspace(res.data.data[0])
+                    //console.log(selectedWorkspace);
+                    console.log("setting worksapce");
+                    localStorage
+                        .setItem(
+                            "worksp",
+                            JSON.stringify(res.data.data[0])
+                        );
+                }
+                //console.log(workSpcLocal);
+                setSelectedWorkspace(workSpcLocal);
+                setGlobalWorkspace(workSpcLocal);
+            }).
+            catch((err) => {
+                console.error(err.status);
+                if (err.status == 401) {
+                    navigate("/login");
+
+                }
+            });
+    }, []);
+
     useEffect(() => {
         setSideBarCurrentScrollHeight(sideBar.current.scrollHeight + "px");
     }, [sideBarCurrentScrollHeight]);
     useEffect(() => {
+
         try {
-            console.log(workspace, "selected workspace");
-            AuthRequest(`Project/getProjects?fields=${user.sub}&workspace=${workspace}`, 'get').
-                then((res) => {
-                    
+            if (selectedWorkspace != null) {
+                let parsedSelectWorkSpc = JSON.parse(selectedWorkspace);
+                //console.log(parsedSelectWorkSpc, "Sidebar selected workspace parsed");
+                //console.log(selectedWorkspace, "Sidebar selected workspace");
+                AuthRequest(`Project/getProjects?workspace=${parsedSelectWorkSpc.id}`, 'get').
+                    then((res) => {
+                        //console.log(res);
+                        const proj = res.data.data;
+                        proj.map((project, i) => {
+                            project.project_id = project.id;
+                            project.route = `/project/${project.id}`
+                            project.id = `p${i}`;
+                        })
+                        //console.log("projects obtenidos", proj)
+                        setUserProjects(proj)
 
+                    }).
+                    catch((err) => {
+                        //console.error(err.status);
+                        if (err.status == 401) {
+                            navigate("/login");
+                        }
+                    });
+            }
 
-                }).
-                catch((err) => {
-                    console.error(err.status);
-                    if (err.status == 401) {
-                        navigate("/login");
-                    }
-                });
 
         } catch (Exception) {
             console.error(Exception);
         }
 
-    }, [workspace]);
+    }, [selectedWorkspace]);
     useEffect(() => {
 
         const handleResize = () => {
@@ -85,37 +167,26 @@ function SideBar({ user, workspace }) {
         navigate("/login");
     }
 
-    const data = [
-        {
-            id: "1",
-            name: "Home",
-            route: "/",
-            icon: () => <HomeIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} />
-        },
-        {
-            id: "2",
-            name: "Projects",
-            icon: () => <BriefcaseIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} />,
-            children: userProjects
-            //children: [
-            //    {
-            //        id: "c1",
-            //        name: "General",
-            //        route: "/project"
-            //    },
-            //    {
-            //        id: "c2",
-            //        name: "Random",
-            //        route: "/project"
-            //    },
-            //    {
-            //        id: "c3",
-            //        name: "Open Source Projects",
-            //        route: "/project"
-            //    }
-            //]
-        }
-    ];
+    useEffect(() => {
+        setMenu(
+            prev => {
+                const newMenu = prev.map(item => {
+                    if (item.id === "2") {
+                        return { ...item, children: [...userProjects] };
+                    }
+                    return item;
+                });
+                return [...newMenu];
+            }
+        );
+        //console.log("userProjects cargado:", menu);
+
+    }, [userProjects]);
+
+    useEffect(() => {
+        //console.log("menu actualizado:", menu);
+    }, [menu]);
+
     function Node({ node, style, dragHandle }) {
         const hasChildren = node.isInternal;
         const isChild = node.level > 0;
@@ -125,12 +196,12 @@ function SideBar({ user, workspace }) {
         //console.log("icon", node.data.icon)
         const handleClick = () => {
 
-            if (hasChildren) {
+            if (hasChildren && userProjects.length > 0) {
                 node.toggle(); // Abre o cierra el nodo si tiene hijos
             }
 
         };
-        /* This node instance can do many things. See the API reference. */
+
         return (
             //<div style={style}>
 
@@ -145,7 +216,7 @@ function SideBar({ user, workspace }) {
 
                         <span className={styles['nav-label']}>{node.data.name}</span>
                         <span className={styles["arrow-down"]}>
-                            {hasChildren &&
+                            {hasChildren && userProjects.length > 0 &&
                                 <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleClick} />
                             }
                         </span>
@@ -172,6 +243,9 @@ function SideBar({ user, workspace }) {
     }
 
     return (
+        //<Context.Provider value={{ user, setUser }} >
+
+
         <React.Fragment>
             <aside className={sideBarClasses} ref={sideBar} style={sideBarStyles}>
 
@@ -195,7 +269,7 @@ function SideBar({ user, workspace }) {
                 <nav className={styles['sidebar-nav']}>
                     {/*Primary top nav*/}
                     <ul className={[styles['nav-list'], styles['primary-nav']].join(' ')}>
-                        <Tree initialData={data}
+                        <Tree data={menu}
                             openByDefault={false}
                             width={"inherit"}
                             height={300}
@@ -253,6 +327,7 @@ function SideBar({ user, workspace }) {
                 </nav>
             </aside>
         </React.Fragment>
+        //</Context.Provider>
     );
 }
 

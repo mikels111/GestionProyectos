@@ -8,12 +8,13 @@ export function AuthRequest(url, method, data = {}) {
     if (url != null || accessToken != null) {
         return axios
             ({
+                withCredentials: true,
                 data: data,
                 method: method,
                 url: urlResult,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
+                    //'Authorization': `Bearer ${accessToken}`
                 }
             })
             .then(function (res) {

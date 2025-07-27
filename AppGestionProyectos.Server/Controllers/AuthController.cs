@@ -1,20 +1,23 @@
 ﻿using AppGestionProyectos.Server.Data;
 using AppGestionProyectos.Server.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Net.Mail;
-using System.Net;
-using System.Text.Json;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using AppGestionProyectos.Server.Services;
-using System.Security.Cryptography;
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using System;
-using NuGet.Common;
 using Newtonsoft.Json.Linq;
+using NuGet.Common;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Mail;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 
@@ -32,15 +35,33 @@ namespace AppGestionProyectos.Server.Controllers
             _AppDbContext = appDbContext;
             _config = config;
         }
+        [HttpGet]
+        //[Route("")]
         public IActionResult Index()
         {
             return View();
         }
 
         [HttpPost]
+        [EnableCors("whiteListOrigins")]
         [Route("MailAuth")]
         public async Task<IActionResult> MailAuthAsync([FromBody] object? fields)
         {
+
+            //var options = new CookieOptions
+            //{
+            //    Expires = DateTimeOffset.Now.AddDays(1),
+            //    HttpOnly = true,
+            //    Secure = true,     // si usas HTTPS
+            //    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
+            //    //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
+            //    //Path = "/",
+            //    Domain = "localhost",
+            //    IsEssential = true // Asegura que la cookie se envíe incluso si no se ha iniciado sesión
+            //};
+            //Response.Cookies.Append("miCookie", "valor123", options);
+            //return Ok();
+
             Models.User.UserDTO userFields = new Models.User.UserDTO();
             if (Request.ContentLength == 0)
             {
@@ -85,6 +106,24 @@ namespace AppGestionProyectos.Server.Controllers
                             {
                                 return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
                             }
+
+                            //Encoding.UTF8.GetBytes(_config["host:back"])
+
+                            var options = new CookieOptions
+                            {
+                                Expires = DateTimeOffset.Now.AddDays(1),
+                                HttpOnly = true,
+                                Secure = true,     // si usas HTTPS
+                                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                                //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
+                                //Path = "/",
+                                Domain = "localhost"
+                            };
+                            Response.Cookies.Append("AT", token.Result.AccessToken, options);
+                            Response.Cookies.Append("RT", token.Result.RefreshToken, options);
+                            //Response.Headers.AccessControlAllowOrigin = "*";
+                            //return Redirect($"{_config["host:front"]}/");
+                            //return Redirect("https://localhost:5173");
                             return Ok(new ApiResponse<object>(true, "access-granted", token.Result));
                         }
                         return StatusCode(500, new ApiResponse<object>(false, "server-error", false, "Error when calling the GenerateToken function"));
@@ -236,5 +275,17 @@ namespace AppGestionProyectos.Server.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet]
+        [Route("Check")]
+        public IActionResult Check()
+        {
+            Console.WriteLine("User is authenticated: " + User.Identity.IsAuthenticated);
+            return Ok(new ApiResponse<object>(true, "user-authenticated", null));
+
+            //// If not authenticated, return an unauthorized response
+            // return Unauthorized(new ApiResponse<object>(false, "user-not-authenticated", null));
+
+        }
     }
 }

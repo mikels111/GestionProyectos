@@ -48,19 +48,23 @@ namespace AppGestionProyectos.Server.Migrations
             modelBuilder.Entity("AppGestionProyectos.Server.Models.Project", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    b.Property<int>("W_Environment_id")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("Creation_date")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Json_data")
+                        .IsRequired()
+                        .HasColumnType("json");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id", "W_Environment_id");
 
                     b.ToTable("Project");
                 });
@@ -126,9 +130,26 @@ namespace AppGestionProyectos.Server.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("AppGestionProyectos.Server.Models.UserProject", b =>
+                {
+                    b.Property<int>("User_Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Project_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Creator_mail")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("User_Id", "Project_Id");
+
+                    b.ToTable("User_Project");
+                });
+
             modelBuilder.Entity("AppGestionProyectos.Server.Models.UserWEnvironment", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("User_Id")
                         .HasColumnType("int");
 
                     b.Property<int>("W_environment")
@@ -142,7 +163,7 @@ namespace AppGestionProyectos.Server.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("UserId", "W_environment");
+                    b.HasKey("User_Id", "W_environment");
 
                     b.ToTable("User_W_Environment");
                 });
@@ -164,7 +185,7 @@ namespace AppGestionProyectos.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WorkEnvironment");
+                    b.ToTable("Work_Environment");
                 });
 #pragma warning restore 612, 618
         }

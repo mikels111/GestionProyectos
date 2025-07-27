@@ -279,7 +279,7 @@ namespace AppGestionProyectos.Server.Models
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, email),
+                    new Claim("Mail", email),
                     new Claim("Name",email.Split('@')[0])
                 }),
                 Expires = DateTime.Now.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
