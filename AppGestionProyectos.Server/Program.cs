@@ -49,7 +49,7 @@ builder.Services.AddAuthentication(options =>
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     }
-    )
+    ).AddCookie()
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;

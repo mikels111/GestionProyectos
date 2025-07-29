@@ -77,7 +77,7 @@ function SideBar() {
         AuthRequest(`WEnvironment/getWEnvironments`, 'get').
             then((res) => {
                 //setWEnvironments(res.data.data);
-                let workSpcLocal = localStorage.getItem("worksp");
+                let workSpcLocal = JSON.parse(localStorage.getItem("worksp")).id;
                 console.log(localStorage.getItem("worksp"), "workSpcLocal")
                 if (!localStorage.getItem("worksp") || localStorage.getItem("worksp") == undefined) {
                     //setSelectedWorkspace(res.data.data[0])
@@ -92,6 +92,7 @@ function SideBar() {
                 //console.log(workSpcLocal);
                 setSelectedWorkspace(workSpcLocal);
                 setGlobalWorkspace(workSpcLocal);
+
             }).
             catch((err) => {
                 console.error(err.status);
@@ -108,11 +109,12 @@ function SideBar() {
     useEffect(() => {
 
         try {
-            if (selectedWorkspace != null) {
-                let parsedSelectWorkSpc = JSON.parse(selectedWorkspace);
+            if (globalWorkspace != null) {
+                console.log(globalWorkspace, "GLOBAL WORKSPACE")
+                //let parsedSelectWorkSpc = JSON.parse(globalWorkspace);
                 //console.log(parsedSelectWorkSpc, "Sidebar selected workspace parsed");
                 //console.log(selectedWorkspace, "Sidebar selected workspace");
-                AuthRequest(`Project/getProjects?workspace=${parsedSelectWorkSpc.id}`, 'get').
+                AuthRequest(`Project/getProjects?workspace=${globalWorkspace}`, 'get').
                     then((res) => {
                         //console.log(res);
                         const proj = res.data.data;
@@ -138,7 +140,7 @@ function SideBar() {
             console.error(Exception);
         }
 
-    }, [selectedWorkspace]);
+    }, [globalWorkspace]);
     useEffect(() => {
 
         const handleResize = () => {
@@ -162,9 +164,24 @@ function SideBar() {
     }, [sideBarActive]);
 
     const logout = () => {
-        localStorage.removeItem("aT");
-        localStorage.removeItem("rT");
-        navigate("/login");
+        //localStorage.removeItem("aT");
+        //localStorage.removeItem("rT");
+        fetch("https://localhost:7233/auth/logout", {
+            credentials: "include",
+        })
+            .then((res) => {
+                //console.log("is authenticated")
+                //setIsAuthenticated(res.ok);
+                console.log(res, "response")
+                //navigate("/login");
+                window.location.href = "/login";
+            })
+            .catch((err) => {
+                //console.log("is NOT authenticated")
+                //setIsAuthenticated(false);
+                console.log(err, "response")
+
+            });
     }
 
     useEffect(() => {

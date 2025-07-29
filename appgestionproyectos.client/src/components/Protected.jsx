@@ -11,7 +11,7 @@ export const ProtectedRoute = () => {
     const { isAuthenticated, loading } = useCheckUser();
 
     if (loading) {
-        return <p>Cargando...</p>; // o un spinner
+        return <p>Loading...</p>; // o un spinner
     }
     console.log("ProtectedRoute->isauthenticated:", isAuthenticated);
     return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;

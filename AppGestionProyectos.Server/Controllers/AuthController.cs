@@ -1,6 +1,8 @@
 ﻿using AppGestionProyectos.Server.Data;
 using AppGestionProyectos.Server.Models;
 using AppGestionProyectos.Server.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -278,9 +280,25 @@ namespace AppGestionProyectos.Server.Controllers
         [Authorize]
         [HttpGet]
         [Route("Check")]
-        public IActionResult Check()
+        public async Task<IActionResult> Check()
         {
-            Console.WriteLine("User is authenticated: " + User.Identity.IsAuthenticated);
+            //Console.WriteLine("User is authenticated: " + User.Identity.IsAuthenticated);
+            var claimsIdentity = new ClaimsIdentity(User.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            return Ok(new ApiResponse<object>(true, "user-authenticated", null));
+
+            //// If not authenticated, return an unauthorized response
+            // return Unauthorized(new ApiResponse<object>(false, "user-not-authenticated", null));
+
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            Response.Cookies.Delete("AT");
             return Ok(new ApiResponse<object>(true, "user-authenticated", null));
 
             //// If not authenticated, return an unauthorized response
