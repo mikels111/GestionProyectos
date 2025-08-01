@@ -14,7 +14,7 @@ function Project() {
     const [actualProject, setActualProject] = useState(() => {
         return projectId;
     });
-    const DEFAULT_DATA = {
+    const ERROR_DATA = {
         "time": new Date().getTime(),
         "blocks": [
             {
@@ -26,8 +26,20 @@ function Project() {
             }
         ]
     }
+    const DEFAULT_DATA = {
+        "time": new Date().getTime(),
+        "blocks": [
+            {
+                "type": "header",
+                "data": {
+                    "text": "new project",
+                    "level": 1
+                }
+            }
+        ]
+    }
 
-    const [projectData, setProjectData] = useState(null);
+    const [projectData, setProjectData] = useState();
 
     useEffect(() => {
         //console.log("projectid", projectId);
@@ -41,16 +53,24 @@ function Project() {
 
             AuthRequest(`Project/getProjectData?fields=${projectId}`, 'get').
                 then((res) => {
-                    //console.log("project data", JSON.parse(res.data.data));
-                    setProjectData(JSON.parse(res.data.data));
-                    //setProjectData(DEFAULT_DATA);
+                    console.log("project data", JSON.parse(res.data.data));
+                    console.log("RESPONSE project data", res);
+
+                    //if (res.data.data == null) {
+                    //    console.log("null data")
+                    //    setProjectData(DEFAULT_DATA);
+
+                    //}
+                    if (res.data.data != null) {
+                        setProjectData(JSON.parse(res.data.data));
+                    }
 
                 }).
                 catch((err) => {
                     console.log(err);
                     let messag = "We’re having technical issues. Please try again later.";
                     warn(messag);
-                    setProjectData(DEFAULT_DATA)
+                    setProjectData(ERROR_DATA)
 
                 });
         }

@@ -94,7 +94,7 @@ function Workspace() {
                 {/*<WorkspaceSelection workEnv={wEnvironments} selected={select} />*/}
                 {
                     localStorage.getItem("worksp") != null && localStorage.getItem("worksp") != undefined &&
-                    <select onChange={selected} value={selectedId}>
+                    <select onChange={selected} value={globalWorkspace}>
                         {
                             wEnvironments.length > 0 &&
                             wEnvironments.map((wEnv, i) => {
