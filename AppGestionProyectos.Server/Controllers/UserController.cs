@@ -60,6 +60,16 @@ namespace AppGestionProyectos.Server.Controllers
         public async Task<IActionResult> LoginUserGoogle([FromHeader] string token)
         {
             TokenResponse tokenResponse;
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTimeOffset.Now.AddDays(1),
+                HttpOnly = true,
+                Secure = true,     // si usas HTTPS
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
+                //Path = "/",
+                Domain = "localhost"
+            };
             // hacer la peticion http a https://oauth2.googleapis.com/tokeninfo?access_token=<token>
             //una vez validado obtener correo 
             try
@@ -105,6 +115,8 @@ namespace AppGestionProyectos.Server.Controllers
                                 {
                                     return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
                                 }
+                                Response.Cookies.Append("AT", createUser.Result.AccessToken, cookieOptions);
+                                Response.Cookies.Append("RT", createUser.Result.RefreshToken, cookieOptions);
                                 return Ok(new ApiResponse<object>(true, "access-granted", createUser.Result));
                                 #endregion
                             }
@@ -146,12 +158,15 @@ namespace AppGestionProyectos.Server.Controllers
                             }
                             #endregion
                             #region no es tipo mail
-                            #region Models.User.GenerateTokens se devuelven los tokens
+                            #region Models.User.GenerateTokens se devuelven los tokens en cookies
                             tokenResponse = await Models.User.GenerateTokens(checkMail.Mail, _AppDbContext, _config);
                             if (tokenResponse.AccessToken == null)
                             {
                                 return StatusCode(500, new ApiResponse<object>(false, "server-error", false, "Error when calling the GenerateToken function"));
                             }
+
+                            Response.Cookies.Append("AT", tokenResponse.AccessToken, cookieOptions);
+                            Response.Cookies.Append("RT", tokenResponse.RefreshToken, cookieOptions);
                             return Ok(new ApiResponse<object>(true, "access-granted", tokenResponse));
                             #endregion
                             #endregion

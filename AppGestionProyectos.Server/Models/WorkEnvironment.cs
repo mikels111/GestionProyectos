@@ -16,6 +16,26 @@ namespace AppGestionProyectos.Server.Models
         [Required]
         public DateTime Creation_date { get; set; }
 
+        public static async Task<WorkEnvironment> CreateWorkEnvironment(string? name, AppDbContext appDbContext)
+        {
+            string _name = string.IsNullOrEmpty(name) ? "workspace" : name;
+            WorkEnvironment wEnvironment = new WorkEnvironment
+            {
+                Name = _name,
+                Creation_date = DateTime.Now
+            };
+            try
+            {
+                await appDbContext.Work_Environment.AddAsync(wEnvironment);
+                await appDbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return wEnvironment;
+        }
+
         public static async Task<List<WorkEnvironment>> GetUserWEnvironments(string mail, AppDbContext appDbContext)
         {
             List<WorkEnvironment> wEnvironments = new List<WorkEnvironment>();

@@ -191,10 +191,27 @@ namespace AppGestionProyectos.Server.Models
                     Role = 1,
                     Type = user.TypeMail
                 };
+
                 await appDbContext.User.AddAsync(user1);
                 var lines = await appDbContext.SaveChangesAsync();
+
+
+                //if (wEnvironment != null)
+                //{
+                //    UserWEnvironment userWEnvironment = new UserWEnvironment
+                //    {
+                //        User_Id = user1.Id,
+                //        W_environment = wEnvironment.Id,
+                //        Rol_w_environment = "creator"
+                //    };
+                //    await appDbContext.User_W_Environment.AddAsync(userWEnvironment);
+                //    await appDbContext.SaveChangesAsync();
+                //}
                 if (lines > 0)
                 {
+                    WorkEnvironment wEnvironment = await WorkEnvironment.CreateWorkEnvironment("", appDbContext);
+                    UserWEnvironment userWEnvironment = await UserWEnvironment.CreateUserWEnvironment(user1.Id, wEnvironment.Id, "creator", user.Mail, appDbContext);
+
                     #region crear tokens
                     Task<TokenResponse> token = GenerateTokens(user.Mail, appDbContext, _config);
                     if (token.Result.AccessToken != null)

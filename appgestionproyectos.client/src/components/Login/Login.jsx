@@ -59,6 +59,7 @@ function Login() {
             axios.post(`https://localhost:7233/user/LoginUserGoogle`,
                 null,
                 {
+                    withCredentials: true,
                     headers: {
                         'Content-Type': 'application/json',
                         token: codeResponse.access_token
@@ -69,18 +70,17 @@ function Login() {
                         let messg = res.data.message;
 
                         if (messg == "access-granted") {
-                            localStorage
-                                .setItem(
-                                    "aT",
-                                    res.data.data.accessToken
-                                );
-                            localStorage
-                                .setItem(
-                                    "rT",
-                                    res.data.data.refreshToken
-                                );
-
-                            navigate("/");
+                            //localStorage
+                            //    .setItem(
+                            //        "aT",
+                            //        res.data.data.accessToken
+                            //    );
+                            //localStorage
+                            //    .setItem(
+                            //        "rT",
+                            //        res.data.data.refreshToken
+                            //    );
+                            window.location.href = "/"; 
                         }
                         //messg === "show-codeInput"
                         setShowCodeInput(true);
