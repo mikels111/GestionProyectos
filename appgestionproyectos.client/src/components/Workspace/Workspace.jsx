@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { AuthRequest } from '../../Utils/Authorization';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './Dashboard.css';
+//import './Dashboard.css';
 import Sidebar from '../SideBar/SideBar'
 import { Notify } from '../../Utils/Notifications';
 import { ToastContainer } from 'react-toastify';
 import { Context } from '../Router/Router';
+import styles from './Workspace.module.css';
 function Workspace() {
     const { globalWorkspace, setGlobalWorkspace } = useContext(Context);
     const navigate = useNavigate();
@@ -48,11 +49,11 @@ function Workspace() {
                 console.log(workspace.id, "workspace");
                 //setSelectedWorkspace(workspace)
                 setGlobalWorkspace(workspace.id)
-                localStorage
-                    .setItem(
-                        "worksp",
-                        JSON.stringify(workspace)
-                    );
+                //localStorage
+                //    .setItem(
+                //        "worksp",
+                //        JSON.stringify(workspace)
+                //    );
             }
         } catch (exception) {
             console.error(exception)
@@ -69,11 +70,11 @@ function Workspace() {
                     //console.log("setting workspace")
                     //setSelectedWorkspace(res.data.data[0])
                     //console.log(selectedWorkspace);
-                    localStorage
-                        .setItem(
-                            "worksp",
-                            JSON.stringify(res.data.data[0])
-                        );
+                    //localStorage
+                    //    .setItem(
+                    //        "worksp",
+                    //        JSON.stringify(res.data.data[0])
+                    //    );
                 }
 
 
@@ -88,27 +89,30 @@ function Workspace() {
     }, []);
 
     return (
-        <React.Fragment>
-            <form>
-                {/*{JSON.parse(localStorage.getItem("worksp")).id*/}
-                {/*<WorkspaceSelection workEnv={wEnvironments} selected={select} />*/}
-                {
-                    localStorage.getItem("worksp") != null && localStorage.getItem("worksp") != undefined &&
-                    <select onChange={selected} value={globalWorkspace}>
-                        {
-                            wEnvironments.length > 0 &&
-                            wEnvironments.map((wEnv, i) => {
-                                wEnv.reference = i;
-                                return <option key={i} value={wEnv.id}>{wEnv.name}</option>
-                            })
-                        }
-                    </select >
-                }
-            </form>
-            <div style={styles1}>
-                {/*<div style={styles2}></div>*/}
+        //<React.Fragment>
+            <div className={styles["content-wrapper"]}>
+                <form>
+                    {/*{JSON.parse(localStorage.getItem("worksp")).id*/}
+                    {/*<WorkspaceSelection workEnv={wEnvironments} selected={select} />*/}
+                    {
+                        //localStorage.getItem("worksp") != null && localStorage.getItem("worksp") != undefined &&
+                        <select onChange={selected} value={globalWorkspace}>
+                            {
+                                wEnvironments.length > 0 &&
+                                wEnvironments.map((wEnv, i) => {
+                                    wEnv.reference = i;
+                                    return <option key={i} value={wEnv.id}>{wEnv.name}</option>
+                                })
+                            }
+                        </select >
+                    }
+                </form>
+                <div style={styles1}>
+                    {/*<div style={styles2}></div>*/}
+                </div>
             </div>
-        </React.Fragment>
+
+        //</React.Fragment>
     );
 
 

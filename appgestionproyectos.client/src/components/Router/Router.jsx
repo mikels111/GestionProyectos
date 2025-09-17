@@ -10,7 +10,7 @@ import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
 import Sidebar from '../SideBar/SideBar'
 import styles from '../../App.module.css';
 import { ToastContainer } from 'react-toastify';
-import { ProtectedRoute,Protected } from '../Protected';
+import { ProtectedRoute, Protected } from '../Protected';
 export const Context = React.createContext();
 function Router({ handleWorkspaceSelection }) {
     //const { user, setUser, selectedWorkspace, setSelectedWorkspace } = useContext(Context);
@@ -58,22 +58,27 @@ function Router({ handleWorkspaceSelection }) {
                     </Protected>
 
                     <div className={styles["main-wrapper"]}>
-                        <div className={styles.main}>
+                    {/*<div>*/}
+                        {/*<div className={styles.main}>*/}
                             <Routes>
                                 <Route exact path="/Login" element={<Login />} />
                                 <Route exact path="/Register" element={<Register />} />
                                 <Route exact path="*" element={<ErrorView />} />
-
+                                {/*<div className={styles["main-wrapper"]}>*/}
                                 <Route element={<ProtectedRoute />}>
                                     <Route exact path="/" element={<Workspace />} />
                                     <Route exact path="/Project/:projectId" element={<Project />} />
                                 </Route>
+                                {/*</div>*/}
+
+
+
                                 {/*<Route  element={<ProtectedRoute />} >*/}
-                                    
+
                                 {/*</Route>*/}
 
                             </Routes>
-                        </div>
+                        {/*</div>*/}
                     </div>
                 </div>
             </React.Fragment>

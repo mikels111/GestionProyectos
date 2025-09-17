@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AppGestionProyectos.Server.Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace AppGestionProyectos.Server.Models
@@ -8,6 +9,25 @@ namespace AppGestionProyectos.Server.Models
     {
         public int User_Id { get; set; }
         public int Project_Id { get; set; }
-        public string Creator_mail { get; set; } 
+        public string Creator_mail { get; set; }
+
+        public static async Task<UserProject> CreateUserProject(int user, int project, AppDbContext appDbContext)
+        {
+            UserProject uProject = new UserProject
+            {
+                User_Id = user,
+                Project_Id = project
+            };
+            try
+            {
+                await appDbContext.User_Project.AddAsync(uProject);
+                await appDbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return uProject;
+        }
     }
 }

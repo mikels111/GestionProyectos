@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "AZLFkLiwFJA=",
+  "dgSpecHash": "HJTAhRVSLBo=",
   "success": true,
   "projectFilePath": "C:\\Users\\Mikel\\Documents\\Proyectos\\gestion_proyectos\\AppGestionProyectos\\AppGestionProyectos.Server\\AppGestionProyectos.Server.csproj",
   "expectedPackageFiles": [
@@ -56,7 +56,7 @@
     "C:\\Users\\Mikel\\.nuget\\packages\\humanizer.core.zh-hant\\2.14.1\\humanizer.core.zh-hant.2.14.1.nupkg.sha512",
     "C:\\Users\\Mikel\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.14\\microsoft.aspnetcore.authentication.jwtbearer.8.0.14.nupkg.sha512",
     "C:\\Users\\Mikel\\.nuget\\packages\\microsoft.aspnetcore.razor.language\\6.0.24\\microsoft.aspnetcore.razor.language.6.0.24.nupkg.sha512",
-    "C:\\Users\\Mikel\\.nuget\\packages\\microsoft.aspnetcore.spaproxy\\8.0.18\\microsoft.aspnetcore.spaproxy.8.0.18.nupkg.sha512",
+    "C:\\Users\\Mikel\\.nuget\\packages\\microsoft.aspnetcore.spaproxy\\8.0.20\\microsoft.aspnetcore.spaproxy.8.0.20.nupkg.sha512",
     "C:\\Users\\Mikel\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
     "C:\\Users\\Mikel\\.nuget\\packages\\microsoft.build\\17.8.3\\microsoft.build.17.8.3.nupkg.sha512",
     "C:\\Users\\Mikel\\.nuget\\packages\\microsoft.build.framework\\17.8.3\\microsoft.build.framework.17.8.3.nupkg.sha512",

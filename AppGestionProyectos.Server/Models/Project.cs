@@ -8,18 +8,40 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppGestionProyectos.Server.Models
 {
-    [PrimaryKey(nameof(Id), nameof(W_Environment_id))]
+    //[PrimaryKey(nameof(Id), nameof(W_Environment_id))]
     public class Project
     {
+        [Key]
         public int Id { get; set; }
         public int W_Environment_id { get; set; }
         [Required]
-        public String Name { get; set; }
+        public string Name { get; set; }
         [Required]
         public DateTime Creation_date { get; set; }
 
         [Column(TypeName = "json")]
         public string? Json_data { get; set; }
+
+        public static async Task<Project> CreateProject(int wEnvironment, string name, AppDbContext appDbContext)
+        {
+            Project project = new Project
+            {
+                W_Environment_id = wEnvironment,
+                Name = name,
+                Creation_date = DateTime.Now,
+                Json_data = "{}"
+            };
+            try
+            {
+                await appDbContext.Project.AddAsync(project);
+                await appDbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return project;
+        }
 
         public static async Task<List<Project>> GetWorkEnvironmentProjects(string mail, int wEnv, AppDbContext appDbContext)
         {

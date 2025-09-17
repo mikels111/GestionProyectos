@@ -90,6 +90,7 @@ function Register() {
         axios.post(`https://localhost:7233/register/register`,
             jsonFormData,
             {
+                withCredentials: true,
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -97,18 +98,19 @@ function Register() {
             .then((res) => {
                 if (res.status === 200) {
                     console.log("access-granted");
-                    localStorage
-                        .setItem(
-                            "aT",
-                            res.data.data.accessToken
-                        );
-                    localStorage
-                        .setItem(
-                            "rT",
-                            res.data.data.refreshToken
-                        );
+                    //localStorage
+                    //    .setItem(
+                    //        "aT",
+                    //        res.data.data.accessToken
+                    //    );
+                    //localStorage
+                    //    .setItem(
+                    //        "rT",
+                    //        res.data.data.refreshToken
+                    //);
+                    window.location.href = "/"; 
                     setUser({ mail: jsonFormData.Mail });
-                    navigate("/");
+                    //navigate("/");
 
 
 

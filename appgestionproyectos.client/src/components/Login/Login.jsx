@@ -157,59 +157,6 @@ function Login() {
                 warn(messag);
                 setLoading(false);
             });
-        //axios.post(`https://localhost:7233/auth/MailAuth`,
-        //    jsonFormData,
-        //    {
-        //        withcredentials: true,
-        //        headers: {
-        //            'Content-Type': 'application/json'
-        //        }
-        //    })
-        //    .then((res) => {
-        //        console.log("res", res);
-        //        if (res.status == 200) {
-        //            let messg = res.data.message;
-        //            switch (messg) {
-        //                case "access-granted":
-        //                    console.log("access-granted");
-
-        //                    localStorage
-        //                        .setItem(
-        //                            "aT",
-        //                            res.data.data.accessToken
-        //                        );
-        //                    localStorage
-        //                        .setItem(
-        //                            "rT",
-        //                            res.data.data.refreshToken
-        //                        );
-        //                    navigate("/");
-        //                    break;
-        //                case "show-passInput":
-        //                    setmailConfirmed(true);
-        //                    break;
-        //                case "show-codeInput":
-        //                    setShowCodeInput(true);
-        //                    setCodeCountDown(59);
-        //                    break;
-        //                default:
-        //                    console.log("Server error");
-        //                    break;
-        //            }
-
-        //            setMail(jsonFormData.Mail);
-        //        }
-        //        setLoading(false);
-        //    })
-        //    .catch((err) => {
-        //        let messag = "We’re having technical issues. Please try again later.";
-        //        console.error("Error: ", err);
-        //        if (err.status == 401) {
-        //            messag = "Incorrect credentials";
-        //        }
-        //        warn(messag);
-        //        setLoading(false);
-        //    })
     };
     const verifyCode = (e) => {
         //mandar peticion a /verify con el codigo introducido y el mail guardado en state
@@ -221,15 +168,16 @@ function Login() {
         axios.post(`https://localhost:7233/auth/verify`,
             jsonFormData,
             {
+                withCredentials: true,
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
             .then((res) => {
                 if (res.status == 200) {
-                    localStorage.setItem("aT", res.data.data.accessToken);
-                    localStorage.setItem("rT", res.data.data.refreshToken);
-                    navigate("/");
+                    //localStorage.setItem("aT", res.data.data.accessToken);
+                    //localStorage.setItem("rT", res.data.data.refreshToken);
+                    window.location.href = "/"; 
                 } else {
                     console.log(res.data.message);
                 }
@@ -293,6 +241,7 @@ function Login() {
         axios.post(`https://localhost:7233/register/register`,
             jsonFormData,
             {
+                withCredentials: true,
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -300,18 +249,18 @@ function Login() {
             .then((res) => {
                 if (res.status === 200) {
                     console.log("access-granted");
-                    localStorage
-                        .setItem(
-                            "aT",
-                            res.data.data.accessToken
-                        );
-                    localStorage
-                        .setItem(
-                            "rT",
-                            res.data.data.refreshToken
-                        );
-                    setMail(jsonFormData.Mail);
-                    navigate("/");
+                    //localStorage
+                    //    .setItem(
+                    //        "aT",
+                    //        res.data.data.accessToken
+                    //    );
+                    //localStorage
+                    //    .setItem(
+                    //        "rT",
+                    //        res.data.data.refreshToken
+                    //    );
+                    window.location.href = "/"; 
+                    //setMail(jsonFormData.Mail);
                 }
                 setLoading(false);
             })

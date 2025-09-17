@@ -2,6 +2,7 @@
 using AppGestionProyectos.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System;
@@ -207,19 +208,34 @@ namespace AppGestionProyectos.Server.Models
                 //    await appDbContext.User_W_Environment.AddAsync(userWEnvironment);
                 //    await appDbContext.SaveChangesAsync();
                 //}
+
+                
                 if (lines > 0)
                 {
-                    WorkEnvironment wEnvironment = await WorkEnvironment.CreateWorkEnvironment("", appDbContext);
-                    UserWEnvironment userWEnvironment = await UserWEnvironment.CreateUserWEnvironment(user1.Id, wEnvironment.Id, "creator", user.Mail, appDbContext);
+                    int elementsNumber = 1;
+                    while (elementsNumber < 3)
+                    {
+                        WorkEnvironment wEnvironment = await WorkEnvironment.CreateWorkEnvironment("workspace_" + elementsNumber, appDbContext);
+                        if (wEnvironment != null)
+                        {
+                            UserWEnvironment userWEnvironment = await UserWEnvironment.CreateUserWEnvironment(user1.Id, wEnvironment.Id, "creator", user.Mail, appDbContext);
+                        }
+                        Project project = await Project.CreateProject(wEnvironment.Id, "Project_" + elementsNumber, appDbContext);
+                        if (project != null)
+                        {
+                            UserProject userProject = await UserProject.CreateUserProject(user1.Id, project.Id, appDbContext);
+                        }
+                        elementsNumber++;
+                    }
 
                     #region crear tokens
-                    Task<TokenResponse> token = GenerateTokens(user.Mail, appDbContext, _config);
-                    if (token.Result.AccessToken != null)
+                    TokenResponse token = await GenerateTokens(user.Mail, appDbContext, _config);
+                    if (token.AccessToken != null)
                     {
                         return new TokenResponse
                         {
-                            AccessToken = token.Result.AccessToken,
-                            RefreshToken = token.Result.RefreshToken
+                            AccessToken = token.AccessToken,
+                            RefreshToken = token.RefreshToken
                         };
                     }
                     #endregion

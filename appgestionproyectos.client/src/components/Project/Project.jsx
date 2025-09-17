@@ -119,7 +119,9 @@ function Project() {
         });
     };
     return (
-        <div id='editorjs' className={styles['editorjs-container']} ></div>
+        <div className={styles["content-wrapper"]}>
+            <div id='editorjs' className={styles['editorjs-container']} ></div>
+        </div>
         //<h2>Project {projectId} </h2>
     );
 }

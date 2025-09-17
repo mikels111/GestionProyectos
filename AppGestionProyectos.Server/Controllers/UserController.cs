@@ -110,14 +110,14 @@ namespace AppGestionProyectos.Server.Controllers
                                     Mail = responseDeserialized.email,
                                     TypeMail = ""
                                 };
-                                Task<TokenResponse> createUser = Models.User.CreateUser(userFields, _AppDbContext, _config);
-                                if (string.IsNullOrEmpty(createUser.Result.AccessToken))
+                                TokenResponse createUser = await Models.User.CreateUser(userFields, _AppDbContext, _config);
+                                if (string.IsNullOrEmpty(createUser.AccessToken))
                                 {
                                     return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
                                 }
-                                Response.Cookies.Append("AT", createUser.Result.AccessToken, cookieOptions);
-                                Response.Cookies.Append("RT", createUser.Result.RefreshToken, cookieOptions);
-                                return Ok(new ApiResponse<object>(true, "access-granted", createUser.Result));
+                                Response.Cookies.Append("AT", createUser.AccessToken, cookieOptions);
+                                Response.Cookies.Append("RT", createUser.RefreshToken, cookieOptions);
+                                return Ok(new ApiResponse<object>(true, "access-granted", createUser));
                                 #endregion
                             }
 

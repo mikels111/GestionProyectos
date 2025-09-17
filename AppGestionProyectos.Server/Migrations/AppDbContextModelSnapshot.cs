@@ -48,23 +48,25 @@ namespace AppGestionProyectos.Server.Migrations
             modelBuilder.Entity("AppGestionProyectos.Server.Models.Project", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("W_Environment_id")
-                        .HasColumnType("int");
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Creation_date")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Json_data")
-                        .IsRequired()
                         .HasColumnType("json");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("Id", "W_Environment_id");
+                    b.Property<int>("W_Environment_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Project");
                 });
@@ -156,11 +158,9 @@ namespace AppGestionProyectos.Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Creator_mail")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Rol_w_environment")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("User_Id", "W_environment");

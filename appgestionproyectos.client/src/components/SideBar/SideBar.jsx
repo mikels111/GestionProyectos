@@ -77,25 +77,30 @@ function SideBar() {
         AuthRequest(`WEnvironment/getWEnvironments`, 'get').
             then((res) => {
                 //setWEnvironments(res.data.data);
-                let workSpcLocal = JSON.parse(localStorage.getItem("worksp")).id;
+                //let workSpcLocal = JSON.parse(localStorage.getItem("worksp")).id;
                 console.log(localStorage.getItem("worksp"), "workSpcLocal")
                 if (!localStorage.getItem("worksp") || localStorage.getItem("worksp") == undefined) {
                     //setSelectedWorkspace(res.data.data[0])
                     //console.log(selectedWorkspace);
                     console.log("setting worksapce");
-                    localStorage
-                        .setItem(
-                            "worksp",
-                            JSON.stringify(res.data.data[0])
-                        );
+                    //localStorage
+                    //    .setItem(
+                    //        "worksp",
+                    //        JSON.stringify(res.data.data[0])
+                    //    );
                 }
                 //console.log(workSpcLocal);
-                setSelectedWorkspace(workSpcLocal);
-                setGlobalWorkspace(workSpcLocal);
+                //setSelectedWorkspace(workSpcLocal);
+                //setGlobalWorkspace(workSpcLocal);
+                console.log("setting global workspace")
+                //setGlobalWorkspace(JSON.parse(localStorage.getItem("worksp")).id);
+                setGlobalWorkspace(res.data.data[0].id);
+                
+
 
             }).
             catch((err) => {
-                console.error(err.status);
+                console.error(err);
                 if (err.status == 401) {
                     navigate("/login");
 
@@ -106,8 +111,8 @@ function SideBar() {
     useEffect(() => {
         setSideBarCurrentScrollHeight(sideBar.current.scrollHeight + "px");
     }, [sideBarCurrentScrollHeight]);
-    useEffect(() => {
 
+    useEffect(() => {
         try {
             if (globalWorkspace != null) {
                 console.log(globalWorkspace, "GLOBAL WORKSPACE")

@@ -161,8 +161,8 @@ namespace AppGestionProyectos.Server.Controllers
                 }
                 #region guardar correo y contraseña en bd
                 userFields.TypeMail = "email";
-                Task<TokenResponse> createUser = Models.User.CreateUser(userFields, _AppDbContext, _config);
-                if (createUser.Result.AccessToken != null)
+                TokenResponse createUser = await Models.User.CreateUser(userFields, _AppDbContext, _config);
+                if (createUser.AccessToken != null)
                 {
                     #region mandar codigo por correo y guardarlo en bd. Devolver OK show-code
                     var smtpClient = new SmtpClient("smtp-relay.brevo.com")
@@ -180,8 +180,23 @@ namespace AppGestionProyectos.Server.Controllers
                     message.Subject = "Welcome";
                     smtpClient.Send(message);
 
+                    #region CREAR COOKIES DE TOKENS
+
+                    var cookieOptions = new CookieOptions
+                    {
+                        Expires = DateTimeOffset.Now.AddDays(1),
+                        HttpOnly = true,
+                        Secure = true,     // si usas HTTPS
+                        SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                        //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
+                        //Path = "/",
+                        Domain = "localhost"
+                    };
+                    Response.Cookies.Append("AT", createUser.AccessToken, cookieOptions);
+                    Response.Cookies.Append("RT", createUser.RefreshToken, cookieOptions);
                     #endregion
-                    return Ok(new ApiResponse<object>(true, "access-granted", createUser.Result));
+                    #endregion
+                    return Ok(new ApiResponse<object>(true, "access-granted", createUser));
                 }
                 #endregion
             }

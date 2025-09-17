@@ -36,17 +36,18 @@ namespace AppGestionProyectos.Server.Migrations
                 name: "Project",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     W_Environment_id = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Creation_date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Json_data = table.Column<string>(type: "json", nullable: false)
+                    Json_data = table.Column<string>(type: "json", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Project", x => new { x.Id, x.W_Environment_id });
+                    table.PrimaryKey("PK_Project", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -114,9 +115,9 @@ namespace AppGestionProyectos.Server.Migrations
                 {
                     User_Id = table.Column<int>(type: "int", nullable: false),
                     W_environment = table.Column<int>(type: "int", nullable: false),
-                    Rol_w_environment = table.Column<string>(type: "longtext", nullable: false)
+                    Rol_w_environment = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Creator_mail = table.Column<string>(type: "longtext", nullable: false)
+                    Creator_mail = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>

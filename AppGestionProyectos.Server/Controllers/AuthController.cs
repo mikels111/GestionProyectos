@@ -101,34 +101,32 @@ namespace AppGestionProyectos.Server.Controllers
                     if (checkPass)//correcto
                     {
                         //acceso a web JWT
-                        Task<TokenResponse> token = Models.User.GenerateTokens(userFields.Mail, _AppDbContext, _config);
-                        if (token.Status != TaskStatus.Faulted)
+                        TokenResponse token = await Models.User.GenerateTokens(userFields.Mail, _AppDbContext, _config);
+                        if (string.IsNullOrEmpty(token.AccessToken))
                         {
-                            if (string.IsNullOrEmpty(token.Result.AccessToken))
-                            {
-                                return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
-                            }
-
-                            //Encoding.UTF8.GetBytes(_config["host:back"])
-
-                            var options = new CookieOptions
-                            {
-                                Expires = DateTimeOffset.Now.AddDays(1),
-                                HttpOnly = true,
-                                Secure = true,     // si usas HTTPS
-                                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                                //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
-                                //Path = "/",
-                                Domain = "localhost"
-                            };
-                            Response.Cookies.Append("AT", token.Result.AccessToken, options);
-                            Response.Cookies.Append("RT", token.Result.RefreshToken, options);
-                            //Response.Headers.AccessControlAllowOrigin = "*";
-                            //return Redirect($"{_config["host:front"]}/");
-                            //return Redirect("https://localhost:5173");
-                            return Ok(new ApiResponse<object>(true, "access-granted", token.Result));
+                            return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
                         }
-                        return StatusCode(500, new ApiResponse<object>(false, "server-error", false, "Error when calling the GenerateToken function"));
+
+                        //Encoding.UTF8.GetBytes(_config["host:back"])
+
+                        var cookieOptions = new CookieOptions
+                        {
+                            Expires = DateTimeOffset.Now.AddDays(1),
+                            HttpOnly = true,
+                            Secure = true,     // si usas HTTPS
+                            SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                            //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
+                            //Path = "/",
+                            Domain = "localhost"
+                        };
+                        Response.Cookies.Append("AT", token.AccessToken, cookieOptions);
+                        Response.Cookies.Append("RT", token.RefreshToken, cookieOptions);
+                        //Response.Headers.AccessControlAllowOrigin = "*";
+                        //return Redirect($"{_config["host:front"]}/");
+                        //return Redirect("https://localhost:5173");
+                        return Ok(new ApiResponse<object>(true, "access-granted", token));
+
+                        //return StatusCode(500, new ApiResponse<object>(false, "server-error", false, "Error when calling the GenerateToken function"));
 
                     }
                     else//incorrecto
@@ -261,12 +259,24 @@ namespace AppGestionProyectos.Server.Controllers
                     var codeCheck = await Models.User.CheckVerificationCode(userFields.Code, userFields.Mail, _AppDbContext);
                     if (codeCheck)
                     {
-                        Task<TokenResponse> token = Models.User.GenerateTokens(userFields.Mail, _AppDbContext, _config);
-                        if (token.Result.AccessToken == null)
+                        TokenResponse token = await Models.User.GenerateTokens(userFields.Mail, _AppDbContext, _config);
+                        if (string.IsNullOrEmpty(token.AccessToken))
                         {
                             return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
                         }
-                        return Ok(new ApiResponse<object>(true, "token-refreshed", token.Result));
+                        var cookieOptions = new CookieOptions
+                        {
+                            Expires = DateTimeOffset.Now.AddDays(1),
+                            HttpOnly = true,
+                            Secure = true,     // si usas HTTPS
+                            SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                            //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
+                            //Path = "/",
+                            Domain = "localhost"
+                        };
+                        Response.Cookies.Append("AT", token.AccessToken, cookieOptions);
+                        Response.Cookies.Append("RT", token.RefreshToken, cookieOptions);
+                        return Ok(new ApiResponse<object>(true, "token-refreshed", token));
                     }
                 }
                 return Unauthorized(new ApiResponse<object>(false, "wrong-verification-code", null));
@@ -283,7 +293,7 @@ namespace AppGestionProyectos.Server.Controllers
         public async Task<IActionResult> Check()
         {
             //Console.WriteLine("User is authenticated: " + User.Identity.IsAuthenticated);
-            var claimsIdentity = new ClaimsIdentity(User.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsIdentity = new ClaimsIdentity(User.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
             return Ok(new ApiResponse<object>(true, "user-authenticated", null));
 
