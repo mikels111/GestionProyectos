@@ -46,7 +46,8 @@ function Register() {
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         jsonFormData['Mail'] = user.mail;
-        axios.post(`https://localhost:7233/auth/verify`,
+        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        axios.post(`${baseURL}/api/auth/verify`,
             jsonFormData,
             {
                 headers: {
@@ -87,7 +88,8 @@ function Register() {
             }
 
         }
-        axios.post(`https://localhost:7233/register/register`,
+        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        axios.post(`${baseURL}/api/register/register`,
             jsonFormData,
             {
                 withCredentials: true,

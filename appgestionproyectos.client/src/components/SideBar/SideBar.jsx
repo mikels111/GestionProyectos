@@ -74,7 +74,7 @@ function SideBar() {
     useEffect(() => {
 
         setGlobalUser(user);
-        AuthRequest(`WEnvironment/getWEnvironments`, 'get').
+        AuthRequest(`/api/WEnvironment/getWEnvironments`, 'get').
             then((res) => {
                 //setWEnvironments(res.data.data);
                 //let workSpcLocal = JSON.parse(localStorage.getItem("worksp")).id;
@@ -95,7 +95,7 @@ function SideBar() {
                 console.log("setting global workspace")
                 //setGlobalWorkspace(JSON.parse(localStorage.getItem("worksp")).id);
                 setGlobalWorkspace(res.data.data[0].id);
-                
+
 
 
             }).
@@ -119,7 +119,7 @@ function SideBar() {
                 //let parsedSelectWorkSpc = JSON.parse(globalWorkspace);
                 //console.log(parsedSelectWorkSpc, "Sidebar selected workspace parsed");
                 //console.log(selectedWorkspace, "Sidebar selected workspace");
-                AuthRequest(`Project/getProjects?workspace=${globalWorkspace}`, 'get').
+                AuthRequest(`/api/Project/getProjects?workspace=${globalWorkspace}`, 'get').
                     then((res) => {
                         //console.log(res);
                         const proj = res.data.data;
@@ -171,7 +171,8 @@ function SideBar() {
     const logout = () => {
         //localStorage.removeItem("aT");
         //localStorage.removeItem("rT");
-        fetch("https://localhost:7233/auth/logout", {
+        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        fetch(`${baseURL}/api/auth/logout`, {
             credentials: "include",
         })
             .then((res) => {

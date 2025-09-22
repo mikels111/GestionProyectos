@@ -65,6 +65,11 @@ namespace AppGestionProyectos.Server.Models
             UserDTO userDto = new UserDTO();
             try
             {
+                var users = await appDbContext.User.ToListAsync();
+                foreach (var u in users)
+                {
+                    Console.WriteLine(u.Mail);
+                }
                 var user = await appDbContext.User
                         .Where(u => u.Mail == mail)
                         .FirstOrDefaultAsync();

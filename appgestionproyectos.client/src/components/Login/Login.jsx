@@ -56,7 +56,8 @@ function Login() {
     const googleLogin = useGoogleLogin({
         onSuccess: (codeResponse) => {
             console.log("response", codeResponse);
-            axios.post(`https://localhost:7233/user/LoginUserGoogle`,
+            const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+            axios.post(`${baseURL}/api/user/LoginUserGoogle`,
                 null,
                 {
                     withCredentials: true,
@@ -104,12 +105,13 @@ function Login() {
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         console.log(jsonFormData);
+        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
         axios(
             {
                 withCredentials: true,
                 data: jsonFormData,
                 method: 'post',
-                url: `https://localhost:7233/auth/MailAuth`,
+                url: `${baseURL}/api/auth/MailAuth`,
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -165,7 +167,8 @@ function Login() {
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         jsonFormData['Mail'] = mail;
-        axios.post(`https://localhost:7233/auth/verify`,
+        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        axios.post(`${baseURL}/api/auth/verify`,
             jsonFormData,
             {
                 withCredentials: true,
@@ -238,7 +241,8 @@ function Login() {
                 return;
             }
         }
-        axios.post(`https://localhost:7233/register/register`,
+        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        axios.post(`${baseURL}/api/register/register`,
             jsonFormData,
             {
                 withCredentials: true,
@@ -318,7 +322,6 @@ function Login() {
                             </form>
                         ) : (
                             <React.Fragment>
-                                <h1>Login</h1>
                                 <form className="email-form" onSubmit={login} key="mailForm">
 
                                     <div className="input-container" style={{ display: mailConfirmed ? "none" : "flex" }}>

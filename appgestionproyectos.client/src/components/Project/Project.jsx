@@ -51,7 +51,7 @@ function Project() {
         //console.log("actual project", actualProject);
         if (ejInstance.current === undefined) {
 
-            AuthRequest(`Project/getProjectData?fields=${projectId}`, 'get').
+            AuthRequest(`/api/Project/getProjectData?fields=${projectId}`, 'get').
                 then((res) => {
                     console.log("project data", JSON.parse(res.data.data));
                     console.log("RESPONSE project data", res);
@@ -102,7 +102,7 @@ function Project() {
                 let content = await editor.saver.save();
                 let projectIdStr = projectId;
                 //console.log(content, "en proyecto:" + projectIdStr);
-                AuthRequest(`Project/saveProjectData`, 'post', { content, projectId }).
+                AuthRequest(`/api/Project/saveProjectData`, 'post', { content, projectId }).
                     then((res) => {
                         let response = res
                         //console.log("gaurdado: ", response);

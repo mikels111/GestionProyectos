@@ -2,18 +2,19 @@
 
 # Esta fase se usa cuando se ejecuta desde VS en modo rápido (valor predeterminado para la configuración de depuración)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+#USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+#EXPOSE 5000
+EXPOSE 80
+
 
 
 # Esta fase se usa para compilar el proyecto de servicio
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-#COPY ["appgestionproyectos.client/nuget.config", "appgestionproyectos.client/"]
-COPY ["./AppGestionProyectos.Server.csproj", "AppGestionProyectos.Server/"]
+COPY ["appgestionproyectos.client/nuget.config", "appgestionproyectos.client/"]
+COPY ["AppGestionProyectos.Server/AppGestionProyectos.Server.csproj", "AppGestionProyectos.Server/"]
 #COPY ["appgestionproyectos.client/appgestionproyectos.client.esproj", "appgestionproyectos.client/"]
 RUN dotnet restore "./AppGestionProyectos.Server/AppGestionProyectos.Server.csproj"
 COPY . .

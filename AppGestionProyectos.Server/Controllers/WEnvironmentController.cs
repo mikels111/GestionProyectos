@@ -14,7 +14,7 @@ namespace AppGestionProyectos.Server.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/[controller]")]
     public class WEnvironmentController : ControllerBase
     {
         private readonly AppDbContext _AppDbContext;

@@ -1,0 +1,27 @@
+services:
+  appgestionproyectos.server:
+    image: ${DOCKER_REGISTRY-}appgestionproyectosserver
+    ports:
+          - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt_key="kD+3rL8v5KQbR9gTmXv2sPjM5XH8yXzJ89RjFwMzPjA="
+      - Jwt_issuer="localhost:3000"
+      - Jwt_audience="localhost:3000" 
+      - Jwt_ExpireMinutes=60
+      - ConnectionStrings__DefaultConnection=Server=193.203.168.48;Database=u107207292_gestion_proyec;Uid=u107207292_root;Pwd=0IfeOlt8V/;
+  
+    build:
+      context: .
+      dockerfile: AppGestionProyectos.Server/Dockerfile
+  appgestionproyectos.client:
+    image: ${DOCKER_REGISTRY-}appgestionproyectosclient
+    ports:
+          - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    build:
+      context: .
+      dockerfile: AppGestionProyectos.Client/Dockerfile
+    depends_on:
+      - appgestionproyectos.server

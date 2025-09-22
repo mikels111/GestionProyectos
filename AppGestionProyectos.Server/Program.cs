@@ -23,10 +23,16 @@ builder.Services.AddScoped<GoogleTokenInfo>();
 
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("ConnectionStrings");
+
+var connectionStrings = builder.Configuration.GetSection("ConnectionStrings");
+var mysql_connection_string = connectionStrings["DefaultConnection"];   
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    //options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    options.UseMySql(mysql_connection_string, ServerVersion.AutoDetect(mysql_connection_string));
+    
 });
 var WhiteListOrigins = "whiteListOrigins";
 builder.Services.AddCors(options =>
@@ -34,7 +40,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: WhiteListOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("https://localhost:5173")
+                          policy.WithOrigins("http://localhost:3000")
                           .AllowCredentials()
                           .AllowAnyHeader()
                           .AllowAnyMethod();
@@ -97,8 +103,10 @@ if (app.Environment.IsDevelopment())
     //app.UseSwagger();
     //app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseRouting();
 app.UseCors(WhiteListOrigins);
 app.UseAuthorization();

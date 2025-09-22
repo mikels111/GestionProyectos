@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AppGestionProyectos.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/[controller]")]
     public class RoleController : ControllerBase
     {
         private readonly Role _role;

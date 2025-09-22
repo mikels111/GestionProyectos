@@ -14,7 +14,7 @@ using AppGestionProyectos.Server.Data;
 namespace AppGestionProyectos.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/[controller]")]
     public class UserController : Controller
     {
         private readonly AppDbContext _AppDbContext;

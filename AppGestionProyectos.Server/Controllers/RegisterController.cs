@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace AppGestionProyectos.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/[controller]")]
     public class RegisterController : Controller
     {
 
@@ -173,7 +173,7 @@ namespace AppGestionProyectos.Server.Controllers
                     };
                     MailMessage message = new MailMessage("mikelseara11@gmail.com", userFields.Mail);
                     var html = await System.IO.File.ReadAllTextAsync("templates/welcome.html");
-                    string confirmLink = $"{Request.Scheme}://{Request.Host}/register/verify?fields={userFields.Mail}";
+                    string confirmLink = $"{Request.Scheme}://{Request.Host}/api/register/verify?fields={userFields.Mail}";
                     string body = html.Replace("{{CONFIRMATION_LINK}}", confirmLink);
                     message.Body = body;
                     message.IsBodyHtml = true;

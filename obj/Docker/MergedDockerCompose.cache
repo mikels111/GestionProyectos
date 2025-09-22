@@ -1,0 +1,75 @@
+name: dockercompose6434542699497253094
+services:
+  appgestionproyectos.client:
+    build:
+      context: C:\Users\Mikel\Documents\Proyectos\gestion_proyectos\AppGestionProyectos
+      dockerfile: AppGestionProyectos.Client/Dockerfile
+    depends_on:
+      appgestionproyectos.server:
+        condition: service_started
+        required: true
+    environment:
+      VITE_API_URL: http://localhost:5000
+    image: appgestionproyectosclient
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3000"
+        protocol: tcp
+  appgestionproyectos.server:
+    build:
+      context: C:\Users\Mikel\Documents\Proyectos\gestion_proyectos\AppGestionProyectos
+      dockerfile: AppGestionProyectos.Server/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ASPNETCORE_HTTPS_PORTS: "8081"
+      ConnectionStrings__DefaultConnection: Server=193.203.168.48;Database=u107207292_gestion_proyec;Uid=u107207292_root;Pwd=0IfeOlt8V/;
+      Jwt_ExpireMinutes: "60"
+      Jwt_audience: '"localhost:3000"'
+      Jwt_issuer: '"localhost:3000"'
+      Jwt_key: '"kD+3rL8v5KQbR9gTmXv2sPjM5XH8yXzJ89RjFwMzPjA="'
+    image: appgestionproyectosserver
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "5000"
+        protocol: tcp
+      - mode: ingress
+        target: 8080
+        protocol: tcp
+      - mode: ingress
+        target: 8081
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: C:\Users\Mikel\AppData\Roaming/Microsoft/UserSecrets
+        target: /home/app/.microsoft/usersecrets
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Mikel\AppData\Roaming/Microsoft/UserSecrets
+        target: /root/.microsoft/usersecrets
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Mikel\AppData\Roaming/ASP.NET/Https
+        target: /home/app/.aspnet/https
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Mikel\AppData\Roaming/ASP.NET/Https
+        target: /root/.aspnet/https
+        read_only: true
+        bind:
+          create_host_path: true
+networks:
+  default:
+    name: dockercompose6434542699497253094_default

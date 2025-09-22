@@ -1,8 +1,9 @@
 import axios from 'axios';
 
 export function AuthRequest(url, method, data = {}) {
-    const baseUrl = 'https://localhost:7233/';
-    const urlResult = baseUrl.concat(url);
+    //const baseUrl = 'https://localhost:7233/';
+    const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+    const urlResult = baseURL.concat(url);
     const accessToken = localStorage.getItem("aT");
     let rtResult;
     if (url != null || accessToken != null) {
@@ -46,11 +47,12 @@ export function RefreshToken() {
     let tokens = {
         'RefreshToken': refreshToken
     }
+    const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
     return axios
         ({
             method: 'post',
             data: tokens,
-            url: 'https://localhost:7233/auth/Refresh',
+            url: `${baseURL}/api/auth/Refresh`,
             headers: {
                 'Content-Type': 'application/json',
             }

@@ -11,9 +11,11 @@ body {
 }
 
 .sidebar {
+    position: sticky;
     display: flex;
     flex-direction: column;
-    /*    position: fixed;*/
+    min-width: 200px;
+    top: 16px;
     width: 270px;
     margin: 16px;
     border-radius: 16px;
@@ -24,6 +26,8 @@ body {
 
     .sidebar.collapsed {
         width: 75px;
+        min-width: 0px;
+        
     }
 
     .sidebar .sidebar-header {
@@ -226,6 +230,7 @@ a.active {
     .sidebar.collapsed {
         width: 0;
         margin: 0;
+        position: initial;
     }
 
         .sidebar.collapsed .sidebar-nav {

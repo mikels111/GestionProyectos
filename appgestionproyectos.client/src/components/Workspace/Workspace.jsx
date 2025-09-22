@@ -63,7 +63,7 @@ function Workspace() {
     useEffect(() => {
         //console.log("usuario", user);
         //setSelectedWorkspace(JSON.parse(localStorage.getItem("worksp")))
-        AuthRequest(`WEnvironment/getWEnvironments`, 'get').
+        AuthRequest(`/api/WEnvironment/getWEnvironments`, 'get').
             then((res) => {
                 setWEnvironments(res.data.data);
                 if (localStorage.getItem("worksp") == null) {

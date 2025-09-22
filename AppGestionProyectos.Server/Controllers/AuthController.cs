@@ -26,7 +26,7 @@ using System.Text.RegularExpressions;
 namespace AppGestionProyectos.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/[controller]")]
     public class AuthController : Controller
     {
         private readonly AppDbContext _AppDbContext;
