@@ -70,29 +70,38 @@ namespace AppGestionProyectos.Server.Controllers
                     if (checkmail.Mail != null)
                     {
                         #region mandar codigo por correo y guardarlo en bd. Devolver OK show-code
-                        var smtpClient = new SmtpClient("smtp-relay.brevo.com")
+                        try
                         {
-                            Port = 587,
-                            Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
-                            EnableSsl = true,
-                        };
-                        MailMessage message = new MailMessage("mikelseara11@gmail.com", userFields.Mail);
-                        string randmNumber = "";
-                        Random rnd = new Random();
-                        for (int j = 0; j < 5; j++)
-                        {
-                            randmNumber += rnd.Next(10);//random integers < 10
+                            var smtpClient = new SmtpClient("smtp-relay.brevo.com")
+                            {
+                                Port = 587,
+                                Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
+                                EnableSsl = true,
+                            };
+                            MailMessage message = new MailMessage("mikelseara11@gmail.com", userFields.Mail);
+                            string randmNumber = "";
+                            Random rnd = new Random();
+                            for (int j = 0; j < 5; j++)
+                            {
+                                randmNumber += rnd.Next(10);//random integers < 10
+                            }
+                            bool saveVerfCodeResult = await Models.User.SaveVerificationCode(userFields.Mail, randmNumber, _AppDbContext);
+                            if (saveVerfCodeResult)
+                            {
+                                var html = await System.IO.File.ReadAllTextAsync("Templates/verification.html");
+                                string body = html.Replace("{{VERIFICATION_CODE}}", randmNumber);
+                                message.Body = body;
+                                message.IsBodyHtml = true;
+                                message.Subject = "Verification";
+                                smtpClient.Send(message);
+                            }
                         }
-                        bool saveVerfCodeResult = await Models.User.SaveVerificationCode(userFields.Mail, randmNumber, _AppDbContext);
-                        if (saveVerfCodeResult)
+                        catch (Exception ex)
                         {
-                            var html = await System.IO.File.ReadAllTextAsync("templates/verification.html");
-                            string body = html.Replace("{{VERIFICATION_CODE}}", randmNumber);
-                            message.Body = body;
-                            message.IsBodyHtml = true;
-                            message.Subject = "Verification";
-                            smtpClient.Send(message);
+                            Console.Error.WriteLine($"Error al enviar correo: {ex.Message}");
+                            Console.Error.WriteLine($"StackTrace: {ex.StackTrace}");
                         }
+                        
                         // mostrar input codigo
                         return Ok(new ApiResponse<object>(true, "show-codeInput", null));
                         #endregion
@@ -165,20 +174,31 @@ namespace AppGestionProyectos.Server.Controllers
                 if (createUser.AccessToken != null)
                 {
                     #region mandar codigo por correo y guardarlo en bd. Devolver OK show-code
-                    var smtpClient = new SmtpClient("smtp-relay.brevo.com")
+                    try
                     {
-                        Port = 587,
-                        Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
-                        EnableSsl = true,
-                    };
-                    MailMessage message = new MailMessage("mikelseara11@gmail.com", userFields.Mail);
-                    var html = await System.IO.File.ReadAllTextAsync("templates/welcome.html");
-                    string confirmLink = $"{Request.Scheme}://{Request.Host}/api/register/verify?fields={userFields.Mail}";
-                    string body = html.Replace("{{CONFIRMATION_LINK}}", confirmLink);
-                    message.Body = body;
-                    message.IsBodyHtml = true;
-                    message.Subject = "Welcome";
-                    smtpClient.Send(message);
+                        var smtpClient = new SmtpClient("smtp-relay.brevo.com")
+                        {
+                            Port = 587,
+                            Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
+                            EnableSsl = true,
+                        };
+                        MailMessage message = new MailMessage("mikelseara11@gmail.com", userFields.Mail);
+                        var html = await System.IO.File.ReadAllTextAsync("Templates/welcome.html");
+                        string publicBase = _config["host:base"].ToString();
+                        string confirmLink = $"{Request.Scheme}://{Request.Host}{publicBase}/api/register/verify?fields={userFields.Mail}";
+                        Console.Error.WriteLine($"Error al enviar correo: {confirmLink}");
+                        string body = html.Replace("{{CONFIRMATION_LINK}}", confirmLink);
+                        message.Body = body;
+                        message.IsBodyHtml = true;
+                        message.Subject = "Welcome";
+                        smtpClient.Send(message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Error al enviar correo: {ex.Message}");
+                        Console.Error.WriteLine($"StackTrace: {ex.StackTrace}");
+                    }
+
 
                     #region CREAR COOKIES DE TOKENS
 
@@ -190,7 +210,7 @@ namespace AppGestionProyectos.Server.Controllers
                         SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
                         //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
                         //Path = "/",
-                        Domain = "localhost"
+                        Domain = _config["host:name"].ToString()
                     };
                     Response.Cookies.Append("AT", createUser.AccessToken, cookieOptions);
                     Response.Cookies.Append("RT", createUser.RefreshToken, cookieOptions);
@@ -211,17 +231,17 @@ namespace AppGestionProyectos.Server.Controllers
         [HttpGet("verify")]
         public async Task<IActionResult> VerifyEmail([FromQuery(Name = "fields")] string fields)
         {
-            string front = _config["host:front"].ToString();
+            string publicBase = _config["host:base"].ToString();
             if (Request.ContentLength == 0)
             {
-                return Redirect($"{front}/Error");
+                return Redirect($"{publicBase}/Error");
             }
             try
             {
                 string emailPattern = @"^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$";
                 if (!Regex.IsMatch(fields, emailPattern) || Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
                 {
-                    return Redirect($"{front}/Error");
+                    return Redirect($"{publicBase}/Error");
                 }
 
                 bool emailVerified = await Models.User.VerifyEmail(fields, _AppDbContext);
@@ -232,16 +252,16 @@ namespace AppGestionProyectos.Server.Controllers
                     //string loginUrl = $"{Request.Scheme}://{Request.Host}/register/verify?fields={userFields.Mail}";
 
                     //return RedirectPermanent($"{front}/login");
-                    return Redirect($"{front}/login");
+                    return Redirect($"{publicBase}/login");
                 }
 
             }
             catch (Exception ex)
             {
-                return Redirect($"{front}/Error");
+                return Redirect($"{publicBase}/Error");
             }
             //mostrar html de verificacion incorrecta
-            return Redirect($"{front}/Error");
+            return Redirect($"{publicBase}/Error");
         }
 
     }

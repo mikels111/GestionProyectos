@@ -40,6 +40,12 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: '/app1',  
+    build: {
+        sourcemap: false, // ? IMPORTANTE: deshabilitar source maps
+        minify: 'esbuild', // ? minificar
+        cssMinify: 'esbuild' 
+    },
     plugins: [plugin(), tailwindcss()],
     resolve: {
         alias: {

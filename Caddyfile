@@ -1,0 +1,34 @@
+localhost {
+    tls force_automate
+
+    redir /app1 /app1/ 308
+	
+    handle /app1/api/* {
+        uri strip_prefix /app1
+        reverse_proxy appgestionproyectos.server:80
+        
+    }
+
+    # Manejar la aplicación React
+    handle_path /app1* {
+        root * /usr/share/caddy
+        
+        # Definir matcher para archivos que NO existen
+        @notFile {
+            not file
+        }
+        
+        # Reescribir solo las rutas que no son archivos existentes
+        rewrite @notFile /index.html
+        
+        # Servir archivos (tanto estáticos como el index.html reescrito)
+        file_server
+    }
+
+    handle {
+        respond "Página no encontrada" 404
+    }
+
+    
+    redir / /app1/
+}

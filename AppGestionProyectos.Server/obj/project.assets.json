@@ -624,7 +624,7 @@
           "lib/netstandard2.0/Microsoft.AspNetCore.Razor.Language.dll": {}
         }
       },
-      "Microsoft.AspNetCore.SpaProxy/8.0.20": {
+      "Microsoft.AspNetCore.SpaProxy/8.0.21": {
         "type": "package",
         "compile": {
           "lib/net8.0/Microsoft.AspNetCore.SpaProxy.dll": {}
@@ -3279,10 +3279,10 @@
         "microsoft.aspnetcore.razor.language.nuspec"
       ]
     },
-    "Microsoft.AspNetCore.SpaProxy/8.0.20": {
-      "sha512": "TxWBxx2PiuaL1c5fpQdccNqnSe+Ck+R8EDd2GHG7jo6rlSVqFugceix/QckLmIn0wAQJhiWz//s+O5o/WcbBbQ==",
+    "Microsoft.AspNetCore.SpaProxy/8.0.21": {
+      "sha512": "wM7xZ0sWE4ASH5w7rw6zqRmfoeEA/mkgZw+KQUfDG/x48r9+8T5vTDjtKWPeBYeLczUR0wjKsU6h3pL6cdOCxA==",
       "type": "package",
-      "path": "microsoft.aspnetcore.spaproxy/8.0.20",
+      "path": "microsoft.aspnetcore.spaproxy/8.0.21",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -3290,7 +3290,7 @@
         "THIRD-PARTY-NOTICES.TXT",
         "build/Microsoft.AspNetCore.SpaProxy.targets",
         "lib/net8.0/Microsoft.AspNetCore.SpaProxy.dll",
-        "microsoft.aspnetcore.spaproxy.8.0.20.nupkg.sha512",
+        "microsoft.aspnetcore.spaproxy.8.0.21.nupkg.sha512",
         "microsoft.aspnetcore.spaproxy.nuspec"
       ]
     },
@@ -7102,23 +7102,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Mikel\\.nuget\\packages\\": {},
+    "C:\\Users\\Lenovo\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Mikel\\Documents\\Proyectos\\gestion_proyectos\\AppGestionProyectos\\AppGestionProyectos.Server\\AppGestionProyectos.Server.csproj",
+      "projectUniqueName": "C:\\Users\\Lenovo\\Documents\\Proyectos\\gestion_proyectos_prod\\AppGestionProyectos\\AppGestionProyectos.Server\\AppGestionProyectos.Server.csproj",
       "projectName": "AppGestionProyectos.Server",
-      "projectPath": "C:\\Users\\Mikel\\Documents\\Proyectos\\gestion_proyectos\\AppGestionProyectos\\AppGestionProyectos.Server\\AppGestionProyectos.Server.csproj",
-      "packagesPath": "C:\\Users\\Mikel\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Mikel\\Documents\\Proyectos\\gestion_proyectos\\AppGestionProyectos\\AppGestionProyectos.Server\\obj\\",
+      "projectPath": "C:\\Users\\Lenovo\\Documents\\Proyectos\\gestion_proyectos_prod\\AppGestionProyectos\\AppGestionProyectos.Server\\AppGestionProyectos.Server.csproj",
+      "packagesPath": "C:\\Users\\Lenovo\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Lenovo\\Documents\\Proyectos\\gestion_proyectos_prod\\AppGestionProyectos\\AppGestionProyectos.Server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Mikel\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Lenovo\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

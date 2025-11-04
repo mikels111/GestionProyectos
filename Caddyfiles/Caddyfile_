@@ -1,0 +1,16 @@
+onerise.es {
+    tls force_automate
+
+    handle /app1* {
+        root * /usr/share/caddy/app1
+        @notStatic {
+            not file  
+        }
+        rewrite @notStatic /index.html
+        file_server
+    }
+
+    handle_path /app1/api* {
+        reverse_proxy appgestionproyectos.server:80
+    }
+}

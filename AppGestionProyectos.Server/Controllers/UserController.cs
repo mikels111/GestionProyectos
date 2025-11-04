@@ -68,7 +68,7 @@ namespace AppGestionProyectos.Server.Controllers
                 SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
                 //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
                 //Path = "/",
-                Domain = "localhost"
+                Domain = _config["host:name"].ToString()
             };
             // hacer la peticion http a https://oauth2.googleapis.com/tokeninfo?access_token=<token>
             //una vez validado obtener correo 

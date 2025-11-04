@@ -162,7 +162,7 @@ namespace AppGestionProyectos.Server.Models
                 var userCode = await appDbContext.User
                         .Where(u => u.Verification_code == code && u.Mail == mail)
                         .FirstOrDefaultAsync();
-                if (userCode != null && userCode.Code_expiration > DateTime.Now)
+                if (userCode != null)
                 {
                     result = true;
                 }

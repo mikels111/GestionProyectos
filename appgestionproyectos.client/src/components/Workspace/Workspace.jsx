@@ -63,6 +63,7 @@ function Workspace() {
     useEffect(() => {
         //console.log("usuario", user);
         //setSelectedWorkspace(JSON.parse(localStorage.getItem("worksp")))
+        const publicBase = import.meta.env.BASE_URL ?? '/'
         AuthRequest(`/api/WEnvironment/getWEnvironments`, 'get').
             then((res) => {
                 setWEnvironments(res.data.data);

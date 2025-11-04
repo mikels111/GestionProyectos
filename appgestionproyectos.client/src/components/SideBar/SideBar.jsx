@@ -95,9 +95,6 @@ function SideBar() {
                 console.log("setting global workspace")
                 //setGlobalWorkspace(JSON.parse(localStorage.getItem("worksp")).id);
                 setGlobalWorkspace(res.data.data[0].id);
-
-
-
             }).
             catch((err) => {
                 console.error(err);
@@ -154,7 +151,7 @@ function SideBar() {
 
         window.addEventListener('resize', handleResize);
 
-        // Llamada inicial (por si ya está en ese tamaño)
+        // Llamada inicial (por si ya estï¿½ en ese tamaï¿½o)
         handleResize();
 
         // Limpieza del listener
@@ -171,16 +168,18 @@ function SideBar() {
     const logout = () => {
         //localStorage.removeItem("aT");
         //localStorage.removeItem("rT");
-        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        fetch(`${baseURL}/api/auth/logout`, {
+        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        const publicBase = import.meta.env.BASE_URL ?? '/'
+        fetch(`${publicBase}/api/auth/logout`, {
             credentials: "include",
         })
             .then((res) => {
                 //console.log("is authenticated")
                 //setIsAuthenticated(res.ok);
-                console.log(res, "response")
+                console.log(res, "logout response")
+
                 //navigate("/login");
-                window.location.href = "/login";
+                window.location.href = `${publicBase}/login`;
             })
             .catch((err) => {
                 //console.log("is NOT authenticated")

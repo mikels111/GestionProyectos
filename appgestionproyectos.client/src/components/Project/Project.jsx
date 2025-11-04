@@ -68,7 +68,7 @@ function Project() {
                 }).
                 catch((err) => {
                     console.log(err);
-                    let messag = "We’re having technical issues. Please try again later.";
+                    let messag = "Weï¿½re having technical issues. Please try again later.";
                     warn(messag);
                     setProjectData(ERROR_DATA)
 
@@ -109,7 +109,7 @@ function Project() {
                     }).
                     catch((err) => {
                         console.log(err);
-                        let messag = "We’re having technical issues. Please try again later.";
+                        let messag = "Weï¿½re having technical issues. Please try again later.";
                         warn(messag);
                     });
             },

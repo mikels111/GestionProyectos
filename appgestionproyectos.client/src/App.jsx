@@ -44,9 +44,9 @@ function App() {
     //const handleSelection = (wspace) => {
     //    setSelectedWorkspace(wspace);
     //}
-
     return (
-        <BrowserRouter>
+
+        <BrowserRouter basename="/app1/">
             <Router />
         </BrowserRouter>
         //{

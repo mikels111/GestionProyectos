@@ -8,8 +8,9 @@ export function verifyCodeFunction(e, user) {
 
     jsonFormData['Mail'] = user.mail;
     console.log(user);
-    const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-    axios.post(`${baseURL}/api/auth/verify`,
+    // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+    const publicBase = import.meta.env.BASE_URL ?? '/'
+    axios.post(`/api/auth/verify`,
         jsonFormData,
         {
             headers: {
@@ -47,11 +48,12 @@ export async function verifyMailFunction(jsonFormData) {
     if (!validEmail.test(jsonFormData.Mail)) {
         return Promise.reject({ status: 400 });
     }
-    const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+    // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+    const publicBase = import.meta.env.BASE_URL ?? '/'
     return axios
         ({
             method: 'post',
-            url: `${baseURL}/api/register/CheckMail`,
+            url: `${publicBase}/api/register/CheckMail`,
             data: jsonFormData,
             headers: {
                 'Content-Type': 'application/json'

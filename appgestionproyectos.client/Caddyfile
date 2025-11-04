@@ -1,0 +1,24 @@
+onerise.es {
+  encode zstd gzip
+
+  
+  @app1_api path /app1/api/*
+  handle @app1_api {
+    # quitamos el prefijo /app1 para que al backend le llegue /api/...
+    uri strip_prefix /app1
+    reverse_proxy app1_backend:80
+  }
+# *** REDIRECCIÓN CLAVE ***
+  @app1_root path /app1
+  handle @app1_root {
+    redir /app1/ 308
+  }
+  @app1 path /app1/*
+  handle @app1 {
+    # quitamos /app1 para mapear al filesystem (donde index.html está en /usr/share/caddy/app1/index.html)
+    uri strip_prefix /app1
+    root * /usr/share/caddy/app1
+    try_files {path} /index.html
+    file_server
+  }
+}

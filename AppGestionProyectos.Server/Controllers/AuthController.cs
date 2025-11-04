@@ -11,6 +11,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Newtonsoft.Json.Linq;
 using NuGet.Common;
+using NuGet.Protocol;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -115,9 +116,9 @@ namespace AppGestionProyectos.Server.Controllers
                             HttpOnly = true,
                             Secure = true,     // si usas HTTPS
                             SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                            Domain = _config["host:name"].ToString()
                             //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
                             //Path = "/",
-                            Domain = "localhost"
                         };
                         Response.Cookies.Append("AT", token.AccessToken, cookieOptions);
                         Response.Cookies.Append("RT", token.RefreshToken, cookieOptions);
@@ -149,30 +150,40 @@ namespace AppGestionProyectos.Server.Controllers
                         else//tipo google,microsoft...
                         {
                             #region mandar codigo por correo y guardarlo en bd. Devolver show-code
-                            // mandar codigo
-                            var smtpClient = new SmtpClient("smtp-relay.brevo.com")
+                            try
                             {
-                                Port = 587,
-                                Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
-                                EnableSsl = true,
-                            };
-                            MailMessage message = new MailMessage("mikelseara11@gmail.com", usuario.Mail);
-                            string randmNumber = "";
-                            Random rnd = new Random();
-                            for (int j = 0; j < 5; j++)
-                            {
-                                randmNumber += rnd.Next(10);//random integers < 10
+                                // mandar codigo
+                                var smtpClient = new SmtpClient("smtp-relay.brevo.com")
+                                {
+                                    Port = 587,
+                                    Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
+                                    EnableSsl = true,
+                                };
+                                MailMessage message = new MailMessage("mikelseara11@gmail.com", usuario.Mail);
+                                string randmNumber = "";
+                                Random rnd = new Random();
+                                for (int j = 0; j < 5; j++)
+                                {
+                                    randmNumber += rnd.Next(10);//random integers < 10
+                                }
+                                bool saveVerfCodeResult = await Models.User.SaveVerificationCode(userFields.Mail, randmNumber, _AppDbContext);
+                                if (saveVerfCodeResult)
+                                {
+                                    var html = await System.IO.File.ReadAllTextAsync("Templates/verification.html");
+                                    string body = html.Replace("{{VERIFICATION_CODE}}", randmNumber);
+                                    message.Body = body;
+                                    message.IsBodyHtml = true;
+                                    message.Subject = "Verification";
+                                    smtpClient.Send(message);
+                                }
                             }
-                            bool saveVerfCodeResult = await Models.User.SaveVerificationCode(userFields.Mail, randmNumber, _AppDbContext);
-                            if (saveVerfCodeResult)
-                            {
-                                var html = await System.IO.File.ReadAllTextAsync("templates/verification.html");
-                                string body = html.Replace("{{VERIFICATION_CODE}}", randmNumber);
-                                message.Body = body;
-                                message.IsBodyHtml = true;
-                                message.Subject = "Verification";
-                                smtpClient.Send(message);
+                            catch (Exception ex) {
+
+                                Console.Error.WriteLine($"Error al enviar correo: {ex.Message}");
+                                Console.Error.WriteLine($"StackTrace: {ex.StackTrace}");
                             }
+                            
+
                             // mostrar input codigo
                             return Ok(new ApiResponse<object>(true, "show-codeInput", null));
 
@@ -272,7 +283,7 @@ namespace AppGestionProyectos.Server.Controllers
                             SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
                             //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
                             //Path = "/",
-                            Domain = "localhost"
+                            Domain = _config["host:name"].ToString()
                         };
                         Response.Cookies.Append("AT", token.AccessToken, cookieOptions);
                         Response.Cookies.Append("RT", token.RefreshToken, cookieOptions);
@@ -293,9 +304,19 @@ namespace AppGestionProyectos.Server.Controllers
         public async Task<IActionResult> Check()
         {
             //Console.WriteLine("User is authenticated: " + User.Identity.IsAuthenticated);
+            try
+            {
                 var claimsIdentity = new ClaimsIdentity(User.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("check:" + ex);
+            }
+
             return Ok(new ApiResponse<object>(true, "user-authenticated", null));
+
+
 
             //// If not authenticated, return an unauthorized response
             // return Unauthorized(new ApiResponse<object>(false, "user-not-authenticated", null));
@@ -308,7 +329,17 @@ namespace AppGestionProyectos.Server.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            Response.Cookies.Delete("AT");
+
+
+            Response.Cookies.Delete("AT", new CookieOptions
+            {
+                Expires = DateTimeOffset.Now.AddDays(1),
+                HttpOnly = true,
+                Secure = true,     // si usas HTTPS
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                Domain = _config["host:name"].ToString()
+            });
+
             return Ok(new ApiResponse<object>(true, "user-authenticated", null));
 
             //// If not authenticated, return an unauthorized response

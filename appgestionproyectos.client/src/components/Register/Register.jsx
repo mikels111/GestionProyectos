@@ -46,8 +46,9 @@ function Register() {
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         jsonFormData['Mail'] = user.mail;
-        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        axios.post(`${baseURL}/api/auth/verify`,
+        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        const publicBase = import.meta.env.BASE_URL ?? '/'
+        axios.post(`${publicBase}/api/auth/verify`,
             jsonFormData,
             {
                 headers: {
@@ -65,7 +66,7 @@ function Register() {
                 setLoading(false);
             })
             .catch((err) => {
-                let messag = "We’re having technical issues. Please try again later.";
+                let messag = "Weï¿½re having technical issues. Please try again later.";
                 console.error("Error: ", err);
                 if (err.status == 401) {
                     messag = "Wrong verification code";
@@ -88,8 +89,9 @@ function Register() {
             }
 
         }
-        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        axios.post(`${baseURL}/api/register/register`,
+        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        const publicBase = import.meta.env.BASE_URL ?? '/'
+        axios.post(`${publicBase}/api/register/register`,
             jsonFormData,
             {
                 withCredentials: true,
@@ -110,17 +112,14 @@ function Register() {
                     //        "rT",
                     //        res.data.data.refreshToken
                     //);
-                    window.location.href = "/"; 
+                    window.location.href = `${publicBase}`; 
                     setUser({ mail: jsonFormData.Mail });
                     //navigate("/");
-
-
-
                 }
                 setLoading(false);
             })
             .catch((err) => {
-                let messag = "We’re having technical issues. Please try again later.";
+                let messag = "We're having technical issues. Please try again later.";
                 console.error("Error: ", err);
                 if (err.status == 401) {
                     messag = "Please enter a valid email";
@@ -150,7 +149,7 @@ function Register() {
                 setLoading(false);
             }
         } catch (err) {
-            let messag = "We’re having technical issues. Please try again later.";
+            let messag = "Weï¿½re having technical issues. Please try again later.";
             console.error("Error: ", err);
             if (err.status == 400) {
                 messag = "Please enter a valid email";

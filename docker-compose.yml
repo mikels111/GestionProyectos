@@ -1,27 +1,46 @@
+# docker-compose.prod.yml
 services:
   appgestionproyectos.server:
-    image: ${DOCKER_REGISTRY-}appgestionproyectosserver
-    ports:
-          - "5000:8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - Jwt_key="kD+3rL8v5KQbR9gTmXv2sPjM5XH8yXzJ89RjFwMzPjA="
-      - Jwt_issuer="localhost:3000"
-      - Jwt_audience="localhost:3000" 
-      - Jwt_ExpireMinutes=60
-      - ConnectionStrings__DefaultConnection=Server=193.203.168.48;Database=u107207292_gestion_proyec;Uid=u107207292_root;Pwd=0IfeOlt8V/;
-  
     build:
       context: .
       dockerfile: AppGestionProyectos.Server/Dockerfile
-  appgestionproyectos.client:
-    image: ${DOCKER_REGISTRY-}appgestionproyectosclient
-    ports:
-          - "3000:3000"
+    image: appgestionproyectosserver:prod
+    restart: unless-stopped
     environment:
-      - VITE_API_URL=http://localhost:5000
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: ${CONNSTR}   # <-- cadena hacia MySQL remoto
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__ExpireMinutes: ${JWT_EXPIREMINUTES}
+    expose:
+      - "80"  # solo red interna docker
+
+  web:
     build:
       context: .
-      dockerfile: AppGestionProyectos.Client/Dockerfile
+      dockerfile: appgestionproyectos.client/Dockerfile  # (Caddy/Nginx que sirve React)
+      args:
+        # VITE_API_URL: https://onerise.es/app1/api    
+        VITE_API_URL: https://localhost/app1/api    
+
+    image: appgestionproyectosweb:prod
+    restart: unless-stopped
     depends_on:
       - appgestionproyectos.server
+    ports:
+      - "80:80"
+      - "443:443"   # http://IP_DEL_VPS
+    volumes:
+      # Caddyfile con las rutas
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # build estático de app1 (lo copiamos durante el deploy)
+      - ./deploy_static/app1:/usr/share/caddy/app1:ro
+      # landing raíz (opcional)
+      - ./deploy_static/root:/usr/share/caddy/root:ro
+      # persistencia certificados
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  caddy_data:
+  caddy_config:

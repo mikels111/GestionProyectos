@@ -14,7 +14,9 @@ export const ProtectedRoute = () => {
         return <p>Loading...</p>; // o un spinner
     }
     console.log("ProtectedRoute->isauthenticated:", isAuthenticated);
-    return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+    const publicBase = import.meta.env.BASE_URL ?? '/'
+
+    return isAuthenticated ? <Outlet /> : window.location.href = `${publicBase}/login`;
 };
 
 export const Protected = ({ children }) => {

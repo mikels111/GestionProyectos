@@ -12,14 +12,6 @@ function Login() {
     //const { user, setUser, accessToken, setAccessToken, refreshToken, setRefreshToken } = useContext(Context);
     const navigate = useNavigate();
     const { warn, info } = Notify();
-    useEffect(() => {
-        const refreshToken = localStorage
-            .getItem("rT");
-        //console.log("refreshtoken", refreshToken)
-        if (refreshToken != null) {
-            //navigate("/");
-        }
-    }, []);
 
     const [mail, setMail] = useState({
         mail: ""
@@ -55,9 +47,8 @@ function Login() {
 
     const googleLogin = useGoogleLogin({
         onSuccess: (codeResponse) => {
-            console.log("response", codeResponse);
-            const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-            axios.post(`${baseURL}/api/user/LoginUserGoogle`,
+            const publicBase = import.meta.env.BASE_URL ?? '/'
+            axios.post(`${publicBase}/api/user/LoginUserGoogle`,
                 null,
                 {
                     withCredentials: true,
@@ -71,31 +62,17 @@ function Login() {
                         let messg = res.data.message;
 
                         if (messg == "access-granted") {
-                            //localStorage
-                            //    .setItem(
-                            //        "aT",
-                            //        res.data.data.accessToken
-                            //    );
-                            //localStorage
-                            //    .setItem(
-                            //        "rT",
-                            //        res.data.data.refreshToken
-                            //    );
                             window.location.href = "/"; 
                         }
-                        //messg === "show-codeInput"
                         setShowCodeInput(true);
                         setCodeCountDown(59);
-                        //setUser({ user, mail: jsonFormData.Mail });
                     }
                 })
                 .catch((err) => {
-                    console.log(err);
                     warn("We’re having technical issues. Please try again later.");
                 })
         },
         onError: (error) => {
-            console.log('Login Failed:', error);
             warn("We’re having technical issues. Please try again later.");
         }
     });
@@ -104,35 +81,23 @@ function Login() {
         setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
-        console.log(jsonFormData);
-        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        const publicBase = import.meta.env.BASE_URL ?? '/'
         axios(
             {
                 withCredentials: true,
                 data: jsonFormData,
                 method: 'post',
-                url: `${baseURL}/api/auth/MailAuth`,
+                url: `${publicBase}/api/auth/MailAuth`,
                 headers: {
                     'Content-Type': 'application/json'
                 }
             }).then((res) => {
-                console.log("res", res);
                 if (res.status == 200) {
                     let messg = res.data.message;
                     switch (messg) {
                         case "access-granted":
                             console.log("access-granted");
-                            //localStorage
-                            //    .setItem(
-                            //        "aT",
-                            //        res.data.data.accessToken
-                            //    );
-                            //localStorage
-                            //    .setItem(
-                            //        "rT",
-                            //        res.data.data.refreshToken
-                            //    );
-                            //navigate("/");
                             window.location.href = "/"; 
                             break;
                         case "show-passInput":
@@ -143,7 +108,7 @@ function Login() {
                             setCodeCountDown(59);
                             break;
                         default:
-                            console.log("Server error");
+                            console.error("Server error");
                             break;
                     }
 
@@ -167,8 +132,9 @@ function Login() {
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         jsonFormData['Mail'] = mail;
-        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        axios.post(`${baseURL}/api/auth/verify`,
+        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        const publicBase = import.meta.env.BASE_URL ?? '/'
+        axios.post(`${publicBase}/api/auth/verify`,
             jsonFormData,
             {
                 withCredentials: true,
@@ -241,8 +207,9 @@ function Login() {
                 return;
             }
         }
-        const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        axios.post(`${baseURL}/api/register/register`,
+        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        const publicBase = import.meta.env.BASE_URL ?? '/'
+        axios.post(`${publicBase}/api/register/register`,
             jsonFormData,
             {
                 withCredentials: true,
@@ -286,8 +253,7 @@ function Login() {
                 {showCodeInput ? (
                     <React.Fragment>
                         {/*{Code form}*/}
-                        <p>A 5-digit code has been sent to <span style={importantStyle}>{mail}</span>. Please enter it below.<br />Don't forget to look in your <span style={importantStyle}>spam</span> folder.<br /><br />
-                            The code expires in {codeCountDown} seconds</p>
+                        <p>A 5-digit code has been sent to <span style={importantStyle}>{mail}</span>. Please enter it below.<br />Don't forget to look in your <span style={importantStyle}>spam</span> folder.<br /><br /></p>
                         <form className="email-form" onSubmit={verifyCode} key="codeForm">
                             <div className="input-container">
                                 <label>Code </label>

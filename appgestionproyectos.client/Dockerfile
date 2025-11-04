@@ -1,21 +1,22 @@
-FROM node:18-alpine
-
+# 1) Build
+FROM node:18-alpine AS build
 WORKDIR /app
-
-#COPY /appgestionproyectos.client/package.json .
-#COPY /appGestionproyectos.client/package-lock.json .
-
 COPY /appgestionproyectos.client/package.json ./
-COPY /appgestionproyectos.client/package-lock.json ./  
-
-#RUN npm install
+COPY /appgestionproyectos.client/package-lock.json ./
 RUN npm ci
+COPY appgestionproyectos.client/ ./
 
-#COPY . .
-COPY appgestionproyectos.client ./
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+RUN npm run build   # genera /app/dist
 
-EXPOSE 3000
+# 2) Servir estáticos + HTTPS automático
+FROM caddy:2-alpine
+WORKDIR /usr/share/caddy
+RUN rm -rf ./*
+COPY --from=build /app/dist ./
+COPY Caddyfile /etc/caddy/Caddyfile
+EXPOSE 80
+EXPOSE 443
 
-#CMD ["npm", "run", "dev"]
-#dev para docker
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]

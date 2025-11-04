@@ -1,0 +1,25 @@
+onerise.es {
+    tls force_automate
+
+    # API calls hacia el backend .NET
+    reverse_proxy /app1/api/* appgestionproyectos.server:80
+
+    # Manejar la aplicación React
+    handle_path /app1* {
+        root * /usr/share/caddy
+        
+        # Definir matcher para archivos que NO existen
+        @notFile {
+            not file
+        }
+        
+        # Reescribir solo las rutas que no son archivos existentes
+        rewrite @notFile /index.html
+        
+        # Servir archivos (tanto estáticos como el index.html reescrito)
+        file_server
+    }
+
+    # Redirigir root a /app1
+    redir / /app1/
+}
