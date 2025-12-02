@@ -19,15 +19,15 @@ body {
     width: 270px;
     margin: 16px;
     border-radius: 16px;
-    background: #d1d5db;
     height: calc(100vh - 32px);
     transition: all 0.4s ease;
+    border: solid black 1px;
+    background-color: #dfdfdf;
 }
 
     .sidebar.collapsed {
         width: 75px;
         min-width: 0px;
-        
     }
 
     .sidebar .sidebar-header {
@@ -130,6 +130,10 @@ body {
     border-radius: 12px;
 }
 
+.nav-label {
+    overflow-x: hidden;
+}
+
 .sidebar .sidebar-nav .nav-link .nav-label {
     transition: opacity 0.3s ease;
 }
@@ -140,7 +144,7 @@ body {
 }
 
 .sidebar-nav .nav-link:hover {
-    /*    color: white;*/
+    /*        color: white;*/
     background: #e6eaf1;
 }
 
@@ -182,11 +186,11 @@ body {
 }
 
 a.active {
-    background-color: #6d9afe;
+    background-color: #59C5DE;
 }
 
     a.active:hover {
-        background-color: #6d9afe !important;
+        background-color: #59C5DE !important;
     }
 
 .primary-nav {
@@ -210,15 +214,21 @@ a.active {
 }
 
 .primary-nav div[aria-selected="true"] a {
-    background-color: #6d9afe;
+    background-color: #59C5DE;
 }
 
     .primary-nav div[aria-selected="true"] a:hover {
-        background-color: #6d9afe !important;
+        background-color: #59C5DE !important;
     }
 
-.arrow-down {
+.clickable {
     cursor: pointer;
+}
+
+.add-menu {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 /* Responsive media query code for small screens */
 @media (max-width: 768px) {

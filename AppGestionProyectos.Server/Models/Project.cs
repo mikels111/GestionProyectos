@@ -22,6 +22,8 @@ namespace AppGestionProyectos.Server.Models
         [Column(TypeName = "json")]
         public string? Json_data { get; set; }
 
+        public record struct ProjectDTO(int w_environment_id, string name);
+
         public static async Task<Project> CreateProject(int wEnvironment, string name, AppDbContext appDbContext)
         {
             Project project = new Project

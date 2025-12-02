@@ -155,7 +155,7 @@ namespace AppGestionProyectos.Server.Controllers
                                 // mandar codigo
                                 var smtpClient = new SmtpClient("smtp-relay.brevo.com")
                                 {
-                                    Port = 587,
+                                    Port = 587, 
                                     Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
                                     EnableSsl = true,
                                 };

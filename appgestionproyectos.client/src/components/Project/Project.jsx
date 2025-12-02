@@ -2,6 +2,7 @@ import React, { Component, useEffect, useContext, useRef, useState } from "react
 import { useParams } from 'react-router-dom'
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
+import Checklist from '@editorjs/checklist' 
 import { AuthRequest } from '../../Utils/Authorization';
 import { Context } from '../Router/Router';
 import { Notify } from '../../Utils/Notifications';
@@ -96,6 +97,7 @@ function Project() {
             onReady: () => {
                 ejInstance.current = editor;
             },
+            placeholder: 'Start writing here!',
             autofocus: true,
             data: projectData,
             onChange: async () => {
@@ -115,6 +117,7 @@ function Project() {
             },
             tools: {
                 header: Header,
+                class: Checklist
             }
         });
     };

@@ -36,14 +36,63 @@ function Router({ handleWorkspaceSelection }) {
     //    navigate("/login");
     //});
     const [globalUser, setGlobalUser] = useState();
-    const [globalWorkspace, setGlobalWorkspace] = useState();
+    const [globalWorkspace, setGlobalWorkspace] = useState(() => {
+        AuthRequest(`/api/WEnvironment/getWEnvironments`, 'get').
+            then((res) => {
+                console.log("setting global workspace")
+                setGlobalWorkspace(res.data.data[0].id);
+            }).
+            catch((err) => {
+                console.error(err);
+                if (err.status == 401) {
+                    navigate("/login");
+
+                }
+            });
+    });
+    const [globalUserProjects, setGlobalUserProjects] = useState([]);
+    useEffect(() => {
+        try {
+            if (globalWorkspace != null) {
+                console.log(globalWorkspace, "GLOBAL WORKSPACE")
+                //let parsedSelectWorkSpc = JSON.parse(globalWorkspace);
+                //console.log(parsedSelectWorkSpc, "Sidebar selected workspace parsed");
+                //console.log(selectedWorkspace, "Sidebar selected workspace");
+                AuthRequest(`/api/Project/getProjects?workspace=${globalWorkspace}`, 'get').
+                    then((res) => {
+                        //console.log(res);
+                        const proj = res.data.data;
+                        proj.map((project, i) => {
+                            project.project_id = project.id;
+                            project.route = `/project/${project.id}`
+                            project.id = `p${i}`;
+                        })
+                        //console.log("projects obtenidos", proj)
+                        console.log("globalUserProject UseEffect", proj)
+                        setGlobalUserProjects(proj)
+
+                    }).
+                    catch((err) => {
+                        //console.error(err.status);
+                        if (err.status == 401) {
+                            navigate("/login");
+                        }
+                    });
+            }
+
+
+        } catch (Exception) {
+            console.error(Exception);
+        }
+    }, [globalWorkspace]);
+
 
     //const handleSelectionParent = (event) => {
     //    handleWorkspaceSelection(event);
     //}
 
     return (
-        <Context.Provider value={{ globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace }} >
+        <Context.Provider value={{ globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace, globalUserProjects, setGlobalUserProjects }} >
             <React.Fragment>
                 <div className={styles["app-wrapper"]}>
                     <ToastContainer
@@ -58,26 +107,26 @@ function Router({ handleWorkspaceSelection }) {
                     </Protected>
 
                     <div className={styles["main-wrapper"]}>
-                    {/*<div>*/}
+                        {/*<div>*/}
                         {/*<div className={styles.main}>*/}
-                            <Routes>
-                                <Route exact path="/Login" element={<Login />} />
-                                <Route exact path="/Register" element={<Register />} />
-                                <Route exact path="*" element={<ErrorView />} />
-                                {/*<div className={styles["main-wrapper"]}>*/}
-                                <Route element={<ProtectedRoute />}>
-                                    <Route exact path="/" element={<Workspace />} />
-                                    <Route exact path="/Project/:projectId" element={<Project />} />
-                                </Route>
-                                {/*</div>*/}
+                        <Routes>
+                            <Route exact path="/Login" element={<Login />} />
+                            <Route exact path="/Register" element={<Register />} />
+                            <Route exact path="*" element={<ErrorView />} />
+                            {/*<div className={styles["main-wrapper"]}>*/}
+                            <Route element={<ProtectedRoute />}>
+                                <Route exact path="/" element={<Workspace />} />
+                                <Route exact path="/Project/:projectId" element={<Project />} />
+                            </Route>
+                            {/*</div>*/}
 
 
 
-                                {/*<Route  element={<ProtectedRoute />} >*/}
+                            {/*<Route  element={<ProtectedRoute />} >*/}
 
-                                {/*</Route>*/}
+                            {/*</Route>*/}
 
-                            </Routes>
+                        </Routes>
                         {/*</div>*/}
                     </div>
                 </div>

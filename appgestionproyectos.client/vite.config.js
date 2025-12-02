@@ -10,37 +10,37 @@ import tailwindcss from '@tailwindcss/vite'
 
 
 // ####### COMENTAR PARA DOCKER #######
-//const baseFolder =
-//    env.APPDATA !== undefined && env.APPDATA !== ''
-//        ? `${env.APPDATA}/ASP.NET/https`
-//        : `${env.HOME}/.aspnet/https`;
+const baseFolder =
+    env.APPDATA !== undefined && env.APPDATA !== ''
+        ? `${env.APPDATA}/ASP.NET/https`
+        : `${env.HOME}/.aspnet/https`;
 
-//const certificateName = "appgestionproyectos.client";
-//const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
-//const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
+const certificateName = "appgestionproyectos.client";
+const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
+const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
 
-//if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-//    if (0 !== child_process.spawnSync('dotnet', [
-//        'dev-certs',
-//        'https',
-//        '--export-path',
-//        certFilePath,
-//        '--format',
-//        'Pem',
-//        '--no-password',
-//    ], { stdio: 'inherit', }).status) {
-//        throw new Error("Could not create certificate.");
-//    }
-//}
+if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
+    if (0 !== child_process.spawnSync('dotnet', [
+        'dev-certs',
+        'https',
+        '--export-path',
+        certFilePath,
+        '--format',
+        'Pem',
+        '--no-password',
+    ], { stdio: 'inherit', }).status) {
+        throw new Error("Could not create certificate.");
+    }
+}
 
-//const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-//    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7233';
+const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
+    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7233';
 // ####### COMENTAR PARA DOCKER #######
 
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: '/app1',  
+    //base: '/app1', 
     build: {
         sourcemap: false, // ? IMPORTANTE: deshabilitar source maps
         minify: 'esbuild', // ? minificar
@@ -54,17 +54,17 @@ export default defineConfig({
     },
     server: {
         host: '0.0.0.0',
-        port: 3000
-        //proxy: {
-        //    '^/weatherforecast': {
-        //        target,
-        //        secure: false
-        //    }
-        //},
+        port: 3000,
+        proxy: {
+            '^/weatherforecast': {
+                target,
+                secure: false
+            }
+        },
         //port: 5173,
-        //https: {
-        //    key: fs.readFileSync(keyFilePath),
-        //    cert: fs.readFileSync(certFilePath),
-        //}
+        https: {
+            key: fs.readFileSync(keyFilePath),
+            cert: fs.readFileSync(certFilePath),
+        }
     }
 })

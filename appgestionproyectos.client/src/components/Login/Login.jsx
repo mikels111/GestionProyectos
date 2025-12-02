@@ -82,7 +82,8 @@ function Login() {
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        const publicBase = import.meta.env.BASE_URL ?? '/'
+        //const publicBase = import.meta.env.BASE_URL ?? '/'
+        const publicBase = import.meta.env.VITE_API_URL ?? '/'
         axios(
             {
                 withCredentials: true,

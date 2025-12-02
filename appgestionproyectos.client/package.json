@@ -10,14 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@editorjs/checklist": "^1.6.0",
     "@editorjs/editorjs": "^2.30.8",
     "@editorjs/header": "^2.8.8",
     "@heroicons/react": "^2.2.0",
     "@react-oauth/google": "^0.12.1",
     "@tailwindcss/vite": "^4.0.17",
     "axios": "^1.7.7",
+    "bootstrap": "^5.3.8",
     "react": "^18.3.1",
     "react-arborist": "^3.4.3",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.0",
     "react-spinners": "^0.17.0",

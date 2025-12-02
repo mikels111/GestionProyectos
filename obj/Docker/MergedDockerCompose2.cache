@@ -5,7 +5,7 @@ services:
       context: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos
       dockerfile: AppGestionProyectos.Server/Dockerfile
       args:
-        BUILD_CONFIGURATION: Release
+        BUILD_CONFIGURATION: Debug
         LAUNCHING_FROM_VS: "true"
       labels:
         com.microsoft.created-by: visual-studio

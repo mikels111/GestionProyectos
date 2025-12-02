@@ -60,6 +60,23 @@ namespace AppGestionProyectos.Server.Models
                 OrderBy(b => b.Id).
                 ToList();
         }
+
+        public static async Task<int> GetUser(string mail, AppDbContext appDbContext)
+        {
+            int userId = 0;
+            try
+            {
+                userId = await appDbContext.User
+                    .Where(u => u.Mail == mail)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return userId;
+        }
         public static async Task<UserDTO> Checkmail(string mail, AppDbContext appDbContext)
         {
             UserDTO userDto = new UserDTO();
@@ -214,7 +231,7 @@ namespace AppGestionProyectos.Server.Models
                 //    await appDbContext.SaveChangesAsync();
                 //}
 
-                
+
                 if (lines > 0)
                 {
                     int elementsNumber = 1;

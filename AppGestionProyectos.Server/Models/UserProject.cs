@@ -10,6 +10,7 @@ namespace AppGestionProyectos.Server.Models
         public int User_Id { get; set; }
         public int Project_Id { get; set; }
         public string Creator_mail { get; set; }
+        public record struct UserProjectDTO(int project);
 
         public static async Task<UserProject> CreateUserProject(int user, int project, AppDbContext appDbContext)
         {

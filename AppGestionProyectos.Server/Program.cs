@@ -40,7 +40,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: WhiteListOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:3000")
+                          policy.WithOrigins("https://localhost:3000")
                           .AllowCredentials()
                           .AllowAnyHeader()
                           .AllowAnyMethod();

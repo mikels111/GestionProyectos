@@ -73,7 +73,7 @@ input {
 
 .main-wrapper {
     flex-grow: 1;
-/*    margin: 60px 0 0 20px;*/
+    /*    margin: 60px 0 0 20px;*/
     /*    display: flex;
     justify-content: center;
     flex-direction: row;
@@ -85,4 +85,13 @@ input {
     /*    display: flex;*/
     /*    flex-direction: column;
     justify-content: center;*/
+}
+
+.btn-theme-primary {
+    background-color: #59C5DE;
+    color: white;
+}
+.btn-xxl {
+    padding: 1rem 1.5rem;
+    font-size: 1.5rem;
 }

@@ -12,16 +12,163 @@ import {
     RectangleGroupIcon,
     Bars3BottomLeftIcon,
     HomeIcon,
-    ChevronDownIcon
+    ChevronDownIcon,
+    PlusIcon
 } from '@heroicons/react/16/solid'
 import { useNavigate, NavLink } from 'react-router-dom';
 import styles from './SideBar.module.css'
 import { Tree } from 'react-arborist';
 import { Context } from '../Router/Router';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import { Notify } from '../../Utils/Notifications';
+import axios from 'axios';
 
+function CreateProyectModal(props) {
+    const inputRef = useRef(null);
+    const { warn, info } = Notify();
+    const { globalUser } = useContext(Context);
+    const {  globalWorkspace, setGlobalUserProjects } = useContext(Context);
+
+    async function createProject(props) {
+        //console.log(props, "propiedades")
+        console.log("global workspace Create project", props);
+        let inputName = inputRef.current.value;
+        const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        //const publicBase = import.meta.env.BASE_URL ?? '/'
+        axios({
+            withCredentials: true,
+            method: 'post',
+            data: {
+                "w_environment_id": props.workSpace,
+                "name": inputName
+            },
+            url: `${publicBase}/api/project`,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(function (res) {
+                if (res.status == 200) {
+                    console.log("created project response", res.data.data);
+                    UserProjectAssignment(res.data.data.id);
+                }
+            })
+            .catch(function (err) {
+                console.log(err.data, "response")
+            });
+    }
+    //------------> crear relacion user-project porque el usuario es el creador del proyecto
+    async function UserProjectAssignment(projectId) {
+        const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        console.log("project id UserProject assignment: ", projectId)
+        axios({
+            withCredentials: true,
+            method: 'post',
+            data: {
+                "project": projectId
+            },
+            url: `${publicBase}/api/user/UserProjectAssignment`,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(function (res) {
+                if (res.status == 200) {
+                    console.log("created project response", res.data);
+                }
+            })
+            .catch(function (err) {
+                console.log(err.data, "response")
+            }).finally(() => {
+                props.onHide();
+                RefreshProjects()
+                //conseguir proyectos (recarga para ver el nuevo proyecto)
+            });
+    }
+    async function RefreshProjects() {
+        const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        console.log("global user", globalUser);
+        axios({
+            withCredentials: true,
+            method: 'get',
+            url: `${publicBase}/api/Project/getProjects?workspace=${globalWorkspace}`,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(function (res) {
+                const proj = res.data.data;
+                proj.map((project, i) => {
+                    project.project_id = project.id;
+                    project.route = `/project/${project.id}`
+                    project.id = `p${i}`;
+                })
+                //console.log("projects obtenidos", proj)
+                console.log("globalUserProject UseEffect", proj)
+                setGlobalUserProjects(proj)
+            })
+            .catch(function (err) {
+                console.log(err.data, "response")
+            }).finally(() => {
+                props.onHide();
+
+                //conseguir proyectos (recarga para ver el nuevo proyecto)
+            });
+    }
+    return (
+        <>
+            <style type="text/css">
+                {`
+                    .btn-flat {
+                      background-color: #59C5DE;
+                      color: white;
+                    }
+                    .btn-flat:hover {
+                      background-color: black;
+                      color: white;
+                    }
+                    .btn-flat:click {
+                      background-color: grey;
+                      color: white;
+                    }
+
+                    `}
+            </style>
+            <Modal
+                show={props.show}
+                onHide={props.onHide}
+                aria-labelledby="contained-modal-title-vcenter"
+                animation={false}
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        New Project
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3" controlId="formBasicEmail">
+                            <Form.Label>Project Name</Form.Label>
+                            <Form.Control type="text" ref={inputRef} />
+                        </Form.Group>
+                        <Button variant="flat" onClick={() => { createProject(props) }}>
+                            Create
+                        </Button>
+                    </Form>
+                </Modal.Body>
+                {/*<Modal.Footer>*/}
+
+                {/*</Modal.Footer>*/}
+            </Modal>
+        </>
+    );
+}
 
 function SideBar() {
-    const { globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace } = useContext(Context);
+    const { globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace, globalUserProjects, setGlobalUserProjects } = useContext(Context);
     const navigate = useNavigate();
 
     let fullSidebarHeight = "calc(100vh - 32px)";
@@ -71,78 +218,82 @@ function SideBar() {
     });
 
     const [selectedWorkspace, setSelectedWorkspace] = useState();
-    useEffect(() => {
+    const [modalShow, setModalShow] = useState(false);
 
-        setGlobalUser(user);
-        AuthRequest(`/api/WEnvironment/getWEnvironments`, 'get').
-            then((res) => {
-                //setWEnvironments(res.data.data);
-                //let workSpcLocal = JSON.parse(localStorage.getItem("worksp")).id;
-                console.log(localStorage.getItem("worksp"), "workSpcLocal")
-                if (!localStorage.getItem("worksp") || localStorage.getItem("worksp") == undefined) {
-                    //setSelectedWorkspace(res.data.data[0])
-                    //console.log(selectedWorkspace);
-                    console.log("setting worksapce");
-                    //localStorage
-                    //    .setItem(
-                    //        "worksp",
-                    //        JSON.stringify(res.data.data[0])
-                    //    );
-                }
-                //console.log(workSpcLocal);
-                //setSelectedWorkspace(workSpcLocal);
-                //setGlobalWorkspace(workSpcLocal);
-                console.log("setting global workspace")
-                //setGlobalWorkspace(JSON.parse(localStorage.getItem("worksp")).id);
-                setGlobalWorkspace(res.data.data[0].id);
-            }).
-            catch((err) => {
-                console.error(err);
-                if (err.status == 401) {
-                    navigate("/login");
 
-                }
-            });
-    }, []);
+    //useEffect(() => {
+
+    //    //setGlobalUser(user);
+    //    AuthRequest(`/api/WEnvironment/getWEnvironments`, 'get').
+    //        then((res) => {
+    //            //setWEnvironments(res.data.data);
+    //            //let workSpcLocal = JSON.parse(localStorage.getItem("worksp")).id;
+    //            console.log(localStorage.getItem("worksp"), "workSpcLocal")
+    //            if (!localStorage.getItem("worksp") || localStorage.getItem("worksp") == undefined) {
+    //                //setSelectedWorkspace(res.data.data[0])
+    //                //console.log(selectedWorkspace);
+    //                console.log("setting worksapce");
+    //                //localStorage
+    //                //    .setItem(
+    //                //        "worksp",
+    //                //        JSON.stringify(res.data.data[0])
+    //                //    );
+    //            }
+    //            //console.log(workSpcLocal);
+    //            //setSelectedWorkspace(workSpcLocal);
+    //            //setGlobalWorkspace(workSpcLocal);
+    //            console.log("setting global workspace")
+    //            //setGlobalWorkspace(JSON.parse(localStorage.getItem("worksp")).id);
+    //            setGlobalWorkspace(res.data.data[0].id);
+    //        }).
+    //        catch((err) => {
+    //            console.error(err);
+    //            if (err.status == 401) {
+    //                navigate("/login");
+
+    //            }
+    //        });
+    //}, []);
 
     useEffect(() => {
         setSideBarCurrentScrollHeight(sideBar.current.scrollHeight + "px");
     }, [sideBarCurrentScrollHeight]);
 
-    useEffect(() => {
-        try {
-            if (globalWorkspace != null) {
-                console.log(globalWorkspace, "GLOBAL WORKSPACE")
-                //let parsedSelectWorkSpc = JSON.parse(globalWorkspace);
-                //console.log(parsedSelectWorkSpc, "Sidebar selected workspace parsed");
-                //console.log(selectedWorkspace, "Sidebar selected workspace");
-                AuthRequest(`/api/Project/getProjects?workspace=${globalWorkspace}`, 'get').
-                    then((res) => {
-                        //console.log(res);
-                        const proj = res.data.data;
-                        proj.map((project, i) => {
-                            project.project_id = project.id;
-                            project.route = `/project/${project.id}`
-                            project.id = `p${i}`;
-                        })
-                        //console.log("projects obtenidos", proj)
-                        setUserProjects(proj)
+    //useEffect(() => {
+    //    try {
+    //        if (globalWorkspace != null) {
+    //            console.log(globalWorkspace, "GLOBAL WORKSPACE")
+    //            //let parsedSelectWorkSpc = JSON.parse(globalWorkspace);
+    //            //console.log(parsedSelectWorkSpc, "Sidebar selected workspace parsed");
+    //            //console.log(selectedWorkspace, "Sidebar selected workspace");
+    //            AuthRequest(`/api/Project/getProjects?workspace=${globalWorkspace}`, 'get').
+    //                then((res) => {
+    //                    //console.log(res);
+    //                    const proj = res.data.data;
+    //                    proj.map((project, i) => {
+    //                        project.project_id = project.id;
+    //                        project.route = `/project/${project.id}`
+    //                        project.id = `p${i}`;
+    //                    })
+    //                    //console.log("projects obtenidos", proj)
+    //                    console.log(proj)
+    //                    setUserProjects(proj)
 
-                    }).
-                    catch((err) => {
-                        //console.error(err.status);
-                        if (err.status == 401) {
-                            navigate("/login");
-                        }
-                    });
-            }
+    //                }).
+    //                catch((err) => {
+    //                    //console.error(err.status);
+    //                    if (err.status == 401) {
+    //                        navigate("/login");
+    //                    }
+    //                });
+    //        }
 
 
-        } catch (Exception) {
-            console.error(Exception);
-        }
+    //    } catch (Exception) {
+    //        console.error(Exception);
+    //    }
 
-    }, [globalWorkspace]);
+    //}, [globalWorkspace]);
     useEffect(() => {
 
         const handleResize = () => {
@@ -165,11 +316,29 @@ function SideBar() {
         }
     }, [sideBarActive]);
 
+
+    useEffect(() => {
+        setMenu(
+            prev => {
+                const newMenu = prev.map(item => {
+                    if (item.id === "2") {
+                        return { ...item, children: [...globalUserProjects] };
+                    }
+                    return item;
+                });
+                return [...newMenu];
+            }
+        );
+        //console.log("userProjects cargado:", menu);
+
+    }, [globalUserProjects]);
+
+
     const logout = () => {
         //localStorage.removeItem("aT");
         //localStorage.removeItem("rT");
-        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        const publicBase = import.meta.env.BASE_URL ?? '/'
+        const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
+        //const publicBase = import.meta.env.BASE_URL ?? '/'
         fetch(`${publicBase}/api/auth/logout`, {
             credentials: "include",
         })
@@ -189,76 +358,65 @@ function SideBar() {
             });
     }
 
-    useEffect(() => {
-        setMenu(
-            prev => {
-                const newMenu = prev.map(item => {
-                    if (item.id === "2") {
-                        return { ...item, children: [...userProjects] };
-                    }
-                    return item;
-                });
-                return [...newMenu];
-            }
-        );
-        //console.log("userProjects cargado:", menu);
-
-    }, [userProjects]);
-
-    useEffect(() => {
-        //console.log("menu actualizado:", menu);
-    }, [menu]);
-
     function Node({ node, style, dragHandle }) {
         const hasChildren = node.isInternal;
         const isChild = node.level > 0;
+
         //console.log(node.data.name, node.data.route);
         //console.log(node.data.name, isChild);
 
         //console.log("icon", node.data.icon)
         const handleClick = () => {
 
-            if (hasChildren && userProjects.length > 0) {
+            if (hasChildren && globalUserProjects.length > 0) {
                 node.toggle(); // Abre o cierra el nodo si tiene hijos
             }
 
         };
 
+
         return (
             //<div style={style}>
+            <React.Fragment>
+                <li style={style} className={styles['nav-item']}>
+                    {node.data.route ?
+                        <NavLink to={node.data.route} className={({ isActive, isPending }) =>
+                            isActive && !isChild ? [styles['nav-link'], styles.active].join(' ') : styles['nav-link']
+                        } onClick={() => { if (windowSize <= 768 && !hasChildren) { setSideBarActive(false) } }}>
+                            <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}>
+                                {node.data.icon?.()}
+                            </span>
 
-            <li style={style} className={styles['nav-item']}>
-                {node.data.route ?
-                    <NavLink to={node.data.route} className={({ isActive, isPending }) =>
-                        isActive && !isChild ? [styles['nav-link'], styles.active].join(' ') : styles['nav-link']
-                    } onClick={() => { if (windowSize <= 768 && !hasChildren) { setSideBarActive(false) } }}>
-                        <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}>
-                            {node.data.icon?.()}
-                        </span>
+                            <span className={styles['nav-label']}>{node.data.name}</span>
+                            <span className={styles["arrow-down"]}>
+                                {hasChildren && globalUserProjects.length > 0 &&
+                                    <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleClick} />
+                                }
+                            </span>
+                        </NavLink>
+                        :
+                        <React.Fragment>
+                            <div className={styles['nav-link']}>
+                                <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}>
+                                    {node.data.icon?.()}
+                                </span>
 
-                        <span className={styles['nav-label']}>{node.data.name}</span>
-                        <span className={styles["arrow-down"]}>
-                            {hasChildren && userProjects.length > 0 &&
-                                <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleClick} />
-                            }
-                        </span>
-                    </NavLink>
-                    :
-                    <div className={styles['nav-link']}>
-                        <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}>
-                            {node.data.icon?.()}
-                        </span>
+                                <span className={styles['nav-label']}>{node.data.name}</span>
+                                <span className={styles["clickable"]}>
+                                    {hasChildren &&
+                                        <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleClick} />
+                                    }
+                                </span>
+                                <span className={styles["clickable"]}>
+                                    <PlusIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} variant="primary" onClick={() => { setModalShow(true) }} />
+                                </span>
+                            </div>
 
-                        <span className={styles['nav-label']}>{node.data.name}</span>
-                        <span className={styles["arrow-down"]}>
-                            {hasChildren &&
-                                <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleClick} />
-                            }
-                        </span>
-                    </div>
-                }
+                        </React.Fragment>
+                    }
 
-            </li>
+                </li>
+            </React.Fragment>
             //</div>
 
         );
@@ -269,6 +427,12 @@ function SideBar() {
 
 
         <React.Fragment>
+            <CreateProyectModal
+                show={modalShow}
+                onHide={() => setModalShow(false)}
+                workSpace={globalWorkspace}
+            />
+
             <aside className={sideBarClasses} ref={sideBar} style={sideBarStyles}>
 
                 {/*Sidebar header */}
@@ -294,8 +458,8 @@ function SideBar() {
                         <Tree data={menu}
                             openByDefault={false}
                             width={"inherit"}
-                            height={300}
-                            indent={50}
+                            height={9999}
+                            indent={0}
                             rowHeight={50}
                             overscanCount={1}>
                             {Node}

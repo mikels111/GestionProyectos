@@ -1,14 +1,15 @@
-﻿using AppGestionProyectos.Server.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Net.Mail;
-using System.Net;
-using System.Text.Json;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using Humanizer;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using AppGestionProyectos.Server.Data;
+using AppGestionProyectos.Server.Models;
 using AppGestionProyectos.Server.Services;
+using Humanizer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
-using AppGestionProyectos.Server.Data;
+using System.Net;
+using System.Net.Mail;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace AppGestionProyectos.Server.Controllers
@@ -21,6 +22,7 @@ namespace AppGestionProyectos.Server.Controllers
         private readonly IConfiguration _config;
         static readonly HttpClient client = new HttpClient();
         static readonly string _myAud = "765808157277-f5ktben8g1a5tflgbh9f0pi2tvdv68ih.apps.googleusercontent.com";
+
 
         public UserController(AppDbContext appDbContext, IConfiguration config)
         {
@@ -55,6 +57,46 @@ namespace AppGestionProyectos.Server.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [Route("UserProjectAssignment")]
+        public async Task<IActionResult> UserProjectAssignment([FromBody] object fields)
+        {
+            int environment = 0;
+            UserProject.UserProjectDTO userProjectFields;
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+                };
+                userProjectFields = JsonSerializer.Deserialize<UserProject.UserProjectDTO>(fields.ToString(), options);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false, ex.ToString()));
+            }
+            try
+            {
+                string? userEmail = User.Claims.FirstOrDefault(c => c.Type == "Mail")?.Value;
+                //conseguir usuario id
+                int userId = await Models.User.GetUser(userEmail, _AppDbContext);
+
+                UserProject userProjectAssignment = await Models.UserProject.CreateUserProject(userId, userProjectFields.project, _AppDbContext);
+                if (userProjectAssignment.User_Id > 0)
+                {
+                    return Ok(new ApiResponse<object>(true, "access-granted", userProjectAssignment));
+                }
+                else
+                {
+                    return StatusCode(500, new ApiResponse<object>(false, "server-error", "Could not create the project"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>(false, "server-error", ex.ToString()));
+            }
+        }
         [HttpPost]
         [Route("LoginUserGoogle")]
         public async Task<IActionResult> LoginUserGoogle([FromHeader] string token)

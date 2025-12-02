@@ -22,7 +22,7 @@ services:
       dockerfile: appgestionproyectos.client/Dockerfile  # (Caddy/Nginx que sirve React)
       args:
         # VITE_API_URL: https://onerise.es/app1/api    
-        VITE_API_URL: https://localhost/app1/api    
+        VITE_API_URL: https://localhost/app1/ 
 
     image: appgestionproyectosweb:prod
     restart: unless-stopped

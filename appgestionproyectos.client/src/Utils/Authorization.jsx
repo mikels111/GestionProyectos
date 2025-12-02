@@ -2,8 +2,8 @@ import axios from 'axios';
 
 export function AuthRequest(url, method, data = {}) {
     //const baseUrl = 'https://localhost:7233/';
-    // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
-    const publicBase = import.meta.env.BASE_URL ?? '/'
+    const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
+    //const publicBase = import.meta.env.BASE_URL ?? '/'
     console.log("BASE URL", publicBase);
     const urlResult = publicBase.concat(url);
     const accessToken = localStorage.getItem("aT");

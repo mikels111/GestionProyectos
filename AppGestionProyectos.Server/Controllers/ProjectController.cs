@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using NuGet.Common;
+using System.Net;
+using System.Net.Mail;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -24,6 +26,45 @@ namespace AppGestionProyectos.Server.Controllers
             _project = project;
             _AppDbContext = appDbContext;
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> CreateProject([FromBody] object fields)
+        {
+            int environment = 0;
+            Project.ProjectDTO projectFields;
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+                };
+                projectFields = JsonSerializer.Deserialize<Project.ProjectDTO>(fields.ToString(), options);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false, ex.ToString()));
+            }
+            try
+            {
+                Project createdProject = await Models.Project.CreateProject(projectFields.w_environment_id,projectFields.name , _AppDbContext);
+                if (createdProject.Id > 0)
+                {
+                    return Ok(new ApiResponse<object>(true, "access-granted", createdProject));
+                }
+                else
+                {
+                    return StatusCode(500, new ApiResponse<object>(false, "server-error", "Could not create the project"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>(false, "server-error", ex.ToString()));
+            }
+
+        }
+
         [Route("getProjects")]
         [HttpGet]
         public async Task<IActionResult> GetProjects([FromQuery(Name = "workspace")] int wEnv)
