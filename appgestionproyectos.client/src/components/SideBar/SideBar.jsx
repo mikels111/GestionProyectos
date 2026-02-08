@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { AuthRequest } from '../../Utils/Authorization';
 import {
     BeakerIcon,
@@ -13,7 +14,10 @@ import {
     Bars3BottomLeftIcon,
     HomeIcon,
     ChevronDownIcon,
-    PlusIcon
+    PlusIcon,
+    EllipsisVerticalIcon,
+    EllipsisHorizontalCircleIcon,
+    EllipsisHorizontalIcon
 } from '@heroicons/react/16/solid'
 import { useNavigate, NavLink } from 'react-router-dom';
 import styles from './SideBar.module.css'
@@ -22,42 +26,51 @@ import { Context } from '../Router/Router';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import SplitButton from 'react-bootstrap/SplitButton';
 import { Notify } from '../../Utils/Notifications';
+import ProjectMenu from '../ProjectMenu/ProjectMenu';
 import axios from 'axios';
 
 function CreateProyectModal(props) {
     const inputRef = useRef(null);
     const { warn, info } = Notify();
     const { globalUser } = useContext(Context);
-    const {  globalWorkspace, setGlobalUserProjects } = useContext(Context);
+    const { globalWorkspace, setGlobalUserProjects, RefreshProjects } = useContext(Context);
+    const navigate = useNavigate();
 
-    async function createProject(props) {
+    const createProject = (props, e) => {
         //console.log(props, "propiedades")
+        console.log(e, "eeee")
+        e.preventDefault();
         console.log("global workspace Create project", props);
         let inputName = inputRef.current.value;
-        const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        //const publicBase = import.meta.env.BASE_URL ?? '/'
-        axios({
-            withCredentials: true,
-            method: 'post',
-            data: {
-                "w_environment_id": props.workSpace,
-                "name": inputName
-            },
-            url: `${publicBase}/api/project`,
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(function (res) {
-                if (res.status == 200) {
-                    console.log("created project response", res.data.data);
-                    UserProjectAssignment(res.data.data.id);
+        if (inputName) {
+            const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
+            //const publicBase = import.meta.env.BASE_URL ?? '/'
+            axios({
+                withCredentials: true,
+                method: 'post',
+                data: {
+                    "w_environment_id": props.workSpace,
+                    "name": inputName
+                },
+                url: `${publicBase}/api/project`,
+                headers: {
+                    'Content-Type': 'application/json',
                 }
             })
-            .catch(function (err) {
-                console.log(err.data, "response")
-            });
+                .then(function (res) {
+                    if (res.status == 200) {
+                        console.log("created project response", res.data.data);
+                        UserProjectAssignment(res.data.data.id);
+                    }
+                })
+                .catch(function (err) {
+                    console.log(err.data, "response")
+                });
+        }
     }
     //------------> crear relacion user-project porque el usuario es el creador del proyecto
     async function UserProjectAssignment(projectId) {
@@ -83,37 +96,9 @@ function CreateProyectModal(props) {
                 console.log(err.data, "response")
             }).finally(() => {
                 props.onHide();
+                info("Project created")
+                navigate(`/project/${projectId}`)
                 RefreshProjects()
-                //conseguir proyectos (recarga para ver el nuevo proyecto)
-            });
-    }
-    async function RefreshProjects() {
-        const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        console.log("global user", globalUser);
-        axios({
-            withCredentials: true,
-            method: 'get',
-            url: `${publicBase}/api/Project/getProjects?workspace=${globalWorkspace}`,
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(function (res) {
-                const proj = res.data.data;
-                proj.map((project, i) => {
-                    project.project_id = project.id;
-                    project.route = `/project/${project.id}`
-                    project.id = `p${i}`;
-                })
-                //console.log("projects obtenidos", proj)
-                console.log("globalUserProject UseEffect", proj)
-                setGlobalUserProjects(proj)
-            })
-            .catch(function (err) {
-                console.log(err.data, "response")
-            }).finally(() => {
-                props.onHide();
-
                 //conseguir proyectos (recarga para ver el nuevo proyecto)
             });
     }
@@ -149,19 +134,16 @@ function CreateProyectModal(props) {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form noValidate onSubmit={(e) => { createProject(props, e) }}>
+                        <Form.Group className="mb-3" controlId="formBasicEmail" >
                             <Form.Label>Project Name</Form.Label>
                             <Form.Control type="text" ref={inputRef} />
                         </Form.Group>
-                        <Button variant="flat" onClick={() => { createProject(props) }}>
+                        <Button variant="flat" type="submit">
                             Create
                         </Button>
                     </Form>
                 </Modal.Body>
-                {/*<Modal.Footer>*/}
-
-                {/*</Modal.Footer>*/}
             </Modal>
         </>
     );
@@ -191,6 +173,7 @@ function SideBar() {
         {
             id: "2",
             name: "Projects",
+            route: "/projects",
             icon: () => <BriefcaseIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} />,
             children: []
 
@@ -219,6 +202,9 @@ function SideBar() {
 
     const [selectedWorkspace, setSelectedWorkspace] = useState();
     const [modalShow, setModalShow] = useState(false);
+    const [showProjectMenu, setShowProjectMenu] = useState(false);
+    const [projectMenuPosition, setProjectMenuPosition] = useState({ top: 0, left: 0 });
+    const [projectSidebarSelection, setProjectSidebarSelection] = useState();
 
 
     //useEffect(() => {
@@ -357,42 +343,111 @@ function SideBar() {
 
             });
     }
+    useEffect(() => {
+        //if (!showProjectMenu) return;
 
+        const handleClickOutside = () => setShowProjectMenu(false);
+        document.addEventListener('click', handleClickOutside);
+
+        //return () => document.removeEventListener('click', handleClickOutside);
+    }, [showProjectMenu]);
+
+    const handleOptionsClick = (data, e) => {
+        console.log("Project options data", data);
+        setProjectSidebarSelection(data.project_id)
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = e.currentTarget.getBoundingClientRect();
+        setProjectMenuPosition({
+            top: rect.bottom + 5,// Debajo del botón
+            left: rect.left // Alineado a la izquierda
+        });
+        //console.log(showProjectMenu);
+        setShowProjectMenu(true)
+    }
     function Node({ node, style, dragHandle }) {
+        const nodeRef = useRef(null);
         const hasChildren = node.isInternal;
         const isChild = node.level > 0;
-
-        //console.log(node.data.name, node.data.route);
-        //console.log(node.data.name, isChild);
-
-        //console.log("icon", node.data.icon)
-        const handleClick = () => {
-
+        const nodeId = node.data.id;
+        let isProject = false;
+        let isProjectParent = false;
+        let children = null
+        //const regex = "/^p-.*/";
+        //children = "<ChevronDownIcon className='h-6 w-6 text-gray-500' style={{ width: '20px', height: '20px' }} />";
+        if (nodeId.match(/^p-.*/)) {
+            isProject = true
+        }
+        if (nodeId == 2) {
+            isProjectParent = true;
+        }
+        const handleDropDownClick = (e) => {
+            console.log("nodeRef", nodeRef.current.getAttribute("class"));
+            e.preventDefault();
+            e.stopPropagation();
             if (hasChildren && globalUserProjects.length > 0) {
                 node.toggle(); // Abre o cierra el nodo si tiene hijos
             }
-
         };
-
+        useEffect(() => {
+            // Solo cerrar el nodo cuando el sidebar se oculta, y solo si tiene hijos y está abierto
+            if (!sideBarActive && hasChildren && node.isOpen) {
+                node.toggle();
+            }
+        }, [sideBarActive]);
 
         return (
             //<div style={style}>
+
             <React.Fragment>
+
                 <li style={style} className={styles['nav-item']}>
                     {node.data.route ?
-                        <NavLink to={node.data.route} className={({ isActive, isPending }) =>
-                            isActive && !isChild ? [styles['nav-link'], styles.active].join(' ') : styles['nav-link']
-                        } onClick={() => { if (windowSize <= 768 && !hasChildren) { setSideBarActive(false) } }}>
+                        <NavLink ref={nodeRef} to={node.data.route} className={({ isActive, isPending }) => {
+                            const classes = [styles['nav-link']];
+
+                            if (isActive) {
+                                classes.push(styles.active);
+                            }
+
+                            if (isProject) {
+                                classes.push(styles['nav-link-child']);
+                            }
+
+                            return classes.join(' ');
+                        }} onClick={() => { if (windowSize <= 768 && !hasChildren) { setSideBarActive(false) } }}>
                             <span className={[styles['nav-icon'], styles['material-symbols-rounded']].join(' ')}>
                                 {node.data.icon?.()}
                             </span>
 
                             <span className={styles['nav-label']}>{node.data.name}</span>
-                            <span className={styles["arrow-down"]}>
+
+                            <>
                                 {hasChildren && globalUserProjects.length > 0 &&
-                                    <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleClick} />
+                                    <span className={styles['sidebar-button']}>
+                                        <ChevronDownIcon className="h-6 w-6 text-gray-500 sidebar-button" style={{ width: '20px', height: '20px' }} onClick={handleDropDownClick} />
+                                    </span>
+
                                 }
-                            </span>
+                            </>
+                            {isProjectParent &&
+                                <span className={[styles["clickable"], styles["sidebar-button"]].join(' ')}>
+                                    <PlusIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} variant="primary" onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setModalShow(true)
+                                    }} />
+                                </span>
+
+                            }
+                            {isProject &&
+                                <>
+                                    <span className={[styles['sidebar-button'], styles['project-menu-button']].join(' ')} onClick={(e) => { handleOptionsClick(node.data, e) }}>
+                                        <EllipsisHorizontalIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} />
+                                    </span>
+                                </>
+                            }
+
                         </NavLink>
                         :
                         <React.Fragment>
@@ -404,11 +459,12 @@ function SideBar() {
                                 <span className={styles['nav-label']}>{node.data.name}</span>
                                 <span className={styles["clickable"]}>
                                     {hasChildren &&
-                                        <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleClick} />
+                                        <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleDropDownClick} />
                                     }
                                 </span>
-                                <span className={styles["clickable"]}>
-                                    <PlusIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} variant="primary" onClick={() => { setModalShow(true) }} />
+
+                                <span>
+
                                 </span>
                             </div>
 
@@ -420,6 +476,7 @@ function SideBar() {
             //</div>
 
         );
+
     }
 
     return (
@@ -432,7 +489,14 @@ function SideBar() {
                 onHide={() => setModalShow(false)}
                 workSpace={globalWorkspace}
             />
+            {showProjectMenu && createPortal(
+                <ProjectMenu
+                    position={projectMenuPosition}
+                    project={projectSidebarSelection}
 
+                />,
+                document.body // Lo renderiza en el body, fuera de todo
+            )}
             <aside className={sideBarClasses} ref={sideBar} style={sideBarStyles}>
 
                 {/*Sidebar header */}

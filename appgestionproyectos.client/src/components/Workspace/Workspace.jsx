@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from '../SideBar/SideBar'
 import { Notify } from '../../Utils/Notifications';
 import { ToastContainer } from 'react-toastify';
+import Placeholder from 'react-bootstrap/Placeholder';
+import Form from 'react-bootstrap/Form';
 import { Context } from '../Router/Router';
 import styles from './Workspace.module.css';
 function Workspace() {
@@ -91,27 +93,38 @@ function Workspace() {
 
     return (
         //<React.Fragment>
-            <div className={styles["content-wrapper"]}>
-                <form>
-                    {/*{JSON.parse(localStorage.getItem("worksp")).id*/}
-                    {/*<WorkspaceSelection workEnv={wEnvironments} selected={select} />*/}
-                    {
-                        //localStorage.getItem("worksp") != null && localStorage.getItem("worksp") != undefined &&
-                        <select onChange={selected} value={globalWorkspace}>
-                            {
-                                wEnvironments.length > 0 &&
-                                wEnvironments.map((wEnv, i) => {
-                                    wEnv.reference = i;
-                                    return <option key={i} value={wEnv.id}>{wEnv.name}</option>
-                                })
-                            }
-                        </select >
-                    }
-                </form>
-                <div style={styles1}>
-                    {/*<div style={styles2}></div>*/}
-                </div>
+        <div className={styles["content-wrapper"]}>
+            {/*<form>*/}
+            {/*    */}{/*{JSON.parse(localStorage.getItem("worksp")).id*/}
+            {/*    */}{/*<WorkspaceSelection workEnv={wEnvironments} selected={select} />*/}
+            {/*    {*/}
+            {/*        //localStorage.getItem("worksp") != null && localStorage.getItem("worksp") != undefined &&*/}
+            {/*        <select onChange={selected} value={globalWorkspace}>*/}
+
+            {/*            {*/}
+            {/*                wEnvironments.length > 0 &&*/}
+            {/*                wEnvironments.map((wEnv, i) => {*/}
+            {/*                    wEnv.reference = i;*/}
+            {/*                    return <option key={i} value={wEnv.id}>{wEnv.name}</option>*/}
+            {/*                })*/}
+            {/*            }*/}
+            {/*        </select >*/}
+            {/*    }*/}
+            {/*</form>*/}
+            <Form.Select onChange={selected} value={globalWorkspace} style={{ width: "auto" }}>
+                <Placeholder xs={12} bg="success" />
+                {
+                    wEnvironments.length > 0 &&
+                    wEnvironments.map((wEnv, i) => {
+                        wEnv.reference = i;
+                        return (<option key={i} value={wEnv.id}>{wEnv.name}</option>)
+                    })
+                }
+            </Form.Select>
+            <div style={styles1}>
+                {/*<div style={styles2}></div>*/}
             </div>
+        </div>
 
         //</React.Fragment>
     );

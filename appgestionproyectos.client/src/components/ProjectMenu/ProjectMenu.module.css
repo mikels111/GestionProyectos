@@ -1,0 +1,15 @@
+.project-menu-item {
+    cursor: pointer;
+    padding: 4px;
+    border-radius:6px;
+}
+
+.delete-project-btn:hover {
+    background-color: var(--red-color);
+}
+
+.rename-project-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+

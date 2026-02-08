@@ -127,13 +127,11 @@ function Login() {
             });
     };
     const verifyCode = (e) => {
-        //mandar peticion a /verify con el codigo introducido y el mail guardado en state
         e.preventDefault();
         setLoading(true);
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         jsonFormData['Mail'] = mail;
-        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
         const publicBase = import.meta.env.BASE_URL ?? '/'
         axios.post(`${publicBase}/api/auth/verify`,
             jsonFormData,
@@ -145,8 +143,6 @@ function Login() {
             })
             .then((res) => {
                 if (res.status == 200) {
-                    //localStorage.setItem("aT", res.data.data.accessToken);
-                    //localStorage.setItem("rT", res.data.data.refreshToken);
                     window.location.href = "/"; 
                 } else {
                     console.log(res.data.message);

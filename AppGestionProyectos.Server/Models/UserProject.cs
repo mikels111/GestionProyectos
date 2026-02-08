@@ -1,15 +1,17 @@
 ﻿using AppGestionProyectos.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppGestionProyectos.Server.Models
 {
     [PrimaryKey(nameof(User_Id), nameof(Project_Id))]
     public class UserProject
     {
+        [Key]
         public int User_Id { get; set; }
         public int Project_Id { get; set; }
-        public string Creator_mail { get; set; }
+        public string? Creator_mail { get; set; }
         public record struct UserProjectDTO(int project);
 
         public static async Task<UserProject> CreateUserProject(int user, int project, AppDbContext appDbContext)

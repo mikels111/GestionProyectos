@@ -1,5 +1,9 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
+:root {
+    --primary-color: #59C5DE;
+    --secondary-color: #E6EAF1;
+    --red-color: #ff7a7a;
+}
 body {
     margin: 0;
 }

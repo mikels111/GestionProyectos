@@ -1,4 +1,4 @@
-﻿using AppGestionProyectos.Server.Data;
+using AppGestionProyectos.Server.Data;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
@@ -90,6 +90,19 @@ namespace AppGestionProyectos.Server.Models
                 .FirstOrDefaultAsync();
 
             return data; // Updated to return nullable object explicitly
+        }
+
+        public static async Task<bool> DeleteProject(int projectId, AppDbContext appDbContext)
+        {
+            var project = await appDbContext.Project.FindAsync(projectId);
+            if (project == null)
+                return false;
+            //var userProjects = await appDbContext.User_Project
+            //    .Where(up => up.Project_Id == projectId)
+            //    .ToListAsync();
+            //appDbContext.User_Project.RemoveRange(userProjects);
+            appDbContext.Project.Remove(project);
+            return await appDbContext.SaveChangesAsync() > 0;
         }
     }
 

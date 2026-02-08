@@ -1,4 +1,4 @@
-﻿using AppGestionProyectos.Server.Data;
+using AppGestionProyectos.Server.Data;
 using AppGestionProyectos.Server.Models;
 using AppGestionProyectos.Server.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -128,6 +128,23 @@ namespace AppGestionProyectos.Server.Controllers
                 return StatusCode(500, new ApiResponse<object>(false, "server-error", ex.ToString()));
             }
             return Ok(new ApiResponse<object>(true, "success", null));
+        }
+
+        [Route("deleteProject")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteProject([FromQuery(Name = "projectId")] int projectId)
+        {
+            try
+            {
+                bool deleted = await Models.Project.DeleteProject(projectId, _AppDbContext);
+                if (deleted)
+                    return Ok(new ApiResponse<object>(true, "success", deleted));
+                return NotFound(new ApiResponse<object>(false, "not-found", "Project not found"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>(false, "server-error", ex.ToString()));
+            }
         }
     }
 }

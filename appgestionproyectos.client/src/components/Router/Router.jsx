@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useContext, useState } from "react";
+import React, { Component, useEffect, useContext, useState, useCallback } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import Login from '../Login/Login';
 import Workspace from '../Workspace/Workspace';
@@ -65,7 +65,7 @@ function Router({ handleWorkspaceSelection }) {
                         proj.map((project, i) => {
                             project.project_id = project.id;
                             project.route = `/project/${project.id}`
-                            project.id = `p${i}`;
+                            project.id = `p-${i}`;
                         })
                         //console.log("projects obtenidos", proj)
                         console.log("globalUserProject UseEffect", proj)
@@ -86,13 +86,28 @@ function Router({ handleWorkspaceSelection }) {
         }
     }, [globalWorkspace]);
 
-
+    const RefreshProjects = useCallback(() => {
+        if (globalWorkspace == null) return;
+        AuthRequest(`/api/Project/getProjects?workspace=${globalWorkspace}`, 'get')
+            .then((res) => {
+                const proj = res.data.data;
+                proj.map((project, i) => {
+                    project.project_id = project.id;
+                    project.route = `/project/${project.id}`;
+                    project.id = `p-${i}`;
+                });
+                setGlobalUserProjects(proj);
+            })
+            .catch((err) => {
+                if (err.status === 401) navigate("/login");
+            });
+    }, [globalWorkspace]);
     //const handleSelectionParent = (event) => {
     //    handleWorkspaceSelection(event);
     //}
 
     return (
-        <Context.Provider value={{ globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace, globalUserProjects, setGlobalUserProjects }} >
+        <Context.Provider value={{ globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace, globalUserProjects, setGlobalUserProjects, RefreshProjects }} >
             <React.Fragment>
                 <div className={styles["app-wrapper"]}>
                     <ToastContainer
@@ -116,6 +131,7 @@ function Router({ handleWorkspaceSelection }) {
                             {/*<div className={styles["main-wrapper"]}>*/}
                             <Route element={<ProtectedRoute />}>
                                 <Route exact path="/" element={<Workspace />} />
+                                <Route exact path="/Project/" element={<Project />} />
                                 <Route exact path="/Project/:projectId" element={<Project />} />
                             </Route>
                             {/*</div>*/}

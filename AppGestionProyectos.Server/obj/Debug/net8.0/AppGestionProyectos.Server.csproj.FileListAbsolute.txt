@@ -535,3 +535,4 @@ C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\A
 C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\obj\Debug\net8.0\AppGestionProyectos.Server.genruntimeconfig.cache
 C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\obj\Debug\net8.0\ref\AppGestionProyectos.Server.dll
 C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\obj\Debug\net8.0\swae.build.ex.cache
