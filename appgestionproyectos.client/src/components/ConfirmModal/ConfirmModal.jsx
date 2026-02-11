@@ -21,6 +21,7 @@ function ConfirmModal(props) {
             size="sm"
             aria-labelledby="contained-modal-title-vcenter"
             centered
+            backdrop="static"
         >
 
             <Modal.Body>
@@ -28,11 +29,11 @@ function ConfirmModal(props) {
                     <Form.Group className="mb-3" controlId="formBasicEmail" >
                         Are you sure you want to delete?
                     </Form.Group>
-                    <div className="d-flex justify-content-between">
+                    <div className="flex gap-1">
                         <Button variant="danger" onClick={props.onDelete}>
                             Delete
                         </Button>
-                        <Button onClick={props.onHide}>
+                        <Button variant="secondary" onClick={props.onHide}>
                             Cancel
                         </Button>
                     </div>

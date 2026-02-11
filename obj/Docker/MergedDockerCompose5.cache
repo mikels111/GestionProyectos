@@ -1,0 +1,172 @@
+name: dockercompose10753110407820000975
+services:
+  appgestionproyectos.server:
+    build:
+      context: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos
+      dockerfile: AppGestionProyectos.Server/Dockerfile
+      args:
+        BUILD_CONFIGURATION: Debug
+        LAUNCHING_FROM_VS: "true"
+      labels:
+        com.microsoft.created-by: visual-studio
+        com.microsoft.visual-studio.project-name: AppGestionProyectos.Server
+      target: build
+    entrypoint:
+      - dotnet
+      - --roll-forward
+      - Major
+      - /VSTools/DistrolessHelper/DistrolessHelper.dll
+      - --wait
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ASPNETCORE_HTTPS_PORTS: "8081"
+      ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS: "true"
+      ConnectionStrings__Default: Server=193.203.168.48;Database=u107207292_gestion_proyec;Uid=u107207292_root;Pwd=0IfeOlt8V/
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+      Jwt__Audience: https://onerise.es/app1
+      Jwt__ExpireMinutes: "60"
+      Jwt__Issuer: https://onerise.es/app1
+      Jwt__Key: kD+3rL8v5KQbR9gTmXv2sPjM5XH8yXzJ89RjFwMzPjA=
+      NUGET_FALLBACK_PACKAGES: /.nuget/fallbackpackages
+    expose:
+      - "80"
+    image: appgestionproyectosserver:dev
+    labels:
+      com.microsoft.visualstudio.debuggee.arguments: ' --additionalProbingPath /.nuget/packages --additionalProbingPath /.nuget/fallbackpackages  "/app/bin/Debug/net8.0/AppGestionProyectos.Server.dll"'
+      com.microsoft.visualstudio.debuggee.killprogram: dotnet --roll-forward Major /VSTools/DistrolessHelper/DistrolessHelper.dll --stop dotnet
+      com.microsoft.visualstudio.debuggee.program: dotnet
+      com.microsoft.visualstudio.debuggee.workingdirectory: /app
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        protocol: tcp
+      - mode: ingress
+        target: 8081
+        protocol: tcp
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - type: bind
+        source: C:\Users\Lenovo\AppData\Roaming\Microsoft\UserSecrets
+        target: /home/app/.microsoft/usersecrets
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\AppData\Roaming\Microsoft\UserSecrets
+        target: /root/.microsoft/usersecrets
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\AppData\Roaming\ASP.NET\Https
+        target: /home/app/.aspnet/https
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\AppData\Roaming\ASP.NET\Https
+        target: /root/.aspnet/https
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server
+        target: /app
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos
+        target: /src
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\vsdbg\vs2017u5
+        target: /remote_debugger
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\.nuget\packages
+        target: /.nuget/packages
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages
+        target: /.nuget/fallbackpackages
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Sdks\Microsoft.Docker.Sdk\tools\linux-x64\net8.0
+        target: /VSTools
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\HotReload
+        target: /HotReloadAgent
+        read_only: true
+        bind:
+          create_host_path: true
+  web:
+    build:
+      context: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos
+      dockerfile: appgestionproyectos.client/Dockerfile
+      args:
+        VITE_API_URL: https://localhost/app1/
+    depends_on:
+      appgestionproyectos.server:
+        condition: service_started
+        required: true
+    image: appgestionproyectosweb:prod
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 80
+        published: "80"
+        protocol: tcp
+      - mode: ingress
+        target: 443
+        published: "443"
+        protocol: tcp
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\Caddyfile
+        target: /etc/caddy/Caddyfile
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\deploy_static\app1
+        target: /usr/share/caddy/app1
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\deploy_static\root
+        target: /usr/share/caddy/root
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: volume
+        source: caddy_data
+        target: /data
+        volume: {}
+      - type: volume
+        source: caddy_config
+        target: /config
+        volume: {}
+networks:
+  default:
+    name: dockercompose10753110407820000975_default
+volumes:
+  caddy_config:
+    name: dockercompose10753110407820000975_caddy_config
+  caddy_data:
+    name: dockercompose10753110407820000975_caddy_data

@@ -10,10 +10,10 @@ import styles from './Project.module.css'
 function Project() {
     const { globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace } = useContext(Context);
     const { warn, info } = Notify();
-    let { projectId } = useParams();
+    let { public_id } = useParams();
     const ejInstance = useRef();
     const [actualProject, setActualProject] = useState(() => {
-        return projectId;
+        return public_id;
     });
     const ERROR_DATA = {
         "time": new Date().getTime(),
@@ -44,15 +44,15 @@ function Project() {
 
     useEffect(() => {
         //console.log("projectid", projectId);
-        setActualProject(projectId);
+        setActualProject(public_id);
 
-    }, [projectId]);
+    }, [public_id]);
 
     useEffect(() => {
         //console.log("actual project", actualProject);
         if (ejInstance.current === undefined) {
 
-            AuthRequest(`/api/Project/getProjectData?fields=${projectId}`, 'get').
+            AuthRequest(`/api/Project/getProjectData?fields=${public_id}`, 'get').
                 then((res) => {
                     console.log("project data", JSON.parse(res.data.data));
                     console.log("RESPONSE project data", res);
@@ -102,9 +102,9 @@ function Project() {
             data: projectData,
             onChange: async () => {
                 let content = await editor.saver.save();
-                let projectIdStr = projectId;
+                let projectIdStr = public_id;
                 //console.log(content, "en proyecto:" + projectIdStr);
-                AuthRequest(`/api/Project/saveProjectData`, 'post', { content, projectId }).
+                AuthRequest(`/api/Project/saveProjectData`, 'post', { content, public_id }).
                     then((res) => {
                         let response = res
                         //console.log("gaurdado: ", response);

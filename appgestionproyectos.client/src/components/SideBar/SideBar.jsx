@@ -42,7 +42,6 @@ function CreateProyectModal(props) {
 
     const createProject = (props, e) => {
         //console.log(props, "propiedades")
-        console.log(e, "eeee")
         e.preventDefault();
         console.log("global workspace Create project", props);
         let inputName = inputRef.current.value;
@@ -97,7 +96,7 @@ function CreateProyectModal(props) {
             }).finally(() => {
                 props.onHide();
                 info("Project created")
-                navigate(`/project/${projectId}`)
+                navigate(`/p/${projectId}`)
                 RefreshProjects()
                 //conseguir proyectos (recarga para ver el nuevo proyecto)
             });
@@ -204,7 +203,7 @@ function SideBar() {
     const [modalShow, setModalShow] = useState(false);
     const [showProjectMenu, setShowProjectMenu] = useState(false);
     const [projectMenuPosition, setProjectMenuPosition] = useState({ top: 0, left: 0 });
-    const [projectSidebarSelection, setProjectSidebarSelection] = useState();
+    const [projectSidebarSelection, setProjectSidebarSelection] = useState({});
 
 
     //useEffect(() => {
@@ -354,7 +353,8 @@ function SideBar() {
 
     const handleOptionsClick = (data, e) => {
         console.log("Project options data", data);
-        setProjectSidebarSelection(data.project_id)
+        const { public_id, name } = data;
+        setProjectSidebarSelection({ public_id, name});
         e.preventDefault();
         e.stopPropagation();
         const rect = e.currentTarget.getBoundingClientRect();
@@ -456,7 +456,7 @@ function SideBar() {
                                     {node.data.icon?.()}
                                 </span>
 
-                                <span className={styles['nav-label']}>{node.data.name}</span>
+                                <span className={styles['nav-label']}>{node.data.name} </span>
                                 <span className={styles["clickable"]}>
                                     {hasChildren &&
                                         <ChevronDownIcon className="h-6 w-6 text-gray-500" style={{ width: '20px', height: '20px' }} onClick={handleDropDownClick} />
@@ -493,6 +493,7 @@ function SideBar() {
                 <ProjectMenu
                     position={projectMenuPosition}
                     project={projectSidebarSelection}
+                    setShowProjectMenu={()=>setShowProjectMenu() }
 
                 />,
                 document.body // Lo renderiza en el body, fuera de todo

@@ -3,6 +3,7 @@ using AppGestionProyectos.Server.Models;
 using AppGestionProyectos.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Newtonsoft.Json.Linq;
 using NuGet.Common;
 using System.Net;
@@ -18,10 +19,10 @@ namespace AppGestionProyectos.Server.Controllers
     [Route("/api/[controller]")]
     public class ProjectController : ControllerBase
     {
-        private readonly Project _project;
+        private readonly Models.Project _project;
         private readonly AppDbContext _AppDbContext;
 
-        public ProjectController(Project project, AppDbContext appDbContext)
+        public ProjectController(Models.Project project, AppDbContext appDbContext)
         {
             _project = project;
             _AppDbContext = appDbContext;
@@ -32,7 +33,7 @@ namespace AppGestionProyectos.Server.Controllers
         public async Task<IActionResult> CreateProject([FromBody] object fields)
         {
             int environment = 0;
-            Project.ProjectDTO projectFields;
+            Models.Project.ProjectDTO projectFields;
             try
             {
                 var options = new JsonSerializerOptions
@@ -40,7 +41,7 @@ namespace AppGestionProyectos.Server.Controllers
                     PropertyNameCaseInsensitive = true,
                     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
                 };
-                projectFields = JsonSerializer.Deserialize<Project.ProjectDTO>(fields.ToString(), options);
+                projectFields = JsonSerializer.Deserialize<Models.Project.ProjectDTO>(fields.ToString(), options);
             }
             catch (Exception ex)
             {
@@ -48,7 +49,7 @@ namespace AppGestionProyectos.Server.Controllers
             }
             try
             {
-                Project createdProject = await Models.Project.CreateProject(projectFields.w_environment_id,projectFields.name , _AppDbContext);
+                Models.Project createdProject = await Models.Project.CreateProject(projectFields.w_environment_id,projectFields.name , _AppDbContext);
                 if (createdProject.Id > 0)
                 {
                     return Ok(new ApiResponse<object>(true, "access-granted", createdProject));
@@ -69,7 +70,7 @@ namespace AppGestionProyectos.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProjects([FromQuery(Name = "workspace")] int wEnv)
         {
-            List<Project> projects = new List<Project>();
+            List<Models.Project> projects = new List<Models.Project>();
 
             //var pattern = @"<[^>]+>";
 
@@ -97,9 +98,9 @@ namespace AppGestionProyectos.Server.Controllers
                 var jsonFields = JsonSerializer.Serialize(fields);
 
                 JObject jsonObj = JObject.Parse(jsonFields);
-                int jsoProjectId = Int32.Parse((string)jsonObj["projectId"]);
+                string jsonPublicId = (string)jsonObj["public_id"];
                 string jsoData = jsonObj["content"].ToString();
-                bool saveResult = await Models.Project.SaveProjectData(jsoData, jsoProjectId, _AppDbContext);
+                bool saveResult = await Models.Project.SaveProjectData(jsoData, jsonPublicId, _AppDbContext);
                 if (saveResult)
                 {
                     return Ok(new ApiResponse<object>(true, "success", saveResult));
@@ -113,7 +114,7 @@ namespace AppGestionProyectos.Server.Controllers
         }
         [Route("getProjectData")]
         [HttpGet]
-        public async Task<IActionResult> GetProjectData([FromQuery(Name = "fields")] int fields)
+        public async Task<IActionResult> GetProjectData([FromQuery(Name = "fields")] string fields)
         {
             try
             {
@@ -132,13 +133,56 @@ namespace AppGestionProyectos.Server.Controllers
 
         [Route("deleteProject")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteProject([FromQuery(Name = "projectId")] int projectId)
+        public async Task<IActionResult> DeleteProject([FromQuery(Name = "public_id")] string projectId)
         {
             try
             {
                 bool deleted = await Models.Project.DeleteProject(projectId, _AppDbContext);
                 if (deleted)
                     return Ok(new ApiResponse<object>(true, "success", deleted));
+                return NotFound(new ApiResponse<object>(false, "not-found", "Project not found"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>(false, "server-error", ex.ToString()));
+            }
+        }
+
+        [Route("renameProject")]
+        [HttpPut]
+        public async Task<IActionResult> RenameProject([FromBody] object fields)
+        {
+            Models.Project.RenameProjectDTO renameFields;
+
+            try
+            {
+                if (Regex.IsMatch(fields.ToString(), @"<[^>]+>"))
+                {
+                    return BadRequest(new ApiResponse<object>(false, "bad-request", null));
+                }
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+                };
+
+                renameFields = JsonSerializer.Deserialize<Models.Project.RenameProjectDTO>(fields.ToString(), options);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(false, "bad-request", false, ex.ToString()));
+            }
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(renameFields.public_Id) || string.IsNullOrWhiteSpace(renameFields.name))
+                    return BadRequest(new ApiResponse<object>(false, "bad-request", null));
+
+                bool renamed = await Models.Project.RenameProject(renameFields.public_Id, renameFields.name.Trim(), _AppDbContext);
+                if (renamed)
+                    return Ok(new ApiResponse<object>(true, "success", renamed));
+
                 return NotFound(new ApiResponse<object>(false, "not-found", "Project not found"));
             }
             catch (Exception ex)

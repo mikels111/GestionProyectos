@@ -60,12 +60,13 @@ function Router({ handleWorkspaceSelection }) {
                 //console.log(selectedWorkspace, "Sidebar selected workspace");
                 AuthRequest(`/api/Project/getProjects?workspace=${globalWorkspace}`, 'get').
                     then((res) => {
-                        //console.log(res);
+                        console.log("getprojects",res);
                         const proj = res.data.data;
                         proj.map((project, i) => {
                             project.project_id = project.id;
-                            project.route = `/project/${project.id}`
+                            project.route = `/p/${project.public_id}`
                             project.id = `p-${i}`;
+                            project.public_id = `${project.public_id}`
                         })
                         //console.log("projects obtenidos", proj)
                         console.log("globalUserProject UseEffect", proj)
@@ -93,8 +94,9 @@ function Router({ handleWorkspaceSelection }) {
                 const proj = res.data.data;
                 proj.map((project, i) => {
                     project.project_id = project.id;
-                    project.route = `/project/${project.id}`;
+                    project.route = `/p/${project.public_id}`;
                     project.id = `p-${i}`;
+                    project.public_id = `${project.public_id}`
                 });
                 setGlobalUserProjects(proj);
             })
@@ -132,7 +134,7 @@ function Router({ handleWorkspaceSelection }) {
                             <Route element={<ProtectedRoute />}>
                                 <Route exact path="/" element={<Workspace />} />
                                 <Route exact path="/Project/" element={<Project />} />
-                                <Route exact path="/Project/:projectId" element={<Project />} />
+                                <Route path="/p/:public_id" element={<Project />} />
                             </Route>
                             {/*</div>*/}
 

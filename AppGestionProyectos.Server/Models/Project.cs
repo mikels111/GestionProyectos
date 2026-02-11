@@ -14,6 +14,7 @@ namespace AppGestionProyectos.Server.Models
         [Key]
         public int Id { get; set; }
         public int W_Environment_id { get; set; }
+        public string Public_id { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
@@ -23,13 +24,17 @@ namespace AppGestionProyectos.Server.Models
         public string? Json_data { get; set; }
 
         public record struct ProjectDTO(int w_environment_id, string name);
+        public record struct RenameProjectDTO(string public_Id, string name);
 
         public static async Task<Project> CreateProject(int wEnvironment, string name, AppDbContext appDbContext)
         {
+            string publicId = Guid.NewGuid().ToString();
+            Console.WriteLine(publicId);
             Project project = new Project
             {
                 W_Environment_id = wEnvironment,
                 Name = name,
+                Public_id=publicId,
                 Creation_date = DateTime.Now,
                 Json_data = "{}"
             };
@@ -62,14 +67,15 @@ namespace AppGestionProyectos.Server.Models
                 .ToListAsync();
             return projects;
         }
-        public static async Task<bool> SaveProjectData(string data, int projectId, AppDbContext appDbContext)
+        public static async Task<bool> SaveProjectData(string data, string public_id, AppDbContext appDbContext)
         {
             bool result = false;
             try
             {
-                var project = appDbContext.Project.FirstOrDefault(project => project.Id == projectId);
-                //if (project == null)
-                //    return false;
+                var project = await appDbContext.Project
+                    .FirstOrDefaultAsync(project => project.Public_id == public_id);
+                if (project == null)
+                    return false;
 
                 project.Json_data = data;
                 return await appDbContext.SaveChangesAsync() > 0;
@@ -82,27 +88,49 @@ namespace AppGestionProyectos.Server.Models
             return result;
         }
 
-        public static async Task<object?> GetProjectData(int project_id, AppDbContext appDbContext)
+        public static async Task<object?> GetProjectData(string publicId, AppDbContext appDbContext)
         {
             var data = await appDbContext.Project
-                .Where(project => project.Id == project_id)
+                .Where(project => project.Public_id == publicId)
                 .Select(project => project.Json_data)
                 .FirstOrDefaultAsync();
 
             return data; // Updated to return nullable object explicitly
         }
 
-        public static async Task<bool> DeleteProject(int projectId, AppDbContext appDbContext)
+        public static async Task<bool> DeleteProject(string publicId, AppDbContext appDbContext)
         {
-            var project = await appDbContext.Project.FindAsync(projectId);
+            //var project = await appDbContext.Project.FindAsync(publicId);
+            
+            var project = await appDbContext.Project
+                .Where(p => p.Public_id == publicId)
+                .FirstOrDefaultAsync();
             if (project == null)
                 return false;
-            //var userProjects = await appDbContext.User_Project
-            //    .Where(up => up.Project_Id == projectId)
-            //    .ToListAsync();
             //appDbContext.User_Project.RemoveRange(userProjects);
             appDbContext.Project.Remove(project);
             return await appDbContext.SaveChangesAsync() > 0;
+        }
+
+        public static async Task<bool> RenameProject(string publicId, string name, AppDbContext appDbContext)
+        {
+            try
+            {
+                //var project = await appDbContext.Project.FindAsync(publicId);
+                var project = await appDbContext.Project
+                .Where(p => p.Public_id == publicId)
+                .FirstOrDefaultAsync();
+                if (project == null)
+                    return false;
+
+                project.Name = name;
+                return await appDbContext.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
         }
     }
 
