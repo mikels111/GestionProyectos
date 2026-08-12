@@ -30,6 +30,7 @@ namespace AppGestionProyectos.Server.Controllers
 
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateProject([FromBody] object fields)
         {
             int environment = 0;
@@ -50,7 +51,7 @@ namespace AppGestionProyectos.Server.Controllers
             }
             try
             {
-                Models.Project createdProject = await Models.Project.CreateProject(projectFields.w_environment_id,projectFields.name , _AppDbContext);
+                Models.Project createdProject = await Models.Project.CreateProject(projectFields.w_environment_id, projectFields.name, _AppDbContext);
                 if (createdProject.Id > 0)
                 {
                     return Ok(new ApiResponse<object>(true, "access-granted", createdProject));
@@ -69,6 +70,7 @@ namespace AppGestionProyectos.Server.Controllers
 
         [Route("getProjects")]
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetProjects([FromQuery(Name = "workspace")] int wEnv)
         {
             List<Models.Project> projects = new List<Models.Project>();
@@ -85,8 +87,10 @@ namespace AppGestionProyectos.Server.Controllers
             projects = await Models.Project.GetWorkEnvironmentProjects(userEmail, wEnv, _AppDbContext);
             return Ok(new ApiResponse<object>(true, "success", projects));
         }
+
         [Route("saveProjectData")]
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> SaveProjectData([FromBody] object fields)
         {
             try
@@ -101,7 +105,8 @@ namespace AppGestionProyectos.Server.Controllers
                 JObject jsonObj = JObject.Parse(jsonFields);
                 string jsonPublicId = (string)jsonObj["public_id"];
                 string jsoData = jsonObj["content"].ToString();
-                bool saveResult = await Models.Project.SaveProjectData(jsoData, jsonPublicId, _AppDbContext);
+                string? userEmail = User.Claims.FirstOrDefault(c => c.Type == "Mail")?.Value;
+                bool saveResult = await Models.Project.SaveProjectData(jsoData, jsonPublicId, userEmail, _AppDbContext);
                 if (saveResult)
                 {
                     return Ok(new ApiResponse<object>(true, "success", saveResult));
@@ -113,13 +118,16 @@ namespace AppGestionProyectos.Server.Controllers
             }
             return StatusCode(500, new ApiResponse<object>(false, "server-error", "Could not get data"));
         }
+
         [Route("getProjectData")]
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetProjectData([FromQuery(Name = "fields")] string fields)
         {
             try
             {
-                var result = await Models.Project.GetProjectData(fields, _AppDbContext);
+                string? userEmail = User.Claims.FirstOrDefault(c => c.Type == "Mail")?.Value;
+                var result = await Models.Project.GetProjectData(fields, userEmail, _AppDbContext);
                 if (result != null)
                 {
                     return Ok(new ApiResponse<object>(true, "success", result));
@@ -134,11 +142,13 @@ namespace AppGestionProyectos.Server.Controllers
 
         [Route("deleteProject")]
         [HttpDelete]
+        [Authorize]
         public async Task<IActionResult> DeleteProject([FromQuery(Name = "public_id")] string projectId)
         {
             try
             {
-                bool deleted = await Models.Project.DeleteProject(projectId, _AppDbContext);
+                string? userEmail = User.Claims.FirstOrDefault(c => c.Type == "Mail")?.Value;
+                bool deleted = await Models.Project.DeleteProject(projectId,userEmail, _AppDbContext);
                 if (deleted)
                     return Ok(new ApiResponse<object>(true, "success", deleted));
                 return NotFound(new ApiResponse<object>(false, "not-found", "Project not found"));
@@ -151,6 +161,7 @@ namespace AppGestionProyectos.Server.Controllers
 
         [Route("renameProject")]
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> RenameProject([FromBody] object fields)
         {
             Models.Project.RenameProjectDTO renameFields;
@@ -180,7 +191,8 @@ namespace AppGestionProyectos.Server.Controllers
                 if (string.IsNullOrWhiteSpace(renameFields.public_Id) || string.IsNullOrWhiteSpace(renameFields.name))
                     return BadRequest(new ApiResponse<object>(false, "bad-request", null));
 
-                bool renamed = await Models.Project.RenameProject(renameFields.public_Id, renameFields.name.Trim(), _AppDbContext);
+                string? userEmail = User.Claims.FirstOrDefault(c => c.Type == "Mail")?.Value;
+                bool renamed = await Models.Project.RenameProject(renameFields.public_Id, renameFields.name.Trim(), userEmail, _AppDbContext);
                 if (renamed)
                     return Ok(new ApiResponse<object>(true, "success", renamed));
 

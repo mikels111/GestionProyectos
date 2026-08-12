@@ -2,6 +2,7 @@
 using AppGestionProyectos.Server.Models;
 using AppGestionProyectos.Server.Services;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
@@ -67,6 +68,7 @@ namespace AppGestionProyectos.Server.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPost]
         [Route("UserProjectAssignment")]
         public async Task<IActionResult> UserProjectAssignment([FromBody] object fields)

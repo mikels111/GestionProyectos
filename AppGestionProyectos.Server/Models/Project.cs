@@ -1,10 +1,12 @@
 using AppGestionProyectos.Server.Data;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Newtonsoft.Json.Linq;
 using NuGet.Packaging.Signing;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Xml.Linq;
 
 namespace AppGestionProyectos.Server.Models
 {
@@ -34,7 +36,7 @@ namespace AppGestionProyectos.Server.Models
             {
                 W_Environment_id = wEnvironment,
                 Name = name,
-                Public_id=publicId,
+                Public_id = publicId,
                 Creation_date = DateTime.Now,
                 Json_data = "{}"
             };
@@ -67,13 +69,30 @@ namespace AppGestionProyectos.Server.Models
                 .ToListAsync();
             return projects;
         }
-        public static async Task<bool> SaveProjectData(string data, string public_id, AppDbContext appDbContext)
+        public static async Task<bool> SaveProjectData(string data, string publicId, string userEmail, AppDbContext appDbContext)
         {
             bool result = false;
             try
             {
+                //var userId = await appDbContext.User
+                //    .Where(u => u.Mail == userEmail)
+                //    .Select(u => u.Id)
+                //    .FirstOrDefaultAsync();
+
+                //// Verifica que el usuario tenga al menos una relación con el proyecto (autorización básica).
+                //var verification = await appDbContext.User_Project
+                //    .Where(up => up.User_Id == userId)
+                //    .Join(appDbContext.Project,
+                //        up => up.Project_Id,
+                //        p => p.Id,
+                //        (up, p) => p).Where(p => p.Public_id == publicId)
+                //    .FirstOrDefaultAsync();
+
+                //if (verification == null) return false;
+                if (!await VerifyUserProject(publicId, userEmail, appDbContext)) return false;
+
                 var project = await appDbContext.Project
-                    .FirstOrDefaultAsync(project => project.Public_id == public_id);
+                    .FirstOrDefaultAsync(project => project.Public_id == publicId);
                 if (project == null)
                     return false;
 
@@ -88,8 +107,25 @@ namespace AppGestionProyectos.Server.Models
             return result;
         }
 
-        public static async Task<object?> GetProjectData(string publicId, AppDbContext appDbContext)
+        public static async Task<object?> GetProjectData(string publicId, string userEmail, AppDbContext appDbContext)
         {
+            //var userId = await appDbContext.User
+            //        .Where(u => u.Mail == userEmail)
+            //        .Select(u => u.Id)
+            //        .FirstOrDefaultAsync();
+
+            //// Verifica que el usuario tenga al menos una relación con el proyecto (autorización básica).
+            //var verification = await appDbContext.User_Project
+            //    .Where(up => up.User_Id == userId)
+            //    .Join(appDbContext.Project,
+            //        up => up.Project_Id,
+            //        p => p.Id,
+            //        (up, p) => p).Where(p => p.Public_id == publicId)
+            //    .FirstOrDefaultAsync();
+
+            //if (verification == null) return null;
+            if (!await VerifyUserProject(publicId, userEmail, appDbContext)) return false;
+
             var data = await appDbContext.Project
                 .Where(project => project.Public_id == publicId)
                 .Select(project => project.Json_data)
@@ -98,10 +134,24 @@ namespace AppGestionProyectos.Server.Models
             return data; // Updated to return nullable object explicitly
         }
 
-        public static async Task<bool> DeleteProject(string publicId, AppDbContext appDbContext)
+        public static async Task<bool> DeleteProject(string publicId, string userEmail, AppDbContext appDbContext)
         {
-            //var project = await appDbContext.Project.FindAsync(publicId);
-            
+            //var userId = await appDbContext.User
+            //    .Where(u => u.Mail == userEmail)
+            //    .Select(u => u.Id)
+            //    .FirstOrDefaultAsync();
+
+            //// Verifica que el usuario tenga al menos una relación con el proyecto (autorización básica).
+            //var verification = await appDbContext.User_Project
+            //    .Where(up => up.User_Id == userId)
+            //    .Join(appDbContext.Project,
+            //        up => up.Project_Id,
+            //        p => p.Id,
+            //        (up, p) => p).Where(p => p.Public_id == publicId)
+            //    .FirstOrDefaultAsync();
+
+            //if (verification == null) return false;
+            if (!await VerifyUserProject(publicId, userEmail, appDbContext)) return false;
             var project = await appDbContext.Project
                 .Where(p => p.Public_id == publicId)
                 .FirstOrDefaultAsync();
@@ -112,10 +162,27 @@ namespace AppGestionProyectos.Server.Models
             return await appDbContext.SaveChangesAsync() > 0;
         }
 
-        public static async Task<bool> RenameProject(string publicId, string name, AppDbContext appDbContext)
+        public static async Task<bool> RenameProject(string publicId, string name, string userEmail, AppDbContext appDbContext)
         {
             try
             {
+                //var userId = await appDbContext.User
+                //    .Where(u => u.Mail == userEmail)
+                //    .Select(u => u.Id)
+                //    .FirstOrDefaultAsync();
+
+                //// Verifica que el usuario tenga al menos una relación con el proyecto (autorización básica).
+                //var verification = await appDbContext.User_Project
+                //    .Where(up => up.User_Id == userId)
+                //    .Join(appDbContext.Project,
+                //        up => up.Project_Id,
+                //        p => p.Id,
+                //        (up, p) => p).Where(p => p.Public_id == publicId)
+                //    .FirstOrDefaultAsync();
+
+                //if (verification == null) return false;
+                if (!await VerifyUserProject(publicId, userEmail, appDbContext)) return false;
+
                 //var project = await appDbContext.Project.FindAsync(publicId);
                 var project = await appDbContext.Project
                 .Where(p => p.Public_id == publicId)
@@ -132,6 +199,27 @@ namespace AppGestionProyectos.Server.Models
                 return false;
             }
         }
+
+        public static async Task<bool> VerifyUserProject(string publicId, string userEmail, AppDbContext appDbContext)
+        {
+            var userId = await appDbContext.User
+                    .Where(u => u.Mail == userEmail)
+                    .Select(u => u.Id)
+                    .FirstOrDefaultAsync();
+
+            // Verifica que el usuario tenga al menos una relación con el proyecto (autorización básica).
+            var verification = await appDbContext.User_Project
+                .Where(up => up.User_Id == userId)
+                .Join(appDbContext.Project,
+                    up => up.Project_Id,
+                    p => p.Id,
+                    (up, p) => p).Where(p => p.Public_id == publicId)
+                .FirstOrDefaultAsync();
+
+            if (verification == null) return false;
+            return true;
+        }
+
     }
 
 }
