@@ -51,19 +51,7 @@ namespace AppGestionProyectos.Server.Controllers
         public async Task<IActionResult> MailAuthAsync([FromBody] object? fields)
         {
 
-            //var options = new CookieOptions
-            //{
-            //    Expires = DateTimeOffset.Now.AddDays(1),
-            //    HttpOnly = true,
-            //    Secure = true,     // si usas HTTPS
-            //    SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
-            //    //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
-            //    //Path = "/",
-            //    Domain = "localhost",
-            //    IsEssential = true // Asegura que la cookie se envíe incluso si no se ha iniciado sesión
-            //};
-            //Response.Cookies.Append("miCookie", "valor123", options);
-            //return Ok();
+            
 
             Models.User.UserDTO userFields = new Models.User.UserDTO();
             if (Request.ContentLength == 0)
@@ -115,7 +103,7 @@ namespace AppGestionProyectos.Server.Controllers
                             Expires = DateTimeOffset.Now.AddDays(1),
                             HttpOnly = true,
                             Secure = true,     // si usas HTTPS
-                            SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                            SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax,
                             Domain = _config["host:name"].ToString()
                             //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
                             //Path = "/",
@@ -198,6 +186,7 @@ namespace AppGestionProyectos.Server.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return StatusCode(500, new ApiResponse<object>(false, "server-error", ex.ToString()));
             }
 

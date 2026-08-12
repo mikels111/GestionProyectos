@@ -44,7 +44,7 @@ function ProjectMenu({ position, project, setShowProjectMenu }) {
                     console.log("project deleted");
                     info("Project deleted");
                     RefreshProjects();
-                    navigate("/");
+                    //navigate("/");
                 } else {
                     console.log("project not deleted");
                 }
@@ -56,7 +56,7 @@ function ProjectMenu({ position, project, setShowProjectMenu }) {
     const handleRename = (e, props) => {
         e.preventDefault();
         e.stopPropagation();
-        // Implementar la lógica de renombrado aquí si se necesita.
+        // Implementar la lï¿½gica de renombrado aquï¿½ si se necesita.
         let inputName = inputRenameRef.current.value;
         if (inputName) {
             const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";

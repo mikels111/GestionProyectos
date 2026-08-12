@@ -500,3 +500,4 @@ C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\A
 C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\bin\Release\net8.0\publish\appsettings.Development.json
 C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\bin\Release\net8.0\publish\appsettings.json
 C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\obj\Release\net8.0\swae.build.ex.cache
+C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\obj\Release\net8.0\staticwebassets.upToDateCheck.txt

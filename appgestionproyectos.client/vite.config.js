@@ -9,7 +9,7 @@ import { env } from 'process';
 import tailwindcss from '@tailwindcss/vite'
 
 
-// ####### COMENTAR PARA DOCKER #######
+ //####### COMENTAR PARA DOCKER #######
 const baseFolder =
     env.APPDATA !== undefined && env.APPDATA !== ''
         ? `${env.APPDATA}/ASP.NET/https`
@@ -35,7 +35,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 
 const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
     env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7233';
-// ####### COMENTAR PARA DOCKER #######
+ //####### COMENTAR PARA DOCKER #######
 
 
 // https://vitejs.dev/config/
@@ -51,7 +51,8 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
-    },
+    }
+    ,
     server: {
         host: '0.0.0.0',
         port: 3000,

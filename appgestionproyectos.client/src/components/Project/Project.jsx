@@ -3,6 +3,9 @@ import { useParams } from 'react-router-dom'
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import Checklist from '@editorjs/checklist' 
+import CodeTool from '@editorjs/code';
+import Table from '@editorjs/table';
+import ImageTool from '@editorjs/image';
 import { AuthRequest } from '../../Utils/Authorization';
 import { Context } from '../Router/Router';
 import { Notify } from '../../Utils/Notifications';
@@ -54,14 +57,6 @@ function Project() {
 
             AuthRequest(`/api/Project/getProjectData?fields=${public_id}`, 'get').
                 then((res) => {
-                    console.log("project data", JSON.parse(res.data.data));
-                    console.log("RESPONSE project data", res);
-
-                    //if (res.data.data == null) {
-                    //    console.log("null data")
-                    //    setProjectData(DEFAULT_DATA);
-
-                    //}
                     if (res.data.data != null) {
                         setProjectData(JSON.parse(res.data.data));
                     }
@@ -117,7 +112,20 @@ function Project() {
             },
             tools: {
                 header: Header,
-                class: Checklist
+                class: Checklist,
+                code: CodeTool,
+                table: {
+                    class: Table,
+                    inlineToolbar: false
+                },
+                image: {
+                    class: ImageTool,
+                    config: {
+                        endpoints: {
+                            byFile: 'http://localhost:5199/api/user/loginuser' // Your backend file uploader endpoint
+                        }
+                    }
+                }
             }
         });
     };

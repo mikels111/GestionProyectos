@@ -46,7 +46,8 @@ function App() {
     //}
     return (
 
-        <BrowserRouter basename="/app1/">
+        //<BrowserRouter basename="/app1/">
+        <BrowserRouter>
             <Router />
         </BrowserRouter>
         //{

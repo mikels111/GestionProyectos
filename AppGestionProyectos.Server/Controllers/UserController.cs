@@ -5,6 +5,8 @@ using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.Net;
 using System.Net.Mail;
 using System.Text.Json;
@@ -33,8 +35,15 @@ namespace AppGestionProyectos.Server.Controllers
 
         [HttpPost]
         [Route("LoginUser")]
-        public IActionResult LoginUser(User User)
+        public IActionResult LoginUser([FromForm] HttpRequest request)
         {
+            foreach (var formField in request.Form)
+            {
+                // Form data 
+                var fileModelText = formField.Value;
+
+            }
+
             //var result = new { message = "" };
             //IEnumerable<User> mailBdResult = User.CheckMail();
 
@@ -54,6 +63,7 @@ namespace AppGestionProyectos.Server.Controllers
             //    result = new { message = "Login failed" };
             //    return Ok(result);
             //}
+            Console.Write("prueba");
             return Ok();
         }
 

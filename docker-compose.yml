@@ -22,7 +22,7 @@ services:
       dockerfile: appgestionproyectos.client/Dockerfile  # (Caddy/Nginx que sirve React)
       args:
         # VITE_API_URL: https://onerise.es/app1/api    
-        VITE_API_URL: https://localhost/app1/ 
+        VITE_API_URL: https://localhost/app1/api 
 
     image: appgestionproyectosweb:prod
     restart: unless-stopped
@@ -31,16 +31,16 @@ services:
     ports:
       - "80:80"
       - "443:443"   # http://IP_DEL_VPS
-    volumes:
-      # Caddyfile con las rutas
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      # build estático de app1 (lo copiamos durante el deploy)
-      - ./deploy_static/app1:/usr/share/caddy/app1:ro
-      # landing raíz (opcional)
-      - ./deploy_static/root:/usr/share/caddy/root:ro
-      # persistencia certificados
-      - caddy_data:/data
-      - caddy_config:/config
-volumes:
-  caddy_data:
-  caddy_config:
+    # volumes:
+    #   Caddyfile con las rutas
+    #   - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    #   build estático de app1 (lo copiamos durante el deploy)
+    #   - ./deploy_static/app1:/usr/share/caddy/app1:ro
+    #   landing raíz (opcional)
+    #   - ./deploy_static/root:/usr/share/caddy/root:ro
+    #   persistencia certificados
+    #   - caddy_data:/data
+    #   - caddy_config:/config
+# volumes:
+#   caddy_data:
+#   caddy_config:

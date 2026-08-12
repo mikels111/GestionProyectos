@@ -11,6 +11,8 @@
   <ItemGroup>
     <Folder Include="src\components\Error\" />
     <Folder Include="src\components\ConfirmModal\" />
+    <Folder Include="src\components\CreateProjectModal\" />
+    <Folder Include="src\components\SidebarNode\" />
     <Folder Include="src\components\ProjectMenu\" />
     <Folder Include="src\components\Project\" />
     <Folder Include="src\components\Register\" />

@@ -36,6 +36,7 @@ namespace AppGestionProyectos.Server.Controllers
             Models.Project.ProjectDTO projectFields;
             try
             {
+
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,

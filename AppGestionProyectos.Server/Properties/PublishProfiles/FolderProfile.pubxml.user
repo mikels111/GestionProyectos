@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- https://go.microsoft.com/fwlink/?LinkID=208121. -->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\AppGestionProyectos.Server\bin\Release\net8.0\publish\</_PublishTargetUrl>
+    <History>True|2026-08-11T12:48:05.9292482Z||;True|2026-08-11T14:45:40.4817696+02:00||;True|2026-08-11T14:34:03.8243838+02:00||;True|2026-06-12T16:52:50.4805735+02:00||;True|2026-06-12T16:49:47.6853286+02:00||;True|2026-06-12T16:44:03.1647522+02:00||;True|2026-03-10T08:41:04.4519929+01:00||;True|2026-03-10T08:37:34.8505893+01:00||;True|2026-03-09T17:15:23.2373258+01:00||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>

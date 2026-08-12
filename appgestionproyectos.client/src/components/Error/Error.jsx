@@ -7,7 +7,8 @@ function ErrorView() {
         justifyContent: "center",
         color: "#333",
         flexDirection: "column",
-        gap: "20px"
+        gap: "20px",
+        margin:"60px"
     }
     return (
         <div className="container" style={containerStyles}>

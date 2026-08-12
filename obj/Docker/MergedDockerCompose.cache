@@ -74,38 +74,6 @@ services:
         published: "443"
         protocol: tcp
     restart: unless-stopped
-    volumes:
-      - type: bind
-        source: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\Caddyfile
-        target: /etc/caddy/Caddyfile
-        read_only: true
-        bind:
-          create_host_path: true
-      - type: bind
-        source: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\deploy_static\app1
-        target: /usr/share/caddy/app1
-        read_only: true
-        bind:
-          create_host_path: true
-      - type: bind
-        source: C:\Users\Lenovo\Documents\Proyectos\gestion_proyectos_prod\AppGestionProyectos\deploy_static\root
-        target: /usr/share/caddy/root
-        read_only: true
-        bind:
-          create_host_path: true
-      - type: volume
-        source: caddy_data
-        target: /data
-        volume: {}
-      - type: volume
-        source: caddy_config
-        target: /config
-        volume: {}
 networks:
   default:
     name: dockercompose10753110407820000975_default
-volumes:
-  caddy_config:
-    name: dockercompose10753110407820000975_caddy_config
-  caddy_data:
-    name: dockercompose10753110407820000975_caddy_data

@@ -1,4 +1,4 @@
-onerise.es {
+localhost {
   encode zstd gzip
 
   

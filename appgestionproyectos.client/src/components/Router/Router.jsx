@@ -9,32 +9,13 @@ import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
 //import { Context } from '../../App';
 import Sidebar from '../SideBar/SideBar'
 import styles from '../../App.module.css';
+import ProjectsGrid from '../Projects/ProjectsGrid'
+import Stock from '../Stock/Stock';
 import { ToastContainer } from 'react-toastify';
 import { ProtectedRoute, Protected } from '../Protected';
 export const Context = React.createContext();
 function Router({ handleWorkspaceSelection }) {
-    //const { user, setUser, selectedWorkspace, setSelectedWorkspace } = useContext(Context);
     const navigate = useNavigate();
-
-    //const [token, setToken] = useState(() => {
-    //    let localAT = localStorage.getItem("aT");
-    //    if (localAT == null) {
-    //        navigate("/login");
-    //    } else {
-    //        return localAT;
-    //    }
-    //});
-    //const [user, setUser] = useState(() => {
-    //    let arrayToken = "";
-    //    let tokenPayload = {};
-    //    console.log("token listo", token);
-    //    if (token != null) {
-    //        arrayToken = token.split('.');
-    //        tokenPayload = JSON.parse(atob(arrayToken[1]));
-    //        return tokenPayload;
-    //    }
-    //    navigate("/login");
-    //});
     const [globalUser, setGlobalUser] = useState();
     const [globalWorkspace, setGlobalWorkspace] = useState(() => {
         AuthRequest(`/api/WEnvironment/getWEnvironments`, 'get').
@@ -51,16 +32,16 @@ function Router({ handleWorkspaceSelection }) {
             });
     });
     const [globalUserProjects, setGlobalUserProjects] = useState([]);
+    const [sideBarActive, setSideBarActive] = useState(true);
+
+
     useEffect(() => {
         try {
             if (globalWorkspace != null) {
                 console.log(globalWorkspace, "GLOBAL WORKSPACE")
-                //let parsedSelectWorkSpc = JSON.parse(globalWorkspace);
-                //console.log(parsedSelectWorkSpc, "Sidebar selected workspace parsed");
-                //console.log(selectedWorkspace, "Sidebar selected workspace");
                 AuthRequest(`/api/Project/getProjects?workspace=${globalWorkspace}`, 'get').
                     then((res) => {
-                        console.log("getprojects",res);
+                        console.log("getprojects", res);
                         const proj = res.data.data;
                         proj.map((project, i) => {
                             project.project_id = project.id;
@@ -68,20 +49,16 @@ function Router({ handleWorkspaceSelection }) {
                             project.id = `p-${i}`;
                             project.public_id = `${project.public_id}`
                         })
-                        //console.log("projects obtenidos", proj)
                         console.log("globalUserProject UseEffect", proj)
                         setGlobalUserProjects(proj)
 
                     }).
                     catch((err) => {
-                        //console.error(err.status);
                         if (err.status == 401) {
                             navigate("/login");
                         }
                     });
             }
-
-
         } catch (Exception) {
             console.error(Exception);
         }
@@ -104,12 +81,19 @@ function Router({ handleWorkspaceSelection }) {
                 if (err.status === 401) navigate("/login");
             });
     }, [globalWorkspace]);
-    //const handleSelectionParent = (event) => {
-    //    handleWorkspaceSelection(event);
-    //}
 
     return (
-        <Context.Provider value={{ globalUser, setGlobalUser, globalWorkspace, setGlobalWorkspace, globalUserProjects, setGlobalUserProjects, RefreshProjects }} >
+        <Context.Provider value={{
+                globalUser,
+                setGlobalUser,
+                globalWorkspace,
+                setGlobalWorkspace,
+                globalUserProjects,
+                setGlobalUserProjects,
+                RefreshProjects,
+                sideBarActive,
+                setSideBarActive
+            }}>
             <React.Fragment>
                 <div className={styles["app-wrapper"]}>
                     <ToastContainer
@@ -117,35 +101,21 @@ function Router({ handleWorkspaceSelection }) {
                         draggable
                     />
                     <Protected>
-                        <Sidebar
-                        //user={user}
-                        //workspace={selectedWorkspace}
-                        />
+                        <Sidebar />
                     </Protected>
 
                     <div className={styles["main-wrapper"]}>
-                        {/*<div>*/}
-                        {/*<div className={styles.main}>*/}
                         <Routes>
                             <Route exact path="/Login" element={<Login />} />
                             <Route exact path="/Register" element={<Register />} />
                             <Route exact path="*" element={<ErrorView />} />
-                            {/*<div className={styles["main-wrapper"]}>*/}
                             <Route element={<ProtectedRoute />}>
                                 <Route exact path="/" element={<Workspace />} />
-                                <Route exact path="/Project/" element={<Project />} />
+                                <Route exact path="/projects/" element={<ProjectsGrid />} />
                                 <Route path="/p/:public_id" element={<Project />} />
+                                <Route path="/stock" element={<Stock />} />
                             </Route>
-                            {/*</div>*/}
-
-
-
-                            {/*<Route  element={<ProtectedRoute />} >*/}
-
-                            {/*</Route>*/}
-
                         </Routes>
-                        {/*</div>*/}
                     </div>
                 </div>
             </React.Fragment>

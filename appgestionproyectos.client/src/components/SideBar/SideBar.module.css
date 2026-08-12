@@ -15,14 +15,10 @@ body {
     display: flex;
     flex-direction: column;
     min-width: 200px;
-    top: 16px;
+    top: 0px;
     width: 270px;
-    margin: 16px;
-    border-radius: 16px;
-    /*    height: calc(100vh - 32px);*/
     transition: all 0.4s ease;
-    border: solid black 1px;
-    /*    background-color: #dfdfdf;*/
+    border-right: solid 1px #d0d0d0;
 }
 
     .sidebar.collapsed {

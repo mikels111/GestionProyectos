@@ -15,8 +15,10 @@ export const ProtectedRoute = () => {
     }
     console.log("ProtectedRoute->isauthenticated:", isAuthenticated);
     const publicBase = import.meta.env.BASE_URL ?? '/'
+    const routerBase = import.meta.env.VITE_ROUTER_URL || "https://localhost:5173";
 
-    return isAuthenticated ? <Outlet /> : window.location.href = `${publicBase}/login`;
+
+    return isAuthenticated ? <Outlet /> : window.location.href = `${routerBase}/login`;
 };
 
 export const Protected = ({ children }) => {
@@ -30,23 +32,3 @@ export const Protected = ({ children }) => {
         return <>{children}</>;
     }
 };
-
-
-//export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-//    const { isAuthenticated } = useCheckUser();
-//    //console.log("is authenticated", isAuthenticated);
-//    //if (loading) return <p>Cargando...</p>;
-
-//    return isAuthenticated ? children :
-//        //<Navigate to="/login" />;
-//        window.location.href = "/login";
-//};
-
-//export const Protected = ({ children }: { children: React.ReactNode }) => {
-//    const { isAuthenticated } = useCheckUser();
-//    //console.log("PROTECTED");
-//    //if (loading) return <p>Cargando...</p>;
-//    if (isAuthenticated) {
-//        return children;
-//    }
-//};
