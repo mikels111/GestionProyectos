@@ -43,17 +43,6 @@ namespace AppGestionProyectos.Server.Models
         {
             _dbContext = dbContext;
         }
-        //public User(AppDbContext dbContext, string mail, string? password, int role, int? max_users, string type, bool is_verified, string? verification_code)
-        //{
-        //    Mail = mail;
-        //    Password = password;
-        //    Role = role;
-        //    Max_users = max_users;
-        //    Type = type;
-        //    Is_verified = is_verified;
-        //    Verification_code = verification_code;
-        //    _dbContext = dbContext;
-        //}
         public List<User> GetAllUsers()
         {
             return _dbContext.User.
@@ -190,10 +179,7 @@ namespace AppGestionProyectos.Server.Models
             }
             return result;
         }
-        /// <summary>
-        /// Crea un usuario con el correo y la contraseña proporcionados
-        /// </summary>
-        /// <returns></returns>
+        
         public static async Task<TokenResponse> CreateUser(UserDTO user, AppDbContext appDbContext, IConfiguration _config)
         {
             bool result = false;
@@ -219,17 +205,6 @@ namespace AppGestionProyectos.Server.Models
                 var lines = await appDbContext.SaveChangesAsync();
 
 
-                //if (wEnvironment != null)
-                //{
-                //    UserWEnvironment userWEnvironment = new UserWEnvironment
-                //    {
-                //        User_Id = user1.Id,
-                //        W_environment = wEnvironment.Id,
-                //        Rol_w_environment = "creator"
-                //    };
-                //    await appDbContext.User_W_Environment.AddAsync(userWEnvironment);
-                //    await appDbContext.SaveChangesAsync();
-                //}
 
 
                 if (lines > 0)
@@ -270,10 +245,6 @@ namespace AppGestionProyectos.Server.Models
             }
             return new TokenResponse();
         }
-        /// <summary>
-        /// Comprueba si existe el correo proporcionado por el acceso de Google
-        /// </summary>
-        /// <returns></returns>
         public static IEnumerable<User>? GoogleLogin(string email, AppDbContext appDbContext)
         {
             IEnumerable<User>? query = null;
@@ -290,18 +261,7 @@ namespace AppGestionProyectos.Server.Models
             return query;
         }
 
-        /// <summary>
-        /// Crea un usuario con el correo de Google
-        /// </summary>
-        /// <returns></returns>
-        //public bool CreateGoogleUser(string email)
-        //{
-        //    bool result = false;
-        //    User user = new User(_dbContext, email, null, 1, null, "google", true, null);
-        //    _dbContext.User.Add(user);
-        //    _dbContext.SaveChanges();
-        //    return result;
-        //}
+        
         public static async Task<bool> SaveVerificationCode(string email, string code, AppDbContext appDbContext)
         {
             bool result = false;
@@ -343,7 +303,6 @@ namespace AppGestionProyectos.Server.Models
                 SigningCredentials = creds
             };
             Console.WriteLine("Tiempo: " + DateTime.UtcNow.ToString());
-            //DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
             var tokenHandler = new JwtSecurityTokenHandler();
             var at = tokenHandler.CreateToken(tokenDescriptor);
             var rt = GenerateRefreshToken();

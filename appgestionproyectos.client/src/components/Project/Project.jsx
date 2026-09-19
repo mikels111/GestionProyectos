@@ -52,7 +52,6 @@ function Project() {
     }, [public_id]);
 
     useEffect(() => {
-        //console.log("actual project", actualProject);
         if (ejInstance.current === undefined) {
 
             AuthRequest(`/api/Project/getProjectData?fields=${public_id}`, 'get').
@@ -84,9 +83,6 @@ function Project() {
     }, [projectData]);
 
     const initEditor = () => {
-        //console.log("initeditor actual project", actualProject)
-        //console.log("initeditor project data", projectData)
-        //console.log("initeditor project id", projectId)
         const editor = new EditorJS({
             holder: 'editorjs',
             onReady: () => {
@@ -98,11 +94,9 @@ function Project() {
             onChange: async () => {
                 let content = await editor.saver.save();
                 let projectIdStr = public_id;
-                //console.log(content, "en proyecto:" + projectIdStr);
                 AuthRequest(`/api/Project/saveProjectData`, 'post', { content, public_id }).
                     then((res) => {
                         let response = res
-                        //console.log("gaurdado: ", response);
                     }).
                     catch((err) => {
                         console.log(err);
@@ -122,7 +116,7 @@ function Project() {
                     class: ImageTool,
                     config: {
                         endpoints: {
-                            byFile: 'http://localhost:5199/api/user/loginuser' // Your backend file uploader endpoint
+                            byFile: 'http://localhost:5199/api/user/loginuser'
                         }
                     }
                 }
@@ -133,7 +127,6 @@ function Project() {
         <div className={styles["content-wrapper"]}>
             <div id='editorjs' className={styles['editorjs-container']} ></div>
         </div>
-        //<h2>Project {projectId} </h2>
     );
 }
 

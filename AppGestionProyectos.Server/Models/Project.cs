@@ -10,7 +10,6 @@ using System.Xml.Linq;
 
 namespace AppGestionProyectos.Server.Models
 {
-    //[PrimaryKey(nameof(Id), nameof(W_Environment_id))]
     public class Project
     {
         [Key]

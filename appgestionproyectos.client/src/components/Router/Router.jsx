@@ -6,7 +6,6 @@ import Register from '../Register/Register';
 import ErrorView from '../Error/Error';
 import Project from '../Project/Project';
 import { RefreshToken, AuthRequest } from '../../Utils/Authorization';
-//import { Context } from '../../App';
 import Sidebar from '../SideBar/SideBar'
 import styles from '../../App.module.css';
 import ProjectsGrid from '../Projects/ProjectsGrid'

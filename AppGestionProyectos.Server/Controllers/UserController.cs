@@ -40,30 +40,9 @@ namespace AppGestionProyectos.Server.Controllers
         {
             foreach (var formField in request.Form)
             {
-                // Form data 
                 var fileModelText = formField.Value;
 
             }
-
-            //var result = new { message = "" };
-            //IEnumerable<User> mailBdResult = User.CheckMail();
-
-            ////mailBdResult que tipo
-            //    //tipo email
-            //        //mostrar input contraseña
-            //    //tipo google
-            //        // mandar codigo
-            //        // mostrar input codigo
-
-            //if (mailBdResult.Any())
-            //{
-            //    return Ok(mailBdResult.First());
-            //}
-            //else if (!mailBdResult.Any())
-            //{
-            //    result = new { message = "Login failed" };
-            //    return Ok(result);
-            //}
             Console.Write("prueba");
             return Ok();
         }
@@ -124,8 +103,6 @@ namespace AppGestionProyectos.Server.Controllers
                 //Path = "/",
                 Domain = _config["host:name"].ToString()
             };
-            // hacer la peticion http a https://oauth2.googleapis.com/tokeninfo?access_token=<token>
-            //una vez validado obtener correo 
             try
             {
                 var jsonResponse = "";
@@ -227,61 +204,7 @@ namespace AppGestionProyectos.Server.Controllers
 
                             #endregion
 
-                            #region COMENTADO
-
-                            //IEnumerable<User>? loginResult = Models.User.GoogleLogin(responseDeserialized.email, _AppDbContext);
-                            //if (loginResult is null)
-                            //{
-                            //    return StatusCode(500);
-                            //}
-                            //if (!loginResult.Any())
-                            //{
-                            //    //registrar
-                            //    //bool createResult = _user.CreateGoogleUser(responseDeserialized.email);
-
-                            //}
-                            ////Contiene
-                            //else
-                            //{
-
-                            //    if (loginResult.First().Type != "google")
-                            //    {
-                            //        //mandar confirmación al correo, si no llega-> Unauthorized(se corta ejecucion)
-                            //        var smtpClient = new SmtpClient("smtp-relay.brevo.com")
-                            //        {
-                            //            Port = 587,
-                            //            Credentials = new NetworkCredential("81acc8002@smtp-brevo.com", "LUTmMXcgVzk6xZW4"),
-                            //            EnableSsl = true,
-                            //        };
-                            //        MailMessage message = new MailMessage("mikelseara11@gmail.com", responseDeserialized.email);
-                            //        string randmNumber = "";
-                            //        Random rnd = new Random();
-                            //        for (int j = 0; j < 5; j++)
-                            //        {
-                            //            randmNumber += rnd.Next(10);//random integers < 10
-                            //        }
-                            //        if (await Models.User.SaveVerificationCode(responseDeserialized.email, randmNumber, _AppDbContext))
-                            //        {
-                            //            message.Body = "<p>Para continuar introduce el siguiente codigo de confirmacion:</p> <h2>" + randmNumber + "</h2>";
-                            //            message.IsBodyHtml = true;
-                            //            message.Subject = "Confirmación de correo en Gestión Aplicaciones";
-                            //            smtpClient.Send(message);
-                            //        }
-
-                            //        return RedirectPermanent("https://www.google.es/");
-                            //        //Añadir columna is_verified y token. Poner is_verified en false cada vez que no sea un usuario de google y mandar token. Cuando sea el que esta en bd darle acceso. 
-
-
-                            //        //añadir columna tiempo expiracion token de tipo datetime<----
-
-                            //        //redirigir a url para que introduzca el codigo
-                            //    }
-                            //    else
-                            //    {
-                            //        // adelante con el perfil
-                            //    }
-                            //}
-                            #endregion
+                            
                         }
                         return StatusCode(500, new ApiResponse<object>(false, "server-error", false, "the deserialized mail is null"));
                     }

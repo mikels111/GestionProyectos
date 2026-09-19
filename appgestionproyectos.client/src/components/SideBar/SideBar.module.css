@@ -74,18 +74,14 @@ body {
     transform: translate(0, 65px);
 }
 
-/*.sidebar-header .toggler:hover {
-    background: #dde4fb;
-}*/
+
 
 .sidebar-header .toggler span {
     font-size: 1.75rem;
     transition: 0.4s ease;
 }
 
-.sidebar.collapsed .sidebar-header .toggler span {
-    /*    transform: rotate(180deg);*/
-}
+
 
 .sidebar-nav {
     min-height: 100px;
@@ -154,7 +150,6 @@ body {
 }
 
 .sidebar-nav .nav-link:hover {
-    /*        color: white;*/
     background: #e6eaf1;
 }
 
@@ -189,11 +184,7 @@ body {
     transition: all 0.4s ease;
 }
 
-.sidebar-nav .secondary-nav {
-    /*    position: absolute;*/
-    /*    bottom: 45px;*/
-    /*    width: 100%;*/
-}
+
 
 a.active {
     background-color: #59C5DE;
@@ -212,9 +203,7 @@ a.active {
         display: none;
     }
 
-/*    .primary-nav div {
-        overflow-x: hidden !important;
-    }*/
+
 .collapsed .primary-nav div {
     overflow-x: hidden !important;
 }
@@ -277,74 +266,4 @@ a.active {
         .sidebar.collapsed .sidebar-toggler {
             right: initial;
         }
-    /*        .sidebar.collapsed .sidebar-arrow {
-            display: none;
-        }*/
-}
-/*@media (max-width: 1024px) {
-    .sidebar {
-        height: 56px;
-        margin: 13px;
-        overflow-y: hidden;
-        scrollbar-width: none;
-        width: calc(100% - 26px);
-        max-height: calc(100vh - 26px);
-    }
-
-        .sidebar.menu-active {
-            overflow-y: auto;
-        }
-
-        .sidebar .sidebar-header {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            border-radius: 16px;
-            background: #305f53;
-            padding: 8px 10px;
-        }
-
-            .sidebar .sidebar-header > * {
-                transform: none;
-            }
-
-    .sidebar-header .header-logo img {
-        width: 40px;
-        height: 40px;
-    }
-
-    .sidebar-header .sidebar-toggler,
-    .sidebar-nav .nav-item:hover .nav-tooltip {
-        display: none;
-    }
-
-    .sidebar-header .menu-toggler {
-        display: flex;
-        height: 30px;
-        width: 30px;
-    }
-
-        .sidebar-header .menu-toggler span {
-            font-size: 1.3rem;
-        }
-
-    .sidebar .sidebar-nav .nav-list {
-        padding: 0 10px;
-    }
-
-    .sidebar-nav .nav-link {
-        gap: 10px;
-        padding: 10px;
-        font-size: 0.94rem;
-    }
-
-        .sidebar-nav .nav-link .nav-icon {
-            font-size: 1.37rem;
-        }
-
-    .sidebar-nav .secondary-nav {
-        position: relative;
-        bottom: 0;
-        margin: 40px 0 30px;
-    }
-}*/
+   

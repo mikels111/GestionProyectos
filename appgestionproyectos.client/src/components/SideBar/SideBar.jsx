@@ -27,7 +27,6 @@ function SideBar() {
     let classes = [styles.sidebar];
     const sideBar = useRef();
     const [sideBarClasses, setSideBarClasses] = useState([styles.sidebar]);
-    //const [sideBarActive, setSideBarActive] = useState(true);
     const [menuActive, setMenuActive] = useState(true);
     const [sideBarStyles, setSideBarStyles] = useState({ height: fullSidebarHeight });
     const [sideBarCurrentScrollHeight, setSideBarCurrentScrollHeight] = useState(null);
@@ -47,7 +46,6 @@ function SideBar() {
     const [user, setUser] = useState(() => {
         let arrayToken = "";
         let tokenPayload = {};
-        //console.log("token listo", token);
         if (token != null) {
             arrayToken = token.split('.');
             tokenPayload = JSON.parse(atob(arrayToken[1]));
@@ -80,7 +78,7 @@ function SideBar() {
 
         window.addEventListener('resize', handleResize);
 
-        // Llamada inicial (por si ya est� en ese tama�o)
+        // Llamada inicial (por si ya esta en ese tama�o)
         handleResize();
 
         // Limpieza del listener
@@ -108,7 +106,6 @@ function SideBar() {
                 return [...newMenu];
             }
         );
-        //console.log("userProjects cargado:", menu);
     }, [globalUserProjects]);
 
 
@@ -155,8 +152,6 @@ function SideBar() {
         const nodeId = node.data.id;
         let isProject = false;
         let isProjectParent = false;
-        //const regex = "/^p-.*/";
-        //children = "<ChevronDownIcon className='h-6 w-6 text-gray-500' style={{ width: '20px', height: '20px' }} />";
         if (nodeId.match(/^p-.*/)) {
             isProject = true
         }
@@ -180,7 +175,6 @@ function SideBar() {
         }, [sideBarActive]);
 
         return (
-            //<div style={style}>
 
             <React.Fragment>
 
@@ -254,14 +248,12 @@ function SideBar() {
 
                 </li>
             </React.Fragment>
-            //</div>
 
         );
     }
     
 
     return (
-        //<Context.Provider value={{ user, setUser }} >
         <React.Fragment>
             <CreateProjectModal
                 show={modalShow}
@@ -333,7 +325,6 @@ function SideBar() {
                 </nav>
             </aside>
         </React.Fragment>
-        //</Context.Provider>
     );
 }
 

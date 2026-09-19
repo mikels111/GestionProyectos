@@ -16,10 +16,6 @@ namespace AppGestionProyectos.Server.Models
         public string? Rol_w_environment { get; set; }
         public string? Creator_mail { get; set; }
         private readonly AppDbContext _dbContext;
-        //public UserWEnvironment(AppDbContext dbContext)
-        //{
-        //    _dbContext = dbContext;
-        //}
 
         public static async Task<UserWEnvironment> CreateUserWEnvironment(int userId, int wEnvironmentId, string rol, string? creatorMail, AppDbContext appDbContext)
         {

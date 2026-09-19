@@ -44,7 +44,6 @@ function ProjectMenu({ position, project, setShowProjectMenu }) {
                     console.log("project deleted");
                     info("Project deleted");
                     RefreshProjects();
-                    //navigate("/");
                 } else {
                     console.log("project not deleted");
                 }
@@ -56,11 +55,9 @@ function ProjectMenu({ position, project, setShowProjectMenu }) {
     const handleRename = (e, props) => {
         e.preventDefault();
         e.stopPropagation();
-        // Implementar la l�gica de renombrado aqu� si se necesita.
         let inputName = inputRenameRef.current.value;
         if (inputName) {
             const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
-            //const publicBase = import.meta.env.BASE_URL ?? '/'
             axios({
                 withCredentials: true,
                 method: 'put',

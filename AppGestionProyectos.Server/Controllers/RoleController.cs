@@ -17,7 +17,6 @@ namespace AppGestionProyectos.Server.Controllers
         }
 
         [Route("GetRoles")]
-        //[HttpGet(Name = "GetRoles")]
         public IActionResult GetRoles()
         {
             var roles = _role.GetAllRoles();

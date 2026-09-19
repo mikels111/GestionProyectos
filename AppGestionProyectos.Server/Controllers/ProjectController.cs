@@ -75,13 +75,6 @@ namespace AppGestionProyectos.Server.Controllers
         {
             List<Models.Project> projects = new List<Models.Project>();
 
-            //var pattern = @"<[^>]+>";
-
-            //if ((!string.IsNullOrEmpty(fields) && Regex.IsMatch(fields, pattern)))
-            //{
-            //    return BadRequest(new ApiResponse<object>(false, "invalid-parameters", null));
-
-            //}
             string? userEmail = User.Claims.FirstOrDefault(c => c.Type == "Mail")?.Value;
             //consulta
             projects = await Models.Project.GetWorkEnvironmentProjects(userEmail, wEnv, _AppDbContext);

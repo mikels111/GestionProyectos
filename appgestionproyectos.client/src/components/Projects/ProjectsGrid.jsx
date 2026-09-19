@@ -8,7 +8,6 @@ function ProjectsGrid() {
     const [query, setQuery] = useState("");
     const { globalUserProjects } = useContext(Context);
 
-    //let filtered = projectsRef.current.value;
     let filtered = [];
     filtered = globalUserProjects.filter(
         (p) => p.name.toLowerCase().includes(query.toLowerCase())
@@ -42,7 +41,6 @@ function ProjectsGrid() {
                 <div className="flex items-center gap-3">
                     {/* Search */}
                     <div className="relative">
-                        {/*<Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />*/}
                         <input
                             type="text"
                             value={query}

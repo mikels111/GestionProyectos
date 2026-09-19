@@ -39,7 +39,6 @@ namespace AppGestionProyectos.Server.Controllers
             _config = config;
         }
         [HttpGet]
-        //[Route("")]
         public IActionResult Index()
         {
             return View();
@@ -96,7 +95,6 @@ namespace AppGestionProyectos.Server.Controllers
                             return StatusCode(500, new ApiResponse<object>(false, "server-error", false));
                         }
 
-                        //Encoding.UTF8.GetBytes(_config["host:back"])
 
                         var cookieOptions = new CookieOptions
                         {
@@ -105,17 +103,10 @@ namespace AppGestionProyectos.Server.Controllers
                             Secure = true,     // si usas HTTPS
                             SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax,
                             Domain = _config["host:name"].ToString()
-                            //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
-                            //Path = "/",
                         };
                         Response.Cookies.Append("AT", token.AccessToken, cookieOptions);
                         Response.Cookies.Append("RT", token.RefreshToken, cookieOptions);
-                        //Response.Headers.AccessControlAllowOrigin = "*";
-                        //return Redirect($"{_config["host:front"]}/");
-                        //return Redirect("https://localhost:5173");
                         return Ok(new ApiResponse<object>(true, "access-granted", token));
-
-                        //return StatusCode(500, new ApiResponse<object>(false, "server-error", false, "Error when calling the GenerateToken function"));
 
                     }
                     else//incorrecto
@@ -270,8 +261,6 @@ namespace AppGestionProyectos.Server.Controllers
                             HttpOnly = true,
                             Secure = true,     // si usas HTTPS
                             SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                            //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
-                            //Path = "/",
                             Domain = _config["host:name"].ToString()
                         };
                         Response.Cookies.Append("AT", token.AccessToken, cookieOptions);
@@ -292,7 +281,6 @@ namespace AppGestionProyectos.Server.Controllers
         [Route("Check")]
         public async Task<IActionResult> Check()
         {
-            //Console.WriteLine("User is authenticated: " + User.Identity.IsAuthenticated);
             try
             {
                 var claimsIdentity = new ClaimsIdentity(User.Claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -304,11 +292,6 @@ namespace AppGestionProyectos.Server.Controllers
             }
 
             return Ok(new ApiResponse<object>(true, "user-authenticated", null));
-
-
-
-            //// If not authenticated, return an unauthorized response
-            // return Unauthorized(new ApiResponse<object>(false, "user-not-authenticated", null));
 
         }
 
@@ -331,8 +314,6 @@ namespace AppGestionProyectos.Server.Controllers
 
             return Ok(new ApiResponse<object>(true, "user-authenticated", null));
 
-            //// If not authenticated, return an unauthorized response
-            // return Unauthorized(new ApiResponse<object>(false, "user-not-authenticated", null));
 
         }
     }

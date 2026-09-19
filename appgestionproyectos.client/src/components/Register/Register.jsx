@@ -46,7 +46,6 @@ function Register() {
         const formData = new FormData(e.target);
         const jsonFormData = Object.fromEntries(formData.entries());
         jsonFormData['Mail'] = user.mail;
-        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
         const publicBase = import.meta.env.BASE_URL ?? '/'
         axios.post(`${publicBase}/api/auth/verify`,
             jsonFormData,
@@ -89,7 +88,6 @@ function Register() {
             }
 
         }
-        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
         const publicBase = import.meta.env.BASE_URL ?? '/'
         axios.post(`${publicBase}/api/register/register`,
             jsonFormData,
@@ -102,19 +100,8 @@ function Register() {
             .then((res) => {
                 if (res.status === 200) {
                     console.log("access-granted");
-                    //localStorage
-                    //    .setItem(
-                    //        "aT",
-                    //        res.data.data.accessToken
-                    //    );
-                    //localStorage
-                    //    .setItem(
-                    //        "rT",
-                    //        res.data.data.refreshToken
-                    //);
                     window.location.href = `${publicBase}`; 
                     setUser({ mail: jsonFormData.Mail });
-                    //navigate("/");
                 }
                 setLoading(false);
             })

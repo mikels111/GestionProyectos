@@ -1,7 +1,6 @@
 .editorjs-container {
     overflow-y: scroll !important;
     scrollbar-width: none;
-    /*    background-color: white;*/
 }
 
     .editorjs-container::-webkit-scrollbar {

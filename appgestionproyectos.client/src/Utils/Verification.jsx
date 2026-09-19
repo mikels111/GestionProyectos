@@ -2,13 +2,11 @@ import axios from 'axios';
 
 export function verifyCodeFunction(e, user) {
     //mandar peticion a /verify con el codigo introducido y el mail guardado en state
-    //e.preventDefault();
     const formData = new FormData(e.target);
     const jsonFormData = Object.fromEntries(formData.entries());
 
     jsonFormData['Mail'] = user.mail;
     console.log(user);
-    // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
     const publicBase = import.meta.env.BASE_URL ?? '/'
     axios.post(`/api/auth/verify`,
         jsonFormData,
@@ -48,7 +46,6 @@ export async function verifyMailFunction(jsonFormData) {
     if (!validEmail.test(jsonFormData.Mail)) {
         return Promise.reject({ status: 400 });
     }
-    // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
     const publicBase = import.meta.env.BASE_URL ?? '/'
     return axios
         ({

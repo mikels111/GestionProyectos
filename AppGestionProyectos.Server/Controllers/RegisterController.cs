@@ -208,7 +208,6 @@ namespace AppGestionProyectos.Server.Controllers
                         HttpOnly = true,
                         Secure = true,     // si usas HTTPS
                         SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                        //SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
                         //Path = "/",
                         Domain = _config["host:name"].ToString()
                     };
@@ -248,10 +247,6 @@ namespace AppGestionProyectos.Server.Controllers
 
                 if (emailVerified)
                 {
-                    //Redirigir a login
-                    //string loginUrl = $"{Request.Scheme}://{Request.Host}/register/verify?fields={userFields.Mail}";
-
-                    //return RedirectPermanent($"{front}/login");
                     return Redirect($"{publicBase}/login");
                 }
 

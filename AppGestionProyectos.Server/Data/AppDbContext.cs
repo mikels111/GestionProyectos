@@ -6,10 +6,6 @@ namespace AppGestionProyectos.Server.Data
     public class AppDbContext : DbContext
     {
         private readonly IConfiguration _configuration;
-        //public ApplicationDbContext(IConfiguration configuration)
-        //{
-        //    _configuration = configuration;
-        //}
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connectionString = _configuration.GetConnectionString("DefaultConnection");

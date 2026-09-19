@@ -1,12 +1,7 @@
-// components/ProtectedRoute.tsx
+
 import { ReactNode } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { useCheckUser } from "../hooks/useCheckUser";
-//import useCheckUser from "../hooks/useCheckUser";
-
-//type ProtectedRouteProps = {
-//    children: ReactNode;
-//};
 export const ProtectedRoute = () => {
     const { isAuthenticated, loading } = useCheckUser();
 

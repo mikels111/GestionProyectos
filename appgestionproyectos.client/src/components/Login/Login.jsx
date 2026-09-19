@@ -7,9 +7,7 @@ import { verifyMailFunction } from '../../Utils/Verification';
 import { Notify } from '../../Utils/Notifications';
 import { ToastContainer } from 'react-toastify';
 import Loader from '../../Utils/Loader';
-//import { Context } from '../../App';
 function Login() {
-    //const { user, setUser, accessToken, setAccessToken, refreshToken, setRefreshToken } = useContext(Context);
     const navigate = useNavigate();
     const { warn, info } = Notify();
 
@@ -174,7 +172,6 @@ function Login() {
                     setCodeCountDown(59);
                 }
                 else if (messg === "show-pass-name") {
-                    //setShowPassName(true);
                     setmailConfirmed(true);
                     info("No user was found with that email. Enter a password to register")
                 }
@@ -204,7 +201,6 @@ function Login() {
                 return;
             }
         }
-        // const baseURL = import.meta.env.VITE_API_URL || "https://localhost:7233";
         const publicBase = import.meta.env.BASE_URL ?? '/'
         axios.post(`${publicBase}/api/register/register`,
             jsonFormData,
@@ -217,18 +213,7 @@ function Login() {
             .then((res) => {
                 if (res.status === 200) {
                     console.log("access-granted");
-                    //localStorage
-                    //    .setItem(
-                    //        "aT",
-                    //        res.data.data.accessToken
-                    //    );
-                    //localStorage
-                    //    .setItem(
-                    //        "rT",
-                    //        res.data.data.refreshToken
-                    //    );
                     window.location.href = "/"; 
-                    //setMail(jsonFormData.Mail);
                 }
                 setLoading(false);
             })
@@ -333,22 +318,6 @@ function Login() {
 
 
                 )}
-
-
-                {/*<div>*/}
-                {/*    <img src={profile.picture} alt="user image" />*/}
-                {/*    <h3>User Logged in</h3>*/}
-                {/*    <p>Name: {profile.name}</p>*/}
-                {/*    <p>Email Address: {profile.email}</p>*/}
-                {/*    <br />*/}
-                {/*    <br />*/}
-                {/*</div>*/}
-
-                {/*<div id="g_id_onload"*/}
-                {/*    data-client_id="765808157277-f5ktben8g1a5tflgbh9f0pi2tvdv68ih.apps.googleusercontent.com"*/}
-                {/*    data-callback="handleCredentialResponse">*/}
-                {/*</div>*/}
-                {/*<div className="g_id_signin" data-type="standard"></div>*/}
 
 
             </div>

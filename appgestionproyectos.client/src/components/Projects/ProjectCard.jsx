@@ -6,8 +6,6 @@ function ProjectCard({ project }) {
         <button
             className="group relative flex aspect-square w-full flex-col justify-between rounded-xl border border-border bg-card p-5 text-left transition-all hover:border-[hsl(210,100%,56%)]/40 hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={`Open project ${project.name}`} onClick={(e) => {
-                //e.preventDefault();
-                //e.stopPropagation();
                 navigate(project.route);
             }}
         >

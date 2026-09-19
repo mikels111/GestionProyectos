@@ -72,7 +72,6 @@ function Stock() {
         e.preventDefault();
         console.log("Nuevo producto:", formData);
         const publicBase = import.meta.env.VITE_API_URL || "https://localhost:7233";
-        //const publicBase = import.meta.env.BASE_URL ?? '/'
         axios({
             withCredentials: true,
             method: 'post',
@@ -83,7 +82,6 @@ function Stock() {
             }
         }).then(function (res) {
             if (res.status == 200) {
-                //console.log("created project response", res.data.data);
             }
         }).catch(function (err) {
             console.log(err.data, "response")
@@ -98,7 +96,6 @@ function Stock() {
     };
 
     return (
-        //<div className={styles.contentWrapper}>
         <div>
             <section className={styles.section}>
                 <div className={styles.header}>
@@ -175,7 +172,6 @@ function Stock() {
                 </Modal.Body>
             </Modal>
         </div>
-        //</div>
     );
 }
 

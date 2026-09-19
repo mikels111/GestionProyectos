@@ -15,8 +15,6 @@ export function SidebarNode({ node, style, dragHandle }) {
     const nodeId = node.data.id;
     let isProject = false;
     let isProjectParent = false;
-    //const regex = "/^p-.*/";
-    //children = "<ChevronDownIcon className='h-6 w-6 text-gray-500' style={{ width: '20px', height: '20px' }} />";
     if (nodeId.match(/^p-.*/)) {
         isProject = true
     }
@@ -40,7 +38,6 @@ export function SidebarNode({ node, style, dragHandle }) {
     }, [sideBarActive]);
 
     return (
-        //<div style={style}>
 
         <React.Fragment>
 
@@ -114,8 +111,6 @@ export function SidebarNode({ node, style, dragHandle }) {
 
             </li>
         </React.Fragment>
-        //</div>
-
     );
 
 }
